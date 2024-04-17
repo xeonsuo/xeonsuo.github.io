@@ -3,11 +3,11 @@
   <title>Xeon&#39;s Space</title>
   
   <subtitle>静宁见春，祉猷并茂··</subtitle>
-  <link href="https://xeonsuo.github.io/atom.xml" rel="self"/>
+  <link href="http://xeons.cn/atom.xml" rel="self"/>
   
-  <link href="https://xeonsuo.github.io/"/>
+  <link href="http://xeons.cn/"/>
   <updated>2024-04-10T12:31:44.603Z</updated>
-  <id>https://xeonsuo.github.io/</id>
+  <id>http://xeons.cn/</id>
   
   <author>
     <name>Xeon suo</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>demopost</title>
-    <link href="https://xeonsuo.github.io/2024/04/10/demopost/"/>
-    <id>https://xeonsuo.github.io/2024/04/10/demopost/</id>
+    <link href="http://xeons.cn/2024/04/10/demopost/"/>
+    <id>http://xeons.cn/2024/04/10/demopost/</id>
     <published>2024-04-10T12:26:41.000Z</published>
     <updated>2024-04-10T12:31:44.603Z</updated>
     
@@ -39,8 +39,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="https://xeonsuo.github.io/2020/04/10/hello-world/"/>
-    <id>https://xeonsuo.github.io/2020/04/10/hello-world/</id>
+    <link href="http://xeons.cn/2020/04/10/hello-world/"/>
+    <id>http://xeons.cn/2020/04/10/hello-world/</id>
     <published>2020-04-09T16:00:00.000Z</published>
     <updated>2024-04-10T12:31:21.804Z</updated>
     
@@ -56,7 +56,7 @@
     
     
     
-    <category term="helloworld" scheme="https://xeonsuo.github.io/tags/helloworld/"/>
+    <category term="helloworld" scheme="http://xeons.cn/tags/helloworld/"/>
     
   </entry>
   
