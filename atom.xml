@@ -38,22 +38,93 @@
   </entry>
   
   <entry>
+    <title>python 生态下的数据分析学习</title>
+    <link href="http://xeons.cn/2023/05/22/python-data-analysis-1p/"/>
+    <id>http://xeons.cn/2023/05/22/python-data-analysis-1p/</id>
+    <published>2023-05-22T02:27:07.000Z</published>
+    <updated>2024-04-23T10:00:02.127Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;定义：&lt;strong&gt;数据分析是有针对性的收集、加工、整理数据并采用统计、挖掘等技术对数据进行探索、分析、呈现和解释的科学&lt;/strong&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;数据分析领域&quot;&gt;&lt;a href=&quot;#数据分析领域&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    
+    <category term="数据分析" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+    <category term="数据分析" scheme="http://xeons.cn/tags/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>使用 Python 做数据采集(爬虫)</title>
+    <link href="http://xeons.cn/2023/05/18/python-crawer/"/>
+    <id>http://xeons.cn/2023/05/18/python-crawer/</id>
+    <published>2023-05-18T05:47:07.000Z</published>
+    <updated>2024-04-23T09:29:40.081Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;python数据采集&quot;&gt;&lt;a href=&quot;#python数据采集&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    
+    <category term="数据采集" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+    <category term="数据采集" scheme="http://xeons.cn/tags/%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/"/>
+    
+    <category term="爬虫" scheme="http://xeons.cn/tags/%E7%88%AC%E8%99%AB/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hello World</title>
     <link href="http://xeons.cn/2020/04/10/hello-world/"/>
     <id>http://xeons.cn/2020/04/10/hello-world/</id>
     <published>2020-04-09T16:00:00.000Z</published>
-    <updated>2024-04-10T12:31:21.804Z</updated>
+    <updated>2024-04-18T11:25:39.592Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;Quick-Start&quot;&gt;&lt;a href=&quot;#Quick-Start&quot; class=&quot;headerlink&quot; title=&quot;Quick Start&quot;&gt;&lt;/a&gt;Quick Start&lt;/h2&gt;&lt;h3 id=&quot;这是第一个文章，从这里开始。&quot;&gt;&lt;a</summary>
+    <summary type="html">&lt;h3 id=&quot;开站首篇，占位。&quot;&gt;&lt;a href=&quot;#开站首篇，占位。&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="杂项" scheme="http://xeons.cn/categories/%E6%9D%82%E9%A1%B9/"/>
     
     
     <category term="helloworld" scheme="http://xeons.cn/tags/helloworld/"/>
