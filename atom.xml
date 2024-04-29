@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2024-04-10T12:31:44.603Z</updated>
+  <updated>2024-04-29T16:46:36.234Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -17,32 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>demopost</title>
-    <link href="http://xeons.cn/2024/04/10/demopost/"/>
-    <id>http://xeons.cn/2024/04/10/demopost/</id>
-    <published>2024-04-10T12:26:41.000Z</published>
-    <updated>2024-04-10T12:31:44.603Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;这是一篇测试文章&quot;&gt;&lt;a href=&quot;#这是一篇测试文章&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
     <title>python 生态下的数据分析学习</title>
     <link href="http://xeons.cn/2023/05/22/python-data-analysis-1p/"/>
     <id>http://xeons.cn/2023/05/22/python-data-analysis-1p/</id>
     <published>2023-05-22T02:27:07.000Z</published>
-    <updated>2024-04-23T10:00:02.127Z</updated>
+    <updated>2024-04-29T16:46:36.234Z</updated>
     
     
       
@@ -105,18 +84,40 @@
   </entry>
   
   <entry>
+    <title>demopost</title>
+    <link href="http://xeons.cn/2023/04/09/demopost/"/>
+    <id>http://xeons.cn/2023/04/09/demopost/</id>
+    <published>2023-04-09T12:26:41.000Z</published>
+    <updated>2024-04-23T16:48:19.072Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;这是一篇测试文章&quot;&gt;&lt;a href=&quot;#这是一篇测试文章&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
     <title>Hello World</title>
     <link href="http://xeons.cn/2020/04/10/hello-world/"/>
     <id>http://xeons.cn/2020/04/10/hello-world/</id>
     <published>2020-04-09T16:00:00.000Z</published>
-    <updated>2024-04-18T11:25:39.592Z</updated>
+    <updated>2024-04-23T16:48:14.401Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;开站首篇，占位。&quot;&gt;&lt;a href=&quot;#开站首篇，占位。&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;h3 id=&quot;开站首篇，占位。&quot;&gt;&lt;a href=&quot;#开站首篇，占位。&quot; class=&quot;headerlink&quot; title=&quot;开站首篇，占位。&quot;&gt;&lt;/a&gt;开站首篇，占位。&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;create by</summary>
         
       
     
