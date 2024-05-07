@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2024-04-29T16:46:36.234Z</updated>
+  <updated>2024-05-07T10:04:40.519Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -17,11 +17,156 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>python 基础题</title>
+    <link href="http://xeons.cn/2023/06/03/python-base-questions/"/>
+    <id>http://xeons.cn/2023/06/03/python-base-questions/</id>
+    <published>2023-06-02T16:00:00.000Z</published>
+    <updated>2024-05-07T10:04:40.519Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h4 id=&quot;题目001-在Python中如何实现单例模式。&quot;&gt;&lt;a href=&quot;#题目001-在Python中如何实现单例模式。&quot; class=&quot;headerlink&quot; title=&quot;题目001: 在Python中如何实现单例模式。&quot;&gt;&lt;/a&gt;题目001:</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python 项目的部署</title>
+    <link href="http://xeons.cn/2023/06/03/python-project-deploy/"/>
+    <id>http://xeons.cn/2023/06/03/python-project-deploy/</id>
+    <published>2023-06-02T16:00:00.000Z</published>
+    <updated>2024-05-07T10:07:01.913Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;准备上线&quot;&gt;&lt;a href=&quot;#准备上线&quot; class=&quot;headerlink&quot; title=&quot;准备上线&quot;&gt;&lt;/a&gt;准备上线&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;上线前的检查工作。&lt;/p&gt;
+&lt;figure class=&quot;highlight</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python web开发之Django</title>
+    <link href="http://xeons.cn/2023/06/02/django-for-web/"/>
+    <id>http://xeons.cn/2023/06/02/django-for-web/</id>
+    <published>2023-06-01T16:00:00.000Z</published>
+    <updated>2024-05-04T10:15:53.346Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;使用Django-开发web项目&quot;&gt;&lt;a href=&quot;#使用Django-开发web项目&quot; class=&quot;headerlink&quot; title=&quot;使用Django 开发web项目&quot;&gt;&lt;/a&gt;使用Django</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    
+    <category term="web" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/web/"/>
+    
+    
+    <category term="django" scheme="http://xeons.cn/tags/django/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>初识 docker</title>
+    <link href="http://xeons.cn/2023/05/24/docker-init/"/>
+    <id>http://xeons.cn/2023/05/24/docker-init/</id>
+    <published>2023-05-24T07:27:07.000Z</published>
+    <updated>2024-05-04T10:05:05.114Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;Docker容器技术详解&quot;&gt;&lt;a href=&quot;#Docker容器技术详解&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="docker" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/docker/"/>
+    
+    <category term="容器化" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E5%AE%B9%E5%99%A8%E5%8C%96/"/>
+    
+    
+    <category term="docker" scheme="http://xeons.cn/tags/docker/"/>
+    
+    <category term="k8s" scheme="http://xeons.cn/tags/k8s/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>mysql性能优化</title>
+    <link href="http://xeons.cn/2023/05/23/mysql-performance-optimization/"/>
+    <id>http://xeons.cn/2023/05/23/mysql-performance-optimization/</id>
+    <published>2023-05-23T02:27:07.000Z</published>
+    <updated>2024-05-04T10:10:10.278Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;MySQL性能优化&quot;&gt;&lt;a href=&quot;#MySQL性能优化&quot; class=&quot;headerlink&quot; title=&quot;MySQL性能优化&quot;&gt;&lt;/a&gt;MySQL性能优化&lt;/h2&gt;&lt;h3 id=&quot;基本原则&quot;&gt;&lt;a href=&quot;#基本原则&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="mysql" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/mysql/"/>
+    
+    <category term="DB" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/DB/"/>
+    
+    
+    <category term="mysql" scheme="http://xeons.cn/tags/mysql/"/>
+    
+  </entry>
+  
+  <entry>
     <title>python 生态下的数据分析学习</title>
     <link href="http://xeons.cn/2023/05/22/python-data-analysis-1p/"/>
     <id>http://xeons.cn/2023/05/22/python-data-analysis-1p/</id>
     <published>2023-05-22T02:27:07.000Z</published>
-    <updated>2024-04-29T16:46:36.234Z</updated>
+    <updated>2024-04-29T17:02:38.789Z</updated>
     
     
       
