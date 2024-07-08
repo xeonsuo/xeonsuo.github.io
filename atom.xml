@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2024-05-21T10:09:13.948Z</updated>
+  <updated>2024-05-23T09:53:57.937Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JVM内存调优</title>
+    <link href="http://xeons.cn/2023/06/23/java-memory-optimize/"/>
+    <id>http://xeons.cn/2023/06/23/java-memory-optimize/</id>
+    <published>2023-06-22T16:00:00.000Z</published>
+    <updated>2024-05-23T09:53:57.937Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;java 应用的内存优化一部分在jvm的调优，本篇主要讲述 &lt;code&gt;内存溢出的问题定位和问题分析&lt;/code&gt; 相关的的方式方法。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;详细的 jvm部分优化可以参考文章： &lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
+    
+  </entry>
   
   <entry>
     <title>Java“并发”常见问题概述</title>
@@ -94,6 +125,64 @@
     
     
     <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM 相关汇总</title>
+    <link href="http://xeons.cn/2023/06/03/jvm-basic/"/>
+    <id>http://xeons.cn/2023/06/03/jvm-basic/</id>
+    <published>2023-06-02T16:00:00.000Z</published>
+    <updated>2024-05-22T11:46:13.960Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;jvm-概念&quot;&gt;&lt;a href=&quot;#jvm-概念&quot; class=&quot;headerlink&quot; title=&quot;jvm 概念&quot;&gt;&lt;/a&gt;jvm</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM 常见问答题</title>
+    <link href="http://xeons.cn/2023/06/03/jvm-faq/"/>
+    <id>http://xeons.cn/2023/06/03/jvm-faq/</id>
+    <published>2023-06-02T16:00:00.000Z</published>
+    <updated>2024-05-23T10:30:20.170Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;什么是增量式垃圾收集&quot;&gt;&lt;a href=&quot;#什么是增量式垃圾收集&quot; class=&quot;headerlink&quot; title=&quot;什么是增量式垃圾收集?&quot;&gt;&lt;/a&gt;什么是增量式垃圾收集?&lt;/h3&gt;&lt;p&gt;首先， G1的堆内存不再单纯划分为年轻代和老年代， 而是划分为多个（</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
     
   </entry>
   
@@ -358,19 +447,18 @@
   </entry>
   
   <entry>
-    <title>Hello World</title>
-    <link href="http://xeons.cn/2020/04/10/hello-world/"/>
-    <id>http://xeons.cn/2020/04/10/hello-world/</id>
-    <published>2020-04-09T16:00:00.000Z</published>
-    <updated>2024-04-23T16:48:14.401Z</updated>
+    <title>spring-cloud 文档（更新中)</title>
+    <link href="http://xeons.cn/2023/03/13/spring-cloud-guide/"/>
+    <id>http://xeons.cn/2023/03/13/spring-cloud-guide/</id>
+    <published>2023-03-12T16:00:00.000Z</published>
+    <updated>2024-07-03T19:49:34.186Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;开站首篇，占位。&quot;&gt;&lt;a href=&quot;#开站首篇，占位。&quot; class=&quot;headerlink&quot; title=&quot;开站首篇，占位。&quot;&gt;&lt;/a&gt;开站首篇，占位。&lt;/h3&gt;&lt;blockquote&gt;
-&lt;p&gt;create by</summary>
+    <summary type="html">&lt;h3 id=&quot;Spring-Cloud-优缺点&quot;&gt;&lt;a href=&quot;#Spring-Cloud-优缺点&quot; class=&quot;headerlink&quot; title=&quot;Spring Cloud 优缺点&quot;&gt;&lt;/a&gt;Spring Cloud</summary>
         
       
     
@@ -378,10 +466,131 @@
     
     <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
     
-    <category term="杂项" scheme="http://xeons.cn/categories/%E6%9D%82%E9%A1%B9/"/>
+    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
+    
+    <category term="微服务" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
     
     
-    <category term="helloworld" scheme="http://xeons.cn/tags/helloworld/"/>
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="spring-cloud" scheme="http://xeons.cn/tags/spring-cloud/"/>
+    
+    <category term="微服务" scheme="http://xeons.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>spring security 快速使用 (1)</title>
+    <link href="http://xeons.cn/2023/03/13/spring-security-guide/"/>
+    <id>http://xeons.cn/2023/03/13/spring-security-guide/</id>
+    <published>2023-03-12T16:00:00.000Z</published>
+    <updated>2024-07-04T17:41:59.741Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;重写默认配置&quot;&gt;&lt;a href=&quot;#重写默认配置&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>spring security 快速使用 (2) OAUTH2</title>
+    <link href="http://xeons.cn/2023/03/13/spring-security-guide2/"/>
+    <id>http://xeons.cn/2023/03/13/spring-security-guide2/</id>
+    <published>2023-03-12T16:00:00.000Z</published>
+    <updated>2024-07-08T12:04:42.035Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;Oauth2-概念和授权码模式&quot;&gt;&lt;a href=&quot;#Oauth2-概念和授权码模式&quot; class=&quot;headerlink&quot; title=&quot;Oauth2 概念和授权码模式&quot;&gt;&lt;/a&gt;Oauth2</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
+    
+    
+    <category term="springSecurity" scheme="http://xeons.cn/tags/springSecurity/"/>
+    
+    <category term="oauth2" scheme="http://xeons.cn/tags/oauth2/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>spring-boot 常用配置（更新中)</title>
+    <link href="http://xeons.cn/2023/03/05/spring-boot-guide/"/>
+    <id>http://xeons.cn/2023/03/05/spring-boot-guide/</id>
+    <published>2023-03-04T16:00:00.000Z</published>
+    <updated>2024-07-03T08:21:48.144Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;设计的目标&quot;&gt;&lt;a href=&quot;#设计的目标&quot; class=&quot;headerlink&quot; title=&quot;设计的目标&quot;&gt;&lt;/a&gt;设计的目标&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;为所有使用 Spring</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="spring-boot" scheme="http://xeons.cn/tags/spring-boot/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>spring 文档手册</title>
+    <link href="http://xeons.cn/2023/03/03/spring-guide/"/>
+    <id>http://xeons.cn/2023/03/03/spring-guide/</id>
+    <published>2023-03-02T16:00:00.000Z</published>
+    <updated>2024-06-07T13:11:58.637Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;spring-框架介绍&quot;&gt;&lt;a href=&quot;#spring-框架介绍&quot; class=&quot;headerlink&quot; title=&quot;spring 框架介绍&quot;&gt;&lt;/a&gt;spring 框架介绍&lt;/h2&gt;&lt;p&gt;&lt;img</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="spring" scheme="http://xeons.cn/tags/spring/"/>
     
   </entry>
   
