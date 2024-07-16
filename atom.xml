@@ -399,6 +399,60 @@
   </entry>
   
   <entry>
+    <title>ElasticSearch 介绍</title>
+    <link href="http://xeons.cn/2023/05/05/es-basic/"/>
+    <id>http://xeons.cn/2023/05/05/es-basic/</id>
+    <published>2023-05-04T16:00:00.000Z</published>
+    <updated>2024-07-16T11:52:39.204Z</updated>
+    
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="es" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/es/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="elasticsearch" scheme="http://xeons.cn/tags/elasticsearch/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>消息队列-kafka</title>
+    <link href="http://xeons.cn/2023/05/04/mq-kafka/"/>
+    <id>http://xeons.cn/2023/05/04/mq-kafka/</id>
+    <published>2023-05-03T16:00:00.000Z</published>
+    <updated>2024-07-16T11:49:52.622Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;1、应用场景&quot;&gt;&lt;a href=&quot;#1、应用场景&quot; class=&quot;headerlink&quot; title=&quot;1、应用场景&quot;&gt;&lt;/a&gt;1、应用场景&lt;/h1&gt;&lt;h2 id=&quot;1-1-kafka场景&quot;&gt;&lt;a href=&quot;#1-1-kafka场景&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/tags/mq/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Tomcat 详解</title>
     <link href="http://xeons.cn/2023/05/04/tomcat-basic/"/>
     <id>http://xeons.cn/2023/05/04/tomcat-basic/</id>
@@ -426,6 +480,107 @@
   </entry>
   
   <entry>
+    <title>消息队列-ActiveMQ</title>
+    <link href="http://xeons.cn/2023/05/03/mq-basic/"/>
+    <id>http://xeons.cn/2023/05/03/mq-basic/</id>
+    <published>2023-05-02T16:00:00.000Z</published>
+    <updated>2024-07-15T19:11:56.973Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;消息队列和其作用&quot;&gt;&lt;a href=&quot;#消息队列和其作用&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/"/>
+    
+    <category term="activemq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/activemq/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/tags/mq/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>消息队列-RabbitMQ</title>
+    <link href="http://xeons.cn/2023/05/03/mq-rabbitMQ/"/>
+    <id>http://xeons.cn/2023/05/03/mq-rabbitMQ/</id>
+    <published>2023-05-02T16:00:00.000Z</published>
+    <updated>2024-07-16T06:50:43.618Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;2007 年发布，是一个在 AMQP(高级消息队列协议)基础上完成的，可复用的企业消息系统，&lt;strong&gt;是当前最主流的消息中间件之一&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;优点:由于 erlang</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/"/>
+    
+    <category term="rabbitmq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/rabbitmq/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/tags/mq/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>消息队列-rocketMQ</title>
+    <link href="http://xeons.cn/2023/05/03/mq-rocketMQ/"/>
+    <id>http://xeons.cn/2023/05/03/mq-rocketMQ/</id>
+    <published>2023-05-02T16:00:00.000Z</published>
+    <updated>2024-07-16T09:32:38.227Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;a href=&quot;https://rocketmq.apache.org/zh/docs&quot;&gt;官网&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;概念&quot;&gt;&lt;a href=&quot;#概念&quot; class=&quot;headerlink&quot; title=&quot;概念&quot;&gt;&lt;/a&gt;概念&lt;/h2&gt;&lt;h4</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/"/>
+    
+    <category term="rocketmq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/rocketmq/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="mq" scheme="http://xeons.cn/tags/mq/"/>
+    
+  </entry>
+  
+  <entry>
     <title>demopost</title>
     <link href="http://xeons.cn/2023/04/09/demopost/"/>
     <id>http://xeons.cn/2023/04/09/demopost/</id>
@@ -443,154 +598,6 @@
     
     
     
-    
-  </entry>
-  
-  <entry>
-    <title>spring-cloud 文档（更新中)</title>
-    <link href="http://xeons.cn/2023/03/13/spring-cloud-guide/"/>
-    <id>http://xeons.cn/2023/03/13/spring-cloud-guide/</id>
-    <published>2023-03-12T16:00:00.000Z</published>
-    <updated>2024-07-03T19:49:34.186Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;Spring-Cloud-优缺点&quot;&gt;&lt;a href=&quot;#Spring-Cloud-优缺点&quot; class=&quot;headerlink&quot; title=&quot;Spring Cloud 优缺点&quot;&gt;&lt;/a&gt;Spring Cloud</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
-    
-    <category term="微服务" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="spring-cloud" scheme="http://xeons.cn/tags/spring-cloud/"/>
-    
-    <category term="微服务" scheme="http://xeons.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>spring security 快速使用 (1)</title>
-    <link href="http://xeons.cn/2023/03/13/spring-security-guide/"/>
-    <id>http://xeons.cn/2023/03/13/spring-security-guide/</id>
-    <published>2023-03-12T16:00:00.000Z</published>
-    <updated>2024-07-04T17:41:59.741Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;重写默认配置&quot;&gt;&lt;a href=&quot;#重写默认配置&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>spring security 快速使用 (2) OAUTH2</title>
-    <link href="http://xeons.cn/2023/03/13/spring-security-guide2/"/>
-    <id>http://xeons.cn/2023/03/13/spring-security-guide2/</id>
-    <published>2023-03-12T16:00:00.000Z</published>
-    <updated>2024-07-08T12:04:42.035Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;Oauth2-概念和授权码模式&quot;&gt;&lt;a href=&quot;#Oauth2-概念和授权码模式&quot; class=&quot;headerlink&quot; title=&quot;Oauth2 概念和授权码模式&quot;&gt;&lt;/a&gt;Oauth2</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
-    
-    
-    <category term="springSecurity" scheme="http://xeons.cn/tags/springSecurity/"/>
-    
-    <category term="oauth2" scheme="http://xeons.cn/tags/oauth2/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>spring-boot 常用配置（更新中)</title>
-    <link href="http://xeons.cn/2023/03/05/spring-boot-guide/"/>
-    <id>http://xeons.cn/2023/03/05/spring-boot-guide/</id>
-    <published>2023-03-04T16:00:00.000Z</published>
-    <updated>2024-07-03T08:21:48.144Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;设计的目标&quot;&gt;&lt;a href=&quot;#设计的目标&quot; class=&quot;headerlink&quot; title=&quot;设计的目标&quot;&gt;&lt;/a&gt;设计的目标&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;为所有使用 Spring</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="spring-boot" scheme="http://xeons.cn/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>spring 文档手册</title>
-    <link href="http://xeons.cn/2023/03/03/spring-guide/"/>
-    <id>http://xeons.cn/2023/03/03/spring-guide/</id>
-    <published>2023-03-02T16:00:00.000Z</published>
-    <updated>2024-06-07T13:11:58.637Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;spring-框架介绍&quot;&gt;&lt;a href=&quot;#spring-框架介绍&quot; class=&quot;headerlink&quot; title=&quot;spring 框架介绍&quot;&gt;&lt;/a&gt;spring 框架介绍&lt;/h2&gt;&lt;p&gt;&lt;img</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/spring/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="spring" scheme="http://xeons.cn/tags/spring/"/>
     
   </entry>
   
