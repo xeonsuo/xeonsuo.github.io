@@ -1,0 +1,745 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>事务详解 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一、事务的特性数据库的事务在实现时，会将一次事务中包含的所有操作全部封装成一个不可分割的执行单元，这个单元中的所有操作要么全部执行成功，要么全部执行失败。只要其中任意一个操作执行失败，整个事务就会执行回滚操作 1.原子性事务的原子性指的是构成事务的所有操作要么全部执行成功，要么全部执行失败，不可能出现部分执行成功，部分执行失败的情况 比如A 向 B 转账 100 元，数据库需要进行两个操作，A 的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="事务详解">
+<meta property="og:url" content="http://xeons.cn/2023/08/05/transactions-basic/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="一、事务的特性数据库的事务在实现时，会将一次事务中包含的所有操作全部封装成一个不可分割的执行单元，这个单元中的所有操作要么全部执行成功，要么全部执行失败。只要其中任意一个操作执行失败，整个事务就会执行回滚操作 1.原子性事务的原子性指的是构成事务的所有操作要么全部执行成功，要么全部执行失败，不可能出现部分执行成功，部分执行失败的情况 比如A 向 B 转账 100 元，数据库需要进行两个操作，A 的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/08/05/transactions-basic/logo.jpg">
+<meta property="article:published_time" content="2023-08-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-04T13:16:46.708Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="分布式事务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/08/05/transactions-basic/logo.jpg"><link rel="shortcut icon" href="https://s2.loli.net/2024/05/13/Z7TSE2K3OYN8LGJ.png"><link rel="canonical" href="http://xeons.cn/2023/08/05/transactions-basic/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '事务详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-09-04 21:16:46'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://s2.loli.net/2024/05/13/iB3TulGkshE8z76.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">33</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">事务详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-04T16:00:00.000Z" title="发表于 2023-08-05 00:00:00">2023-08-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-09-04T13:16:46.708Z" title="更新于 2024-09-04 21:16:46">2024-09-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/java/">java</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/java/transactions/">transactions</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">27.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>83分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="事务详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h2 id="一、事务的特性"><a href="#一、事务的特性" class="headerlink" title="一、事务的特性"></a>一、事务的特性</h2><p>数据库的事务在实现时，会将一次事务中包含的所有操作全部封装成一个不可分割的执行单元，这个单元中的所有操作要么全部执行成功，要么全部执行失败。只要其中任意一个操作执行失败，整个事务就会执行回滚操作</p>
+<h3 id="1-原子性"><a href="#1-原子性" class="headerlink" title="1.原子性"></a>1.原子性</h3><p>事务的原子性指的是构成事务的所有操作要么全部执行成功，要么全部执行失败，不可能出现部分执行成功，部分执行失败的情况</p>
+<p>比如A 向 B 转账 100 元，数据库需要进行两个操作，A 的账户要减少 100 元，B 的账户要增加 100 元，这两个操作要么全部执行成功，要么全部执行失败</p>
+<h3 id="2-一致性"><a href="#2-一致性" class="headerlink" title="2.一致性"></a>2.一致性</h3><p>事务的一致性指的是在事务执行之前和执行之后，数据始终处于一致的状态</p>
+<p>还是上面转账的例子，如果转账完成后，A 的账户没有减少 100 元或者 B 的账户没有增加 100 元，这就是数据处于不一致状态</p>
+<h3 id="3-隔离性"><a href="#3-隔离性" class="headerlink" title="3.隔离性"></a>3.隔离性</h3><p>事务的隔离性指的是并发执行的两个事务之间互不干扰。也就是说，一个事务在执行过程中不能看到其他事务运行过程的中间状态</p>
+<p>还是上面转账的例子，在转账完成之前，其他事务查询 A 的账户或者 B 的账户，余额应该是转账完成之前的余额，而不会查询到 A 的账户减少了 100 元，而 B 的账户还没有增加 100 元的中间状态</p>
+<h3 id="4-持久性"><a href="#4-持久性" class="headerlink" title="4.持久性"></a>4.持久性</h3><p>事务的持久性指的是事务提交完成后，此事务对数据的更改操作会被持久化到数据库中，并且不会被回滚</p>
+<h2 id="二、事务的类型"><a href="#二、事务的类型" class="headerlink" title="二、事务的类型"></a>二、事务的类型</h2><h3 id="1-扁平事务"><a href="#1-扁平事务" class="headerlink" title="1.扁平事务"></a>1.扁平事务</h3><p>扁平事务是事务操作中最常见，也是最简单的事务。在数据库中，扁平事务通常由 begin 或者 start transaction 字段开始，由 commit 或者 rollback 字段结束。在这之间的所有操作要么全部执行成功，要么全部执行失败（回滚）</p>
+<p>扁平事务的痛点在于无法提交或者回滚整个事务中的部分事务，只能把整个事务全部提交或者回滚。为了解决这个问题，带有保存点的扁平事务出现了</p>
+<h3 id="2-带有保存点的扁平事务"><a href="#2-带有保存点的扁平事务" class="headerlink" title="2.带有保存点的扁平事务"></a>2.带有保存点的扁平事务</h3><p>带有保存点的扁平事务通过在事务内部的某个位置设置保存点（savepoint），达到将当前事务回滚到此位置的目的，示例如下</p>
+<p>在MySQL 数据库中，通过如下命令设置事务的保存点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">save [savepoint_name]</span><br></pre></td></tr></table></figure>
+
+<p>通过如下命令将当前事务回滚到定义的保存点位置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rollback to [savepoint_name]</span><br></pre></td></tr></table></figure>
+
+<p>通过如下命令删除保存点</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">release savepoint [savepoint_name]</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-链式事务"><a href="#3-链式事务" class="headerlink" title="3.链式事务"></a>3.链式事务</h3><p>链式事务是在带有保存点的扁平事务的基础上，自动将当前事务的上下文隐式地传递给下一个事务。也就是说，一个事务的提交操作和下一个事务的开始操作具备原子性，上一个事务的处理结果对下一个事务是可见的，事务与事务之间就像链条一样传递下去</p>
+<p>链式事务在提交的时候，会释放要提交的事务中的所有锁和保存点，也就是说，链式事务的回滚操作只能回滚到当前所在事务的保存点，而不能回滚到已提交事务的保存点</p>
+<h3 id="4-嵌套事务"><a href="#4-嵌套事务" class="headerlink" title="4.嵌套事务"></a>4.嵌套事务</h3><p>顾名思义，嵌套事务就是有多个事务处于嵌套状态，共同完成一项任务的处理，整个任务具备原子性。嵌套事务最外层有一个顶层事务，这个顶层事务控制着所有的内部子事务，内部子事务提交完成后，整体事务并不会提交，只有最外层的顶层事务提交完成后，整体事务才算提交完成</p>
+<p>关于嵌套事务需要注意以下几点：</p>
+<p><strong>1、</strong> 回滚嵌套事务内部的子事务时，会将事务回滚到外部顶层事务的开始位置；<br><strong>2、</strong> 嵌套事务的提交是从内部的子事务向外依次进行的，直到最外层的顶层事务提交完成；<br><strong>3、</strong> 回滚嵌套事务最外层的顶层事务时，会回滚嵌套事务包含的所有事务，包括已提交的内部子事务；</p>
+<h3 id="5-分布式事务"><a href="#5-分布式事务" class="headerlink" title="5.分布式事务"></a>5.分布式事务</h3><p>分布式事务指的是事务的参与者、事务所在的服务器、涉及的资源服务器以及事务管理器分别位于不同分布式系统的不同服务或者数据库节点上。简单来说，分布式事务就是一个在不同环境（比如不同的数据库、不同的服务器）下运行的整体事务。这个整体事务包含一个或多个分支事务，并且整体事务中的所有分支事务要么全部提交成功，要么全部提交失败</p>
+<p>例如，在电商系统的下单减库存业务中，订单业务所在的数据库为事务 A 的节点，库存业务所在的数据库为事务 B 的节点</p>
+<h2 id="三、本地事务"><a href="#三、本地事务" class="headerlink" title="三、本地事务"></a>三、本地事务</h2><h3 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h3><p>在常见的计算机系统和应用系统中，很多事务是通过关系型数据库进行控制的。这种控制事务的方式是利用数据库本身的事务特性来实现，而在这种实现方式中，数据库和应用通常会被放在同一台服务器中，因此，这种基于关系型数据库的事务也可以称作本地事务或者传统事务</p>
+<p>本地事务使用常见的执行模式，可以使用如下伪代码来表示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tansaction begin</span><br><span class="line">insert <span class="title function_">into</span> <span class="params">(字段名列表)</span> values (值列表)</span><br><span class="line">update 表名 set 字段名 = 字段值 <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> id值</span><br><span class="line">delete from 表名 <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> id 值</span><br><span class="line">transaction commit/rollback</span><br></pre></td></tr></table></figure>
+
+<p>另外，本地事务也具有一些特征。以下列举几个本地事务具有的典型特征</p>
+<p><strong>1、</strong> 一次事务过程中只能连接一个支持事务的数据库，这里的数据库一般指的是关系型数据库；<br><strong>2、</strong> 事务的执行结果必须满足ACID特性；<br><strong>3、</strong> 事务的执行过程会用到数据库本身的锁机制；</p>
+<h3 id="2-本地事务的执行流程"><a href="#2-本地事务的执行流程" class="headerlink" title="2.本地事务的执行流程"></a>2.本地事务的执行流程</h3><p>本地事务的执行流程如下图所示：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347123409.png" class=""></p>
+<p><strong>1、</strong> 客户端开始事务操作之前，需要开启一个连接会话；<br><strong>2、</strong> 开始会话后，客户端发起开启事务的指令；<br><strong>3、</strong> 事务开启后，客户端发送各种SQL语句处理数据；<br><strong>4、</strong> 正常情况下，客户端会发起提交事务的指令，如果发生异常情况，客户端会发起回滚事务的指令；<br><strong>5、</strong> 上述流程完成后，关闭会话；</p>
+<p>本地事务是由资源管理器在本地进行管理的</p>
+<h3 id="3-本地事务的优缺点"><a href="#3-本地事务的优缺点" class="headerlink" title="3.本地事务的优缺点"></a>3.本地事务的优缺点</h3><p>本地事务的优点总结如下：</p>
+<p><strong>1、</strong> 支持严格的ACID特性，这也是本地事务得以实现的基础；<br><strong>2、</strong> 事务可靠，一般不会出现异常情况；<br><strong>3、</strong> 本地事务的执行效率比较高；<br><strong>4、</strong> 事务的状态可以只在数据库中进行维护，上层的应用不必理会事务的具体状态；<br><strong>5、</strong> 应用的编程模型比较简单，不会涉及复杂的网络通信；</p>
+<p>本地事务的缺点总结如下：</p>
+<p><strong>1、</strong> 不具备分布式事务的处理能力；<br><strong>2、</strong> 一次事务过程中只能连接一个支持事务的数据库，即不能用于多个事务性数据库；</p>
+<h2 id="四、MySQL-事务基础"><a href="#四、MySQL-事务基础" class="headerlink" title="四、MySQL 事务基础"></a>四、MySQL 事务基础</h2><h3 id="1-并发事务带来的问题"><a href="#1-并发事务带来的问题" class="headerlink" title="1.并发事务带来的问题"></a>1.并发事务带来的问题</h3><p>数据库一般会并发执行多个事务，而多个事务可能会并发地对相同的数据进行增加、删除、修改和查询操作，进而导致并发事务问题。并发事务带来的问题包括更新丢失（脏写）、脏读、不可重复读和幻读</p>
+<p><strong>更新丢失（脏写）</strong><br>当两个或两个以上的事务选择数据库中的同一行数据，并基于最初选定的值更新该行数据时，因为每个事务之间都无法感知彼此的存在，所以会出现最后的更新操作覆盖之前由其他事务完成的更新操作的情况。也就是说，对于同一行数据，一个事务对该行数据的更新操作覆盖了其他事务对该行数据的更新操作</p>
+<p>更新丢失（脏写）本质上是写操作的冲突，解决办法是让每个事务按照串行的方式执行，按照一定的顺序一次进行写操作</p>
+<p><strong>脏读</strong><br>一个事务正在对数据库中的一条记录进行修改操作，在这个事务完成并提交之前，当有另一个事务来读取正在修改的这条数据记录时，如果没有对这两个事务进行控制，则第二个事务就会读取到没有被提交的脏数据，并根据这些脏数据做进一步的处理，此时就会产生未提交的数据依赖关系。我们通常把这种现象称为脏读，也就是也给事务读取了另一个事务未提交的数据</p>
+<p>脏读本质上是读写操作的冲突，解决办法是先写后读</p>
+<p><strong>不可重复读</strong><br>一个事务读取了某些数据，在一段时间后，这个事务再次读取之前读过的数据，此时发现读取的数据发生了变化，或者其中的某些记录已经被删除，这种现象就叫做不可重复读。即同一个事务，使用相同的查询语句，在不同时刻读取到的结果不一致</p>
+<p>不可重复读本质上是读写操作的冲突，解决办法是先读后写</p>
+<p><strong>幻读</strong><br>一个事务按照相同的查询条件重新读取之前读过的数据，此时发现其他事务插入了满足当前事务查询条件的新数据，这种现象叫做幻读。即一个事务两次读取一个范围的数据记录，两次读取到的结果不同</p>
+<p>幻读本质上是读写操作的冲突，解决办法是先读后写</p>
+<p>不可重复读和幻读的区别：</p>
+<p><strong>1、</strong> 不可重复读的重点在于更新和删除操作，而幻读的重点在于插入操作；<br><strong>2、</strong> 使用锁机制实现事务隔离级别时，在可重复读隔离级别中，SQL语句第一次读取到数据后，会将相应的数据加锁，使得其他事务无法修改和删除这些数据，此时可以实现可重复读；<br><strong>3、</strong> 幻读无法通过行级锁来避免，需要使用串行化的事务隔离级别，但是这种事务隔离级别会极大降低数据库的并行能力；<br><strong>4、</strong> 从本质上讲，不可重复读和幻读最大的区别在于如何通过锁机制解决问题；</p>
+<p>另外，除了可以使用悲观锁来避免不可重复读和幻读的问题外，我们也可以使用乐观锁来处理，例如，MySQL、Oracle 和 PostgreSQL 等数据库为了提高整体性能，就使用了基于乐观锁的 MVCC（多版本并发控制）机制来避免不可重复读和幻读</p>
+<h3 id="2-MySQL-事务隔离级别"><a href="#2-MySQL-事务隔离级别" class="headerlink" title="2.MySQL 事务隔离级别"></a>2.MySQL 事务隔离级别</h3><p>InMySQL 中的 InnoDB 储存引擎提供 SQL 标准所描述的 4 种事务隔离级别，分别为读未提交（Read Uncommitted）、读已提交（Read Committed）、可重复读（Repeatable Read）和串行化（Serializable）</p>
+<p>可以在命令行用 –transaction-isolation 选项或在 MySQL 的配置文件 my.cnf、my.ini 里，为所有连接设置默认的事务隔离级别。也可以使用 SET TRANSACTION 命令改变单个或者所有新连接的事务隔离级别</p>
+<h3 id="3-MySQL-中各种事务的隔离级别的区别"><a href="#3-MySQL-中各种事务的隔离级别的区别" class="headerlink" title="3.MySQL 中各种事务的隔离级别的区别"></a>3.MySQL 中各种事务的隔离级别的区别</h3><p>不同事务隔离级别对问题的解决程度对比：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347124727.png" class=""></p>
+<p><strong>1、</strong> 读未提交，即可能读取到其他会话未提交事务修改的数据；<br><strong>2、</strong> 读已提交，即只能读取到已经提交的数据；<br><strong>3、</strong> 可重复读就是在同一个事务内，无论何时查询到的数据都与开始查询到的数据一致；<br><strong>4、</strong> 可串行化是指完全串行地读，每次读取数据库中的数据时，都需要获得表级别的共享锁，读和写会相互阻塞；</p>
+<h3 id="5-MySQL-中锁的分类"><a href="#5-MySQL-中锁的分类" class="headerlink" title="5.MySQL 中锁的分类"></a>5.MySQL 中锁的分类</h3><p>从本质上讲，锁是一种协调多个进程或多个线程对某一资源的访问的机制，MySQL 使用锁和 MVCC 机制实现了事务隔离级别</p>
+<p>MySQL 中的锁可以从以下几个方面进行分类，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347125742.png" class="">
+
+<p><strong>1、</strong> 从性能上看，MySQL中的锁可以分为悲观锁和乐观锁，这里的乐观锁是通过版本对比来实现的；<br><strong>2、</strong> 从对数据库的操作类型上看，MySQL中的锁可以分为读锁和写锁，这里的读锁和写锁都是悲观锁；<br><strong>3、</strong> 从操作数据的粒度上看，MySQL中的锁可以分为表锁、行锁和页面锁；<br><strong>4、</strong> 从更细粒度上看，MySQL中的锁分为间隙锁和临建锁；</p>
+<p><strong>悲观锁和乐观锁</strong></p>
+<p>（1）悲观锁<br>顾名思义，悲观锁对于数据库中数据的读写持悲观态度，即在整个数据处理的过程中，它会将相应的数据锁定。在数据库中，悲观锁的实现需要依赖数据库提供的锁机制，以保证对数据库加锁后，其他应用系统无法修改数据库中的数据</p>
+<p>在悲观锁机制下，读取数据库中的数据时需要加锁，此时不能对这些数据进行修改操作。修改数据库中的数据时也需要加锁，此时不能对这些数据进行读取操作</p>
+<p>（2）乐观锁<br>悲观锁会极大地降低数据库的性能，特别是对长事务而言，性能的损耗往往是无法承受的。乐观锁则在一定程度上解决了这个问题</p>
+<p>顾名思义，乐观锁对于数据库中数据的读写持乐观态度，即在整个数据处理的过程中，大多数情况下它是通过数据版本记录机制实现的</p>
+<p>实现乐观锁的一种常用做法是为数据增加一个版本标识，如果是通过数据库实现，往往会在数据表中增加一个类似 version 的版本号字段。在查询数据表中的数据时，会将版本号字段的值一起读取出来，当更新数据时，会令版本号字段的值加 1。将提交数据的版本与数据表对应记录的版本进行对比，如果提交的数据版本号大于数据表中当前要修改的数据的版本号，则对数据进行修改操作。否则，不修改数据表中的数据</p>
+<p><strong>读锁和写锁</strong></p>
+<p>（1）读锁<br>读锁又称为共享锁或 S 锁（Shared Lock），针对同一份数据，可以加多个读锁而互不影响</p>
+<p>（2）写锁<br>写锁又称为排他锁或 X 锁（Exclusive Lock），如果当前写锁未释放，它会阻塞其他的写锁和读锁</p>
+<p>需要注意的是，对同一份数据，如果加了读锁，则可以继续为其加读锁，且多个读锁之间互不影响，但此时不能为数据增加写锁。一旦加了写锁，则不能再增加写锁和读锁。因为读锁具有共享性，而写锁具有排他性</p>
+<p><strong>表锁、行锁和页面锁</strong><br>（1）表锁<br>表锁也称为表级锁，就是在整个数据表上对数据进行加锁和释放锁。典型特点是开销比较小，加锁速度快，一般不会出现死锁，锁定的粒度比较大，发生锁冲突的概率最高，并发度最低</p>
+<p>在MySQL 中，有两种表级锁模式：一种是表共享锁（Table Shared Lock）；另一种是表独占写锁（Table Write Lock）</p>
+<p>当一个线程获取到一个表的读锁后，其他线程仍然可以对表进行读操作，但是不能对表进行写操作。当一个线程获取到一个表的写锁后，只有持有锁的线程可以对表进行更新操作，其他线程对数据表的读写操作都会被阻塞，直到写锁被释放位置</p>
+<p>可以在MySQL 的命令行通过如下命令手动增加表锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lock table 表名称 read(write),表名称<span class="number">2</span> read(write);</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令可以查看数据表上增加的锁，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show open tables;</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令可以删除表锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unlock tables;</span><br></pre></td></tr></table></figure>
+
+<p>（2）行锁<br>行锁也成为行级锁，就是在数据行上对数据进行加锁和释放锁。典型特点是开销比较大，加锁速度慢，可能会出现死锁，锁定的粒度最小，发生锁冲突的概率最小，并发度最高</p>
+<p>在InnoDB 存储引擎中，有两种类型的行锁：一种是共享锁，另一种是排他锁。共享锁允许一个事务读取一行数据，但不允许一个事务对加了共享锁的当前行增加排他锁。排他锁只允许当前事务对数据进行增删改查操作，不允许其他事务对增加了排他锁的数据行增加共享锁和排他锁</p>
+<p>使用行锁时，需要注意以下几点：</p>
+<p><strong>1、</strong> 行锁主要加在索引上，如果对非索引的字段设置条件进行更新，行锁可能会变成表锁；<br><strong>2、</strong> InnoDB的行锁是针对索引加锁，不是针对记录加锁，并且加锁的索引不能失效，否则行锁可能会变成表锁；<br><strong>3、</strong> 锁定某一行时，可以使用lockinsharemode命令来指定共享锁，使用forupdate命令来指定排他锁，例如下面的SQL语句：；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1</span> <span class="keyword">for</span> update;</span><br></pre></td></tr></table></figure>
+
+<p>（3）页面锁<br>页面锁也称为页级锁，就是在页面级别对数据进行加锁和释放锁。对数据的加锁开销介于表锁和行锁之间，可能会出现死锁，锁定的粒度大小介于表锁和行锁之间，并发度一般</p>
+<p>表锁、行锁和页面锁的特点：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347127156.png" class=""></p>
+<p><strong>间隙锁和临键锁</strong><br>（1）间隙锁<br>在MySQL 中使用范围查询时，如果请求共享锁或排他锁，InnoDB 会给符合条件的已有数据的索引项加锁。如果键值在条件范围内，而这个范围内并不存在记录，则认为此时出现了 “间隙（也就是 GAP）”。InnoDB 存储引擎会对这个 “间隙” 加锁，而这种加锁机制就是间隙锁（GAP Lock）</p>
+<p>说得简单点，间隙锁就是对两个值之间的间隙加锁。MySQL 的默认隔离级别是可重复读，在可重复读隔离级别下会存在幻读的问题，而间隙锁在某种程度下可以解决幻读的问题</p>
+<p>例如，account 数据表中存在如下数据：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347128211.png" class=""></p>
+<p>此时，account 数据表中的间隙包括 id 为 (3,15]、(15,20]、(20,正无穷] 的三个区间</p>
+<p>如果执行如下命令，将符合条件的用户的账户余额增加 100 元：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update account <span class="type">set</span> <span class="variable">balance</span> <span class="operator">=</span> balance + <span class="number">100</span> where id &gt; <span class="number">5</span> and id &lt; <span class="number">16</span>;</span><br></pre></td></tr></table></figure>
+
+<p>则其他事务无法在 (3,20] 这个区间内插入或者修改任何数据</p>
+<p>这里需要注意的是，间隙锁只有在可重复读事务隔离级别下才会生效</p>
+<p>（2）临键锁<br>临键锁（Next-Key Lock）是行锁和间隙锁的组合，例如上面例子中的区间 (3,20] 就可以称为临键锁</p>
+<h3 id="6-死锁的产生和预防"><a href="#6-死锁的产生和预防" class="headerlink" title="6.死锁的产生和预防"></a>6.死锁的产生和预防</h3><p>虽然锁在一定程度上能够解决并发问题，但稍有不慎，就可能造成死锁。发生死锁的必要条件有 4 个，分别为互斥条件、不可剥夺条件、请求与保持条件和循环等待条件</p>
+<p><strong>互斥条件</strong><br>在一段时间内，计算机中的某个资源只能被一个进程占用。此时，如果其他进程请求该资源，则只能等待</p>
+<p><strong>不可剥夺条件</strong><br>某个进程获得的资源在使用完毕之前，不能被其他进程强行夺走，只能由获得资源的进程主动释放</p>
+<p><strong>请求与保持条件</strong><br>进程已经获得了至少一个资源，又要请求其他资源，但请求的资源已经被其他进程占有，此时请求的进程就会被阻塞，并且不会释放自己已获得的资源</p>
+<p><strong>循环等待条件</strong><br>系统中的进程之间相互等待，同时各自占用的资源又会被下一个进程所请求。例如有进程 A、进程 B 和进程 C 三个进程，进程 A 请求的资源被进程 B 占用，进程 B 请求的资源被进程 C 占用，进程 C 请求的资源被进程 A 占用，于是形成了循环等待条件</p>
+<p>需要注意的是，只有 4 个必要条件都满足时，才会发生死锁</p>
+<p>处理死锁有 4 种方法，分别为预防死锁、避免死锁、检测死锁和解除死锁：</p>
+<ul>
+<li>预防死锁：处理死锁最直接的方法就是破坏造成死锁的 4 个必要条件中的一个或多个，以防止死锁的产生</li>
+<li>避免死锁：在系统资源的分配过程中，使用某种策略或者方法防止系统进入不安全状态，从而避免死锁的发生</li>
+<li>检测死锁：这种方法允许系统在运行过程中发生死锁，但是能够检测死锁的发生，并采取适当的措施清除死锁</li>
+<li>接触死锁：当检测出死锁后，采用适当的策略和方法将进程从死锁状态解脱出来</li>
+</ul>
+<p>在实际工作中，通常采用有序资源分配法和银行家算法这两种方式来避免死锁</p>
+<h3 id="7-MySQL-中的死锁问题"><a href="#7-MySQL-中的死锁问题" class="headerlink" title="7.MySQL 中的死锁问题"></a>7.MySQL 中的死锁问题</h3><p>在MySQL 5.5.5 及以上版本中，MySQL 的默认存储引擎是 InnoDB。该存储引擎使用的是行级锁，在某种情况下会产生死锁问题，所以 InnoDB 存储引擎采用了一种叫做等待图（wait-for graph）的方法来自动检测死锁，如果发现死锁，就会自动回滚一个事务</p>
+<p>接下来，我们看一个 MySQL 中的死锁案例</p>
+<p>第一步：打开终端 A，登录 MySQL，将事务隔离级别设置为可重复读，开启事务后为 account 数据表中 id 为 1 的数据添加排他锁，如下所示：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347128852.png" class=""></p>
+<p>第二步： 打开终端 B，登录 MySQL，将事务隔离级别设置为可重复读，开启事务后为 account 数据表中 id 为 2 的数据添加排他锁，如下所示：<br> </p>
+<p>第三步：在终端 A 为 account 数据表中 id 为 2 的数据添加排他锁，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;select * from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">2</span> <span class="keyword">for</span> update;</span><br></pre></td></tr></table></figure>
+
+<p>此时，线程会一直卡住，因为在等待终端 B 中 id 为 2 的数据释放排他锁</p>
+<p>第四步：在终端 B 中为 account 数据表中 id 为 1 的数据添加排他锁，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span><span class="number">1</span> <span class="keyword">for</span> update;</span><br><span class="line">ERROR <span class="number">1213</span> (<span class="number">40001</span>): Deadlock found when trying to get lock; <span class="keyword">try</span> restarting transaction</span><br></pre></td></tr></table></figure>
+
+<p>此时发生了死锁。通过如下命令可以查看死锁的日志信息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show engine innodb status\G</span><br></pre></td></tr></table></figure>
+
+<p>通过命令行查看 LATEST DETECTED DEADLOCK 选项相关的信息，可以发现死锁的相关信息，或者通过配置 innodb_print_all_deadlocks（MySQL 5.6.2 版本开始提供）参数为 ON，将死锁相关信息打印到 MySQL 错误日志中</p>
+<p>在MySQL 中，通常通过以下几种方式来避免死锁：</p>
+<p><strong>1、</strong> 尽量让数据表中的数据检索都通过索引来完成，避免无效索引导致行锁升级为表锁；<br><strong>2、</strong> 合理设计索引，尽量缩小锁的范围；<br><strong>3、</strong> 尽量减少查询条件的范围，尽量避免间隙锁或缩小间隙锁的范围；<br><strong>4、</strong> 尽量控制事务的大小，减少一次事务锁定的资源数量，缩短锁定资源的时间；<br><strong>5、</strong> 如果一条SQL语句涉及事务加锁操作，则尽量将其放在整个事务的最后执行；<br><strong>6、</strong> 尽可能使用低级别的事务隔离机制；</p>
+<h3 id="8-InnoDB-中的-MVCC-原理"><a href="#8-InnoDB-中的-MVCC-原理" class="headerlink" title="8.InnoDB 中的 MVCC 原理"></a>8.InnoDB 中的 MVCC 原理</h3><p>在MVCC 机制中，每个连接到数据库的读操作，在某个瞬间看到的都是数据库中数据的一个快照，而写操作的事务提交之前，读操作是看不到这些数据的变化的</p>
+<p>MVCC 机制能够大大提升数据库的读写性能，很多数据库厂商的事务性存储引擎都实现了 MVCC 机制，包含 MySQL、Oracle、PostgreSQL 等。虽然不同数据库实现 MVCC 机制的细节不同，但大多实现了非阻塞的读操作，写操作也只会锁定必要的数据行</p>
+<p>从本质上讲，MVCC 机制保存了数据库中数据在某个时间点上的数据快照，这意味着同一个读操作的事务，按照相同的条件查询数据，无论查询多少次，结果都是一样的。从另一个角度来讲，这也意味着不同的事务在同一时刻看到的同一张表的数据可能不同</p>
+<p>在InnoDB 存储引擎中，MVCC 机制是通过在每行数据表记录后面保存两个隐藏的列来实现的，一列用来保存行的创建版本号（create_version），另一列用来保存行的过期版本号（delete_version）。每当有一个新的事务执行时，版本号就会自动递增。事务开始时刻的版本号作为事务的版本号，用于和查询到的每行记录的版本号做对比</p>
+<p><strong>查询操作</strong></p>
+<p>在查询操作中，InnoDB 存储引擎会根据下面两个条件检查每行记录</p>
+<p><strong>1、</strong> InnoDB存储引擎只会查找不晚于当前事务版本的数据行，也就是说，InnoDB存储引擎只会查找版本号小于或者等于当前事务版本的数据行这些数据行要么在事务开始前就已经存在，要么就是事务本身插入或者更新的数据行；<br><strong>2、</strong> 数据行删除的版本要么还没有被定义，要么大于当前事务的版本号，只有这样才能确保事务读取到的行，在事务开始之前没有被删除；</p>
+<p>例如，存在事务 A 和事务 B 两个事务，事务 A 中存在两条相同的 select 语句，事务 B 中存在一条 update 语句。事务 A 中的第一条 select 语句在事务 B 提交之前执行，第二条 select 语句在事务 B 提交之后执行。事务 A 如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start transaction;</span><br><span class="line">select * from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1</span>;		<span class="comment">//在事务 B 提交之前执行</span></span><br><span class="line">select * from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1</span>;		<span class="comment">//在事务 B 提交之后执行</span></span><br><span class="line">commit;</span><br></pre></td></tr></table></figure>
+
+<p>事务B 如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">start transaction;</span><br><span class="line">update account <span class="type">set</span> <span class="variable">balance</span> <span class="operator">=</span> balance + <span class="number">100</span> <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">commit;</span><br></pre></td></tr></table></figure>
+
+<p>如果不使用 MVCC 机制，则事务 A 中的第一条 select 语句读取的数据是修改前的数据，而第二条 select 语句读取的是修改后的数据，两次读取的数据不一致。如果使用了 MVCC 机制，则无论事务 B 如何修改数据，事务 A 中的两条 select 语句查询出来的结果始终是一致的</p>
+<p><strong>插入操作</strong></p>
+<p>在插入操作中，InnoDB 存储引擎会将新插入的每一行记录的当前系统版本号保存为行版本号</p>
+<p>例如向account 数据表中插入一条数据，同时假设 MVCC 的两个版本号分别为 create_version 和 delete_version：create_version 代表创建该行记录的版本号；delete_version 代表删除该行记录的版本号。为了更好地展示效果，再再增加一个描述事务版本号的字段 trans_id。向 account 数据表插入数据的 SQL 语句如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into <span class="title function_">account</span><span class="params">(id, name, balance)</span> values (<span class="number">1001</span>, <span class="string">&#x27;sisyphus&#x27;</span>, <span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+
+<p>对应的版本号信息如下表所示：<br> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347130552.png" class=""></p>
+<p>从上表可以看出，当向数据表中新增记录时，需要设置保存该行记录的版本号，而删除改行记录的版本号未定义</p>
+<p><strong>更新操作</strong></p>
+<p>在更新操作中，InnoDB 存储引擎会插入一行新记录，并保存当前系统的版本号作为新记录行的版本号，同时保存当前系统的版本号到原来的数据行作为删除标识</p>
+<p>例如，将 account 数据表中 id 为 1001 的用户的账户余额增加 100 元，SQL 语句如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update account <span class="type">set</span> <span class="variable">balance</span> <span class="operator">=</span> balance + <span class="number">100</span> <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1001</span>;</span><br></pre></td></tr></table></figure>
+
+<p>执行SQL 语句成功后，再次查询 account 数据表中的数据，存在版本号和事务编号不同的两条记录，如下表所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347131173.png" class="">
+
+<p>从上表可以看出，执行更新操作时，MVCC 机制是先将原来的数据复制一份，将 balance 字段的值增加 100 后，再将 create_version 字段的值设置为当前系统的版本号，而 delete_version 字段的值未定义。除此之外，MVCC 机制还会将原来行的 delete_version 字段的值设置为当前的系统版本号，以标识原来的行记录被删除</p>
+<p>这里需要注意的是，原来的行会被复制到 Undo Log 中</p>
+<p><strong>删除操作</strong></p>
+<p>在删除操作中，InnoDB 存储引擎会保存删除的每一个行记录当前的系统版本号，作为行删除标识</p>
+<p>例如，删除 account 数据表中 id 为 1001 的数据，SQL 语句如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete from account <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">1001</span>;</span><br></pre></td></tr></table></figure>
+
+<p>对应的版本号信息如下表所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347131871.png" class="">
+
+<p>从上表中可以看出，当删除数据表中的数据行时，MVCC 机制会将当前系统的版本号写入被删除数据行的删除版本字段 delete_version 中，以此来标识当前数据行已经被删除</p>
+<h2 id="五、分布式事务理论"><a href="#五、分布式事务理论" class="headerlink" title="五、分布式事务理论"></a>五、分布式事务理论</h2><p>随着互联化的蔓延，各种项目都逐渐向分布式服务做转换。如今微服务已经普遍存在，本地事务已经无法满足分布式的要求，由此分布式事务问题诞生。 分布式事务被称为世界性的难题，目前分布式事务存在两大理论依据：CAP定律 BASE理论。</p>
+<h3 id="CAP定律"><a href="#CAP定律" class="headerlink" title="CAP定律"></a>CAP定律</h3><p>这个定理的内容是指的是在一个分布式系统中、Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），三者不可得兼。</p>
+<p><strong>一致性（C）</strong></p>
+<p>在分布式系统中的所有数据备份，在同一时刻是否同样的值。（等同于所有节点访问同一份最新的数据副本）</p>
+<p><strong>可用性（A）</strong></p>
+<p>在集群中一部分节点故障后，集群整体是否还能响应客户端的读写请求。（对数据更新具备高可用性）</p>
+<p><strong>分区容错性（P）</strong></p>
+<p>以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在C和A之间做出选择</p>
+<p>CAP是无法同时存在的，一下通过这个例子来说明</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699346860309.png" class="">
+
+<p><strong>1、</strong> 当库存服务减库存以后，那么需要将数据同步到其他的服务上，这是为了保证数据一致性C，但是网络是不可靠的，所以我们系统就需要保证分区容错性P，也就是我们必须容忍网络所带来的的一些问题，此时如果我们想保证C那么就需要舍弃A，也就是说我们在保证C的情况下，就必须舍弃A，也就是CP无法保证高可用；<br><strong>2、</strong> 如果为了保证A，高可用的情况下，也就是必须在限定时间内给出响应，同样由于网络不可靠P，订单服务就有可能无法拿到新的数据，但是也要给用户作出响应，那么也就无法保证C一致性所以AP是无法保证强一致性的；<br><strong>3、</strong> 如果我们想保证CA，也就是高可用和一致性，也就是必须保证网络良好才能实现，那么也就是说我们需要将库存、订单、用户放到一起，但是这种情况也就丧失了P这个保证，这个时候系统也就不是分布式系统了；<br><strong>4、</strong> 总结：在分布式系统中，p是必然的存在的，所以我们只能在C和A之间进行取舍，在这种条件下就诞生了BASE理论；</p>
+<h3 id="BASE理论"><a href="#BASE理论" class="headerlink" title="BASE理论"></a>BASE理论</h3><p>BASE是Basically Available（基本可用）、Soft state（软状态）和 Eventually consistent（最终一致性）三个短语的缩写。BASE理论是对CAP中一致性和可用性权衡的结果，其来源于对大规模互联网系统分布式实践的总结， 是基于CAP定理逐步演化而来的。BASE理论的核心思想是：即使无法做到强一致性，但每个应用都可以根据自身业务特点，采用适当的方式来使系统达到最终一致性。</p>
+<p><strong>基本可用</strong></p>
+<p>基本可用是指分布式系统在出现不可预知故障的时候，允许损失部分可用性—-注意，这绝不等价于系统不可用。比如：</p>
+<p>（1）响应时间上的损失。正常情况下，一个在线搜索引擎需要在0.5秒之内返回给用户相应的查询结果，但由于出现故障，查询结果的响应时间增加了1~2秒</p>
+<p>（2）系统功能上的损失：正常情况下，在一个电子商务网站上进行购物的时候，消费者几乎能够顺利完成每一笔订单，但是在一些节日大促购物高峰的时候，由于消费者的购物行为激增，为了保护购物系统的稳定性，部分消费者可能会被引导到一个降级页面</p>
+<p><strong>软状态</strong></p>
+<p>软状态指允许系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时</p>
+<p><strong>最终一致性</strong></p>
+<p>最终一致性强调的是所有的数据副本，在经过一段时间的同步之后，最终都能够达到一个一致的状态。因此，最终一致性的本质是需要系统保证最终数据能够达到一致，而不需要实时保证系统数据的强一致性。</p>
+<p>那这个位置我们依旧可以用我们刚才的例子来进行说明</p>
+<p><strong>基本可用：</strong>保证核心服务是可以使用的，至于其他的服务可以适当的降低响应时间，甚至是服务降级</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699346861591.png" class="">
+
+<p><strong>软状态：</strong>存在中间状态，不影响整体系统使用，数据同步存在延时</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699346863056.png" class="">
+
+<p><strong>最终一致性：</strong>再过了流量高峰期以后，经过一段时间的同步，保持各服务数据的一致</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699346864429.png" class="">
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="最终一致性事务解决方案"><a href="#最终一致性事务解决方案" class="headerlink" title="最终一致性事务解决方案"></a>最终一致性事务解决方案</h2><h3 id="一、最终一致性分布式事务概述"><a href="#一、最终一致性分布式事务概述" class="headerlink" title="一、最终一致性分布式事务概述"></a>一、最终一致性分布式事务概述</h3><p>强一致性分布式事务解决方案要求参与事务的各个节点的数据时刻保持一致，查询任意节点的数据都能得到最新的数据结果。这就导致在分布式场景，尤其是高并发场景下，系统的性能受到影响。而最终一致性分布式事务解决方案并不要求参与事务的各节点数据时刻保持一致，允许其存在中间状态，只要一段时间后，能够达到数据的最终一致状态即可</p>
+<h4 id="1-典型方案"><a href="#1-典型方案" class="headerlink" title="1.典型方案"></a>1.典型方案</h4><p>业界对于数据的一致性问题，一直在探索有效的解决方案。为了解决分布式、高并发场景下系统的性能问题，业界基于 Base 理论提出了最终一致性分布式事务解决方案</p>
+<p>典型的最终一致性解决方案如下所示：</p>
+<p><strong>1、</strong> TCC解决方案；<br><strong>2、</strong> 可靠消息最终一致性解决方案；<br><strong>3、</strong> 最大努力通知型解决方案；</p>
+<h4 id="2-适用场景"><a href="#2-适用场景" class="headerlink" title="2.适用场景"></a>2.适用场景</h4><p>最终一致性分布式事务解决方案主要用于不要求结果数据时刻保持一致、允许存在中间状态，但经过一段时间后，各个节点的数据能够达到一致状态的场景</p>
+<p>在电商支付场景中，会涉及订单服务、支付服务、库存服务、积分服务、仓储服务等环节，每个服务都是单独部署的。订单服务会调用支付服务生成交易流水，订单服务会调用库存服务扣减商品库存，订单服务会调用积分服务为用户的账户增加积分，订单服务会调用仓储服务生成出库单。如果这一系列的服务调用操作使用强一致性分布式事务，很容易造成系统性能低下，导致系统卡顿，并且服务与服务之间的交互是通过网络进行的，由于网络的不稳定性，就会导致服务之间的调用出现各种各样的问题，难以完成强一致性分布式事务的提交操作</p>
+<p>上述电商支付场景就是最终一致性分布式事务解决方案的适用场景。在最终一致性分布式事务解决方案中，每个服务都存在中间状态，服务与服务之间不必保持强一致性，允许在某个时刻查询出来的数据存在短暂的不一致性，经过一段时间后，各个服务之间的数据能够达到最终一致性。这样，不仅各个服务的数据达到了最终一致性，还极大地提高了系统的整体性能并降低了分布式事务执行过程中出错的概率</p>
+<h4 id="3-优缺点"><a href="#3-优缺点" class="headerlink" title="3.优缺点"></a>3.优缺点</h4><p>最终一致性分布式事务解决方案的优点如下：</p>
+<p><strong>1、</strong> 性能比较高，这是因为最终一致性分布式事务解决方案不要求数据时刻保持一致，不会因为长时间持有事务占用的资源而消耗过多的性能；<br><strong>2、</strong> 具备可用性；<br><strong>3、</strong> 适合高并发场景；</p>
+<p>最终一致性分布式事务解决方案的缺点如下：</p>
+<p><strong>1、</strong> 因为数据存在短暂的不一致，所以在某个时刻查询出的数据状态可能会不一致；<br><strong>2、</strong> 对于事务一致性要求特别高的场景不太适用；</p>
+<h3 id="二、服务模式"><a href="#二、服务模式" class="headerlink" title="二、服务模式"></a>二、服务模式</h3><p>最终一致性分布式解决方案存在 4 中典型的服务模式，分别为可查询操作、幂等操作、TCC 操作和可补偿操作</p>
+<h4 id="1-可查询操作"><a href="#1-可查询操作" class="headerlink" title="1.可查询操作"></a>1.可查询操作</h4><p>可查询操作服务模式需要服务的操作具有可标识性，主要体现在服务的操作具有全局唯一的标识，可以是业务的单据编码（如订单号），也可以是系统分配的操作流水号（如支付产生的交易流水号）。另外，在可查询的服务模式中，也要有完整的操作时间信息。可查询操作示意图如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347174794.png" class="">
+
+<p>如上图可以看出，在可查询操作中，业务服务需要提供业务的接口、查询某业务数据的接口和批量查询业务数据的接口</p>
+<p>处理订单操作的方法片段如下，在一个方法中不仅要更新本地数据库中的订单状态，还要通过 RPC 调用的方式来处理远程服务的逻辑。也就是说，其他远程业务服务为订单服务提供了操作业务的接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleOrder</span><span class="params">()</span>&#123;</span><br><span class="line">   </span><br><span class="line">     </span><br><span class="line">	<span class="comment">//订单服务本地更新订单状态</span></span><br><span class="line">	orderDao.update();</span><br><span class="line">	<span class="comment">//调用资金账户服务给资金账户扣款</span></span><br><span class="line">	accountService.update();</span><br><span class="line">	<span class="comment">//调用积分服务给积分账户增加积分</span></span><br><span class="line">	pointService.update();</span><br><span class="line">	<span class="comment">//调用会计服务向会计系统写入会计原始凭证</span></span><br><span class="line">	accountingService.insert();</span><br><span class="line">	<span class="comment">//调用物流服务生成物流信息</span></span><br><span class="line">	logisticsService.save();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，完成支付功能后需要处理订单的状态信息，在处理订单信息的方法中，除了更新订单状态的操作为本地操作外，其他操作都需要调用 RPC 接口来执行。在这种情况下，只使用本地事务就无法保证数据一致性了，需要引入分布式事务。在分布式事务的执行过程中，如果出现了错误，需要明确直到其他操作的处理情况。此时需要其他服务提供可查询的接口，以保证通过可查询的接口获取其他服务的处理情况</p>
+<h4 id="2-幂等操作"><a href="#2-幂等操作" class="headerlink" title="2.幂等操作"></a>2.幂等操作</h4><p>幂等操作服务模式要求操作具有幂等性。幂等性是数学上的概念，指的是使用相同的参数执行同一个方法时，无论执行多少次，都能输出相同的结果。在编程中，幂等性指的是对于同一个方法来说，只要参数相同，无论执行多少次都与第一次执行时产生的影响相同。幂等操作示意图如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347175494.png" class="">
+
+<p>由上图可以看出，业务服务对外提供操作业务数据的接口，并且需要在接口的实现中保证对数据处理的幂等性</p>
+<p>在分布式环境中，难免会出现数据不一致的情况。很多时候，为了保证数据的最终一致性，系统会提供很多重试操作。如果这些重试操作涉及的方法中，某些方法的实现不具有幂等性，则即使重试操作成功了，也无法保证数据最终一致性</p>
+<p>通常有两种实现幂等性的方式：一种是通过业务操作本身实现幂等性；另一种是通过系统缓存所有的请求与处理结果，当再次检测到相同的请求时，直接返回之前缓存的处理结果</p>
+<h4 id="3-TCC-操作"><a href="#3-TCC-操作" class="headerlink" title="3.TCC 操作"></a>3.TCC 操作</h4><p>TCC操作服务模式主要包括 3 个阶段，分别为 Try 阶段（尝试业务执行）、Confirm 阶段（确定业务执行）和 Cancel 阶段（取消业务执行），如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347176057.png" class="">
+
+<p>在TCC 操作服务模式中，各阶段的主要功能及特性如下所示：</p>
+<p>Try阶段：</p>
+<p><strong>1、</strong> 完成所有业务的一致性检查；<br><strong>2、</strong> 预留必要的业务资源，并需要与其他操作隔离；</p>
+<p>Confirm 阶段：</p>
+<p><strong>1、</strong> 此阶段会真正执行业务操作；<br><strong>2、</strong> 因为在Try阶段完成了业务的一致性检查，所以此阶段不会做任何业务检查；<br><strong>3、</strong> 只用Try阶段预留的业务资源进行操作；<br><strong>4、</strong> 此阶段的操作需要满足幂等性；</p>
+<p>Cancel 阶段：</p>
+<p><strong>1、</strong> 释放Try阶段预留的业务资源；<br><strong>2、</strong> 此阶段的操作需要满足幂等性；</p>
+<h4 id="4-可补偿操作"><a href="#4-可补偿操作" class="headerlink" title="4.可补偿操作"></a>4.可补偿操作</h4><p>在分布式系统中，如果某些数据处于不正常的状态，需要通过某种方式进行业务补偿，使数据能够达到最终一致性，这种因数据不正常而进行的补偿操作，就是可补偿操作服务模式。可补偿服务模式示意图如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347176754.png" class="">
+
+<p>由上图可以看出，业务服务对外提供操作数据的接口时，也需要对外提供补偿业务的接口，当其他服务调用业务服务操作数据的接口出现异常时，能够通过补偿接口进行业务补偿操作：</p>
+<p><strong>1、</strong> 在执行业务操作时，完成业务操作并返回业务操作结果，这些操作结果对外部都是可见的；<br><strong>2、</strong> 在进行业务补偿时，能够补偿或者抵消正向业务操作的结果，并且业务补偿操作需要满足幂等性；</p>
+<h3 id="三、TCC-解决方案"><a href="#三、TCC-解决方案" class="headerlink" title="三、TCC 解决方案"></a>三、TCC 解决方案</h3><p>TCC是一种典型的解决分布式事务问题的方案，主要解决跨服务调用场景下的分布式事务问题，广泛应用于分布式事务场景</p>
+<h4 id="1-适用场景"><a href="#1-适用场景" class="headerlink" title="1.适用场景"></a>1.适用场景</h4><p>TCC解决方案适用于具有强隔离性、严格一致性要求的业务场景，也适用于执行时间比较短的业务</p>
+<p>对于电商业务场景中的下单减库存等业务，如果使用 TCC 分布式事务，则会经过 Try、Confirm、Cancel 三个阶段</p>
+<p><strong>Try 阶段</strong></p>
+<p>提交订单并将订单的状态设置为待提交，调用库存服务预扣减库存，具体操作为在库存数据表中将商品库存字段的数据减去提交订单时传递的商品数量，同时在预扣减库存字段中增加提交订单时传递的商品数量</p>
+<p><strong>Confirm 阶段</strong></p>
+<p>如果Try 阶段的操作全部执行成功，则执行 Confirm 阶段。在 Confirm 阶段，订单服务将订单数据的状态标记为已提交。库存服务则将库存数据表中预扣减库存字段的数据减去提交订单时传递的商品数量，实现真正扣减库存</p>
+<p><strong>Cancel 阶段</strong></p>
+<p>如果Try 阶段执行失败或者抛出异常，则执行 Cancel 阶段。在 Cancel 阶段，订单服务将订单数据的状态标记为已取消。库存服务将库存数据表中商品库存字段的数据增加提交订单时传递的商品数量，同时对预扣减库存字段的数据减去提交订单时传递的商品数量，实现事务回滚</p>
+<h4 id="2-需要实现的服务模式"><a href="#2-需要实现的服务模式" class="headerlink" title="2.需要实现的服务模式"></a>2.需要实现的服务模式</h4><p>在TCC 分布式事务解决方案中，需要实现的服务模式包括 TCC 操作、幂等操作、可补偿操作和可查询操作</p>
+<p>例如，实现 TCC 分布式事务方案时，需要实现 Try、Confirm 和 Cancel 三个阶段的业务逻辑，这就是 TCC 操作。在 TCC 操作的每个阶段的方法都需要实现幂等性，这就是幂等操作。如果在执行分布式事务的过程中，业务服务或者网络出现了异常情况，则需要支持重试操作，以达到事务补偿的目的，这就是可补偿操作。另外，业务服务需要提供可以查询自身内部事务状态的接口，以供其他服务调用，这就是可查询操作</p>
+<h4 id="3-方案的执行流程"><a href="#3-方案的执行流程" class="headerlink" title="3.方案的执行流程"></a>3.方案的执行流程</h4><p>从本质上讲，TCC 是一种应用层实现的二阶段提交协议，TCC 方案的执行流程如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347177427.png" class="">
+
+<p><strong>Try 阶段</strong></p>
+<p>不会执行任何业务逻辑，仅做业务的一致性检查和预留相应的资源，这些资源能够和其他操作保持隔离</p>
+<p><strong>Confirm 阶段</strong></p>
+<p>当Try 阶段所有分支事务执行成功后开始执行 Confirm 阶段。通常情况下，采用 TCC 方案解决分布式事务时会认为 Confirm 阶段是不会出错的。也就是说，只要 Try 阶段的操作执行成功了，Confirm 阶段就一定会执行成功。如果 Confirm 阶段出错了，就需要引入重试机制或人工处理，对出错的事务进行干预</p>
+<p><strong>Cancel 阶段</strong></p>
+<p>在业务执行异常或出现错误的情况下，需要回滚事务的操作，执行分支事务的取消操作，并且释放 Try 阶段预留的资源。通常情况下，采用 TCC 方案解决分布式事务时，同样会认为 Cancel 阶段也是一定会执行成功的。如果 Cancel 阶段出错了，也需要引入重试机制或人工处理，对出错的事务进行干预</p>
+<h4 id="4-方案的优缺点"><a href="#4-方案的优缺点" class="headerlink" title="4.方案的优缺点"></a>4.方案的优缺点</h4><p>TCC分布式事务的优点如下：</p>
+<p><strong>1、</strong> 在应用层实现具体逻辑，锁定资源的粒度变小，不会锁定所有资源，提升了系统的性能；<br><strong>2、</strong> Confirm阶段和Cancel阶段的方法具备幂等性，能够保证分布式事务执行完毕后数据的一致性；<br><strong>3、</strong> TCC分布式事务解决方案由主业务发起整个事务，无论是主业务还是分支事务所在的业务，都能部署为集群模式，从而解决了XA规范的单点故障问题；</p>
+<p>TCC方案的缺点是代码需要耦合到具体业务中，每个参与分布式事务的业务方法都要拆分成 Try、Confirm 和 Cancel 三个阶段的方法，提高了开发成本</p>
+<h4 id="5-需要注意的问题"><a href="#5-需要注意的问题" class="headerlink" title="5.需要注意的问题"></a>5.需要注意的问题</h4><p>使用TCC 方案解决分布式事务问题时，需要注意空回滚、幂等和悬挂的问题</p>
+<p><strong>空回滚问题</strong></p>
+<p>1）空回滚问题出现的原因<br>出现空回滚的原因是一个分支事务所在的服务器宕机或者网络发生异常，此分支事务调用失败，此时并未执行此分支事务 Try 阶段的方法。当服务器或者网络恢复后，TCC 分布式事务执行回滚操作，会调用分支事务 Cancel 阶段的方法，如果 Cancel 阶段的方法不能处理这种情况，就会出现空回滚问题</p>
+<p>2）空回滚问题的解决方案<br>识别是否出现了空回滚操作的方法判断是否执行了 Try 阶段的方方法。如果执行了 Try 阶段的方法，就没有空回滚，否则，就出现了空回滚<br>具体解决方案是在业务发起全局事务时，生成全局事务记录，并为全局事务记录生成一个全局唯一的 ID，叫做全局事务 ID。这个全局事务 ID 会贯穿整个分布式事务的执行流程。再创建一张分支事务记录表，用于记录分支事务，将全局事务 ID 和分支事务 ID 保存到分支事务表中。执行 Try 阶段的方法时，会向分支事务记录表中插入一条记录，其中包含全局事务 ID 和分支事务 ID，表示执行了 Try 阶段。当事务回滚执行 Cancel 阶段的方法时，首先读取分支事务表中的数据，如果存在 Try 阶段插入的数据，则执行正常操作回滚事务，否则为空回滚，不做任何操作</p>
+<p><strong>幂等问题</strong></p>
+<p>1）幂等问题出现的原因<br>由于服务器宕机、应用崩溃或者网络异常等原因，可能会出现方法调用超时的情况，为了保证方法的正常执行，往往会在 TCC 方案中加入超时重试机制。因超时重试有可能导致数据不一致的问题，所以需要保证分支事务的执行以及 TCC 方案的 Confirm 阶段和 Cancel 阶段具备幂等性</p>
+<p>2）幂等问题的解决方案<br>解决方案是在分支事务记录表中增加事务的执行状态，每次执行分支事务以及 Confirm 阶段和 Cancel 阶段的方法时，都查询此事务的执行状态，以此判断事务的幂等性</p>
+<p><strong>悬挂问题</strong></p>
+<p>1）悬挂问题出现的原因<br>在TCC 分布式事务中，通过 RPC 调用分支事务 Try 阶段的方法时，会先注册分支事务，再执行 RPC 调用。如果此时发生服务器宕机、应用搞崩溃或者网络异常等情况，RPC 调用就会超时。如果 RPC 调用超时，事务管理器会通知对应的资源管理器回滚事务。可能资源管理器回滚完事务后，RPC 请求达到了参与分支事务所在的业务方法，因为此时事务已经回滚，所以在 Try 阶段预留的资源就无法释放了。这种情况，就称为悬挂。总之，悬挂问题就是预留业务资源后，无法继续往下处理</p>
+<p>2）解决悬挂问题的方案<br>解决方案的思路是如果执行了 Confirm 阶段或者 Cancel 阶段的方法，则 Try 阶段的方法就不能再执行。具体方案是在执行 Try 阶段的方法时，判断分支记录表中是否已经存在同一全局事务下 Confirm 阶段或者 Cancel 阶段的事务记录，如果存在，则不再执行 Try 阶段的方法</p>
+<h3 id="四、可靠消息最终一致性解决方案"><a href="#四、可靠消息最终一致性解决方案" class="headerlink" title="四、可靠消息最终一致性解决方案"></a>四、可靠消息最终一致性解决方案</h3><p>可靠消息最终一致性分布式事务解决方案指的是事务的发起方执行完本地事务之后，发出一条消息，事务的参与方，也就是消息的消费者一定能够接收到这条消息并处理成功。这个方案强调的是只要事务发起方将消息发送给事务参与方，事务参与方就一定能够执行成功，事务最终达到一致的状态</p>
+<h4 id="1-适用场景-1"><a href="#1-适用场景-1" class="headerlink" title="1.适用场景"></a>1.适用场景</h4><p>可靠消息最终一致性方案主要适用于消息数据能够独立存储，能够降低系统之间耦合度，并且业务对数据一致性的时间敏感度高的场景。例如，基于 RocketMQ 实现的可靠消息最终一致性分布式事务解决方案</p>
+<p>以电商支付场景，向用户发放优惠卷为例，具体流程为订单服务向 RocketMQ 发送 Half 消息（Half 消息是 RocketMQ 中的概念），发送成功后，RocketMQ 会向订单服务响应 Half 消息发送成功的状态。接下来，订单服务执行本地事务，修改订单数据的状态，并向 RocketMQ 发送提交事务或者回滚事务的消息。如果是提交事务的消息，则 RocketMQ 会向优惠卷服务投递事务消息，优惠卷服务收到消息后，会执行用户发放优惠卷的逻辑。如果是回滚消息，则 RocketMQ 会删除相应的消息，不再向优惠卷服务投递对应的事务消息</p>
+<h4 id="2-需要实现的服务模式-1"><a href="#2-需要实现的服务模式-1" class="headerlink" title="2.需要实现的服务模式"></a>2.需要实现的服务模式</h4><p>可靠消息最终一致性分布式事务解决方案需要实现的服务模式是可查询操作和幂等操作</p>
+<p>在具体实现的过程中，需要参与分布式事务的业务服务提供可查询自身事务状态的接口，在发生异常时，能够让其他服务通过查询接口查询具体的事务状态，这就是可查询操作。参与分布式事务的各个业务接口需要保证数据操作的幂等性，只要参数相同，无论调用多少次接口，都应该和第一次调用接口产生的结果相同，这就是幂等操作</p>
+<h4 id="3-方案的执行流程-1"><a href="#3-方案的执行流程-1" class="headerlink" title="3.方案的执行流程"></a>3.方案的执行流程</h4><p>可靠消息最终一致性解决方案中，事务发起方执行完本地事务后，通过可靠消息服务将消息发送给事务参与方，事务参与方接收到消息后，一定能够成功执行。这里的可靠消息服务可以通过本地消息表实现，也可以通过 RocketMQ 消息队列实现</p>
+<p>可靠消息最终一致性方案的执行流程如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347179682.png" class="">
+
+<p>首先，事务发起方将消息发送给可靠消息服务，这里的可靠消息服务可以基于本地数据表实现，也可以基于消息队列中间件实现。然后，事务参与方从可靠消息服务中接收消息。事务发起方和可靠消息服务之间、可靠消息服务和事务参与方之间都是通过网络进行通信的。由于网络本身的不稳定性，可能会造成分布式事务问题，因此在实现上，需要引入消息确认服务和消息恢复服务</p>
+<p>消息确认服务会定期检测事务发起方业务的执行状态和消息库中的数据，如果发现事务发起方业务的执行状态与消息库中的数据不一致，消息确认服务就会同步事务发起方的业务数据和消息库中的数据，保证数据一致性，确保事务发起方业务完成本地事务后消息一定会发送成功</p>
+<p>消息恢复服务会定期检测事务参与方业务的执行状态和消息库中的数据，如果发现事务参与方业务的执行状态与消息库中的数据不一致（这里的不一致，通常指的是事务参与方消费消息后，执行本地事务操作失败，导致事务参与方本地事务的执行状态与消息库中的数据不一致），消息恢复服务就会恢复消息库中消息的状态，使消息的状态回滚为事务发起方发送消息成功，但未被事务参与方消费的状态</p>
+<h4 id="4-方案的优缺点-1"><a href="#4-方案的优缺点-1" class="headerlink" title="4.方案的优缺点"></a>4.方案的优缺点</h4><p><strong>基于本地消息表实现的最终消息一致性方案</strong></p>
+<p>优点：</p>
+<p><strong>1、</strong> 在业务应用中实现了消息的可靠性，减少了对消息中间件的依赖；</p>
+<p>缺点：</p>
+<p><strong>1、</strong> 绑定了具体的业务场景，耦合性\；<br><strong>2、</strong> 消息数据与业务数据在同一个数据库，占用了业务系统的资源；<br><strong>3、</strong> 消息数据可能会受到数据库并发性的影响；</p>
+<p><strong>基于消息队列中间件实现的最终消息一致性方案</strong></p>
+<p>优点：</p>
+<p><strong>1、</strong> 消息数据能够独立存储，与具体的业务数据库解耦；<br><strong>2、</strong> 消息的并发性和吞吐量优于本地消息表方案；</p>
+<p>缺点：</p>
+<p><strong>1、</strong> 发送一次消息需要完成两次网络交互，一次是消息的发送，另一次是消息的提交或回滚；<br><strong>2、</strong> 需要实现消息的会查接口，增加了开发成本；</p>
+<h4 id="5-需要注意的问题-1"><a href="#5-需要注意的问题-1" class="headerlink" title="5.需要注意的问题"></a>5.需要注意的问题</h4><p>适用可靠消息最终一致性方案解决分布式事务问题是，需要注意本地事务与消息发送的原子性问题、事务参与方接收消息的可靠性与幂等性问题</p>
+<p><strong>事务发送方本地事务与消息发送的原子性问题</strong></p>
+<p>1）原子性问题产生的原因<br>可靠消息最终一致性要求事务发起方的本地事务与消息发送的操作具有原子性，也就是事务发起方执行本地事务成功后，一定要将消息发送出去，执行本地事务失败后，一定要丢弃消息。执行本地事务和发送消息，要么都成功，要么都失败</p>
+<p>2）原子性问题的解决方案<br>在实际的解决方案中，可以通过消息确认服务解决本地事务与消息发送的原子性问题</p>
+<p><strong>事务参与方接收消息的可靠性问题</strong></p>
+<p>1）可靠性问题产生的原因<br>由于服务器宕机、服务崩溃或网络异常等原因，导致事务参与方不能正常接收消息，或者接收消息后处理事务的过程中发生异常，无法将结果正确回传到消息库中。此时，就会产生可靠性问题</p>
+<p>2）可靠性问题的解决方案<br>可以通过消息恢复服务保证事务参与方的可靠性</p>
+<p><strong>事务参与方接收消息的幂等性</strong></p>
+<p>1）幂等性问题产生的原因<br>在实际场景中，由于某种原因，可靠消息服务可能会多次向事务参与方发送消息，如果事务参与方的方法不具有幂等性，就会造成消息重复消费的问题，这就是典型的幂等性问题</p>
+<p>2）可靠性问题的解决方案<br>解决方案就是事务参与方的方法实现要具有幂等性，只要参数相同，无论调用多少次接口或方法，得出的结果都与第一次调用接口或方法得出的结果相同</p>
+<h3 id="五、最大努力通知型解决方案"><a href="#五、最大努力通知型解决方案" class="headerlink" title="五、最大努力通知型解决方案"></a>五、最大努力通知型解决方案</h3><p>当分布式事务跨越多个不同的系统，尤其是不同企业之间的系统时，解决分布式事务问题就需要用到最大努力通知型方案</p>
+<h4 id="1-适用场景-2"><a href="#1-适用场景-2" class="headerlink" title="1.适用场景"></a>1.适用场景</h4><p>最大努力通知型解决方案适用于最终一致性时间敏感度低的场景，并且事务被动方的处理结果不会影响主动方处理结果。最典型的使用场景就是支付成功后，支付平台异步通知商户支付结果</p>
+<h4 id="2-需要实现的服务模式-2"><a href="#2-需要实现的服务模式-2" class="headerlink" title="2.需要实现的服务模式"></a>2.需要实现的服务模式</h4><p>最大努力通知型解决方案需要实现的服务模式是可查询操作和幂等操作</p>
+<p>例如，在充值业务场景中，用户调用支付服务充值成功后，支付服务会按照一定的阶梯型通知规则调用账户服务的接口，向账户服务发送支付数据。此时，账户服务的接口需要满足幂等性，这就是幂等操作。如果支付服务调用账户服务的接口超过了设置的最大次数，仍然没有调用成功，则支付服务需要提供查询支付结果的接口，以便账户服务调用并恢复丢失的业务</p>
+<h4 id="3-方案的执行流程-2"><a href="#3-方案的执行流程-2" class="headerlink" title="3.方案的执行流程"></a>3.方案的执行流程</h4><p>最大努力通知型分布式事务解决方案在执行的过程中，允许丢失消息，但需要业务主动方提供事务状态查询接口，以便业务被动方主动调用并恢复丢失的业务。最大努力通知型分布式事务执行流程如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347183051.png" class="">
+
+<p>实现最大努力通知型方案时，需要实现如下功能：</p>
+<p><strong>1、</strong> 业务主动方在完成业务处理后，会向业务被动方发送消息通知发送消息通知时，允许消息丢失；<br><strong>2、</strong> 在实现上，业务主动方可以设置时间阶梯型通知规则，在消息通知失败后，可以按照规则再次通知，直到到达最大通知次数为止；<br><strong>3、</strong> 业务主动方需要提供查询接口供业务被动方按照需要查询，用于恢复丢失的消息；</p>
+<h4 id="4-方案的优缺点-2"><a href="#4-方案的优缺点-2" class="headerlink" title="4.方案的优缺点"></a>4.方案的优缺点</h4><p>最大努力通知型方案存在如下优点：</p>
+<p><strong>1、</strong> 能够实现跨企业的数据一致性；<br><strong>2、</strong> 业务被动方的处理结果不会影响业务主动方的处理结果；<br><strong>3、</strong> 能够快速接入其他业务系统，达到业务数据一致性；</p>
+<p>最大努力通知型方案存在如下缺点：</p>
+<p><strong>1、</strong> 只适用于时间敏感度低的场景；<br><strong>2、</strong> 业务主动方发送的消息可能丢失，造成业务被动方收不到消息；<br><strong>3、</strong> 需要业务主动方提供查询消息的接口，业务被动方需要按照主动方的接口要求查询数据，增加了开发成本；</p>
+<h4 id="5-需要注意的问题-2"><a href="#5-需要注意的问题-2" class="headerlink" title="5.需要注意的问题"></a>5.需要注意的问题</h4><p>业务被动方需要保证接收通知的方法的幂等性，关键是要业务主动方通过一定的机制最大限度地将业务的处理结果通知给业务被动方，因此必须解决如下两个问题</p>
+<p><strong>消息重复通知产生的问题</strong></p>
+<p>1）消息重复通知产生的原因<br>由于业务主动方发送消息通知后，业务被动方不一定能够接收到消息，因此需要按照一定的阶梯型通知规则重复向业务被动方发送消息通知。此时，就出现了消息重复通知的情况，因为业务被动方的方法被执行了多次，所以有可能造成数据不一致的问题</p>
+<p>2）消息重复通知的解决方案<br>保证业务被动方接收消息通知的方法具备幂等性，则在业务上就能够解决消息重复通知的问题</p>
+<p><strong>消息丢失通知的问题</strong></p>
+<p>1）消息通知丢失问题的原因<br>如果业务主动方尽最大努力都没有将消息通知给业务被动方，或者业务被动方接收到消息并执行完毕后，需要再次获取消息。此时，业务主动方已经删除对应的通知消息，不再向业务被动方发送消息通知，也就是说，消息通知已经丢失</p>
+<p>2）消息通知丢失的解决方案<br>业务主动方需要提供查询消息的接口来满足业务被动方主动查询消息的需求，以恢复丢失的业务。另外，业务主动方在设计消息回查接口时，一定要注意接口的安全性和并发性</p>
+<h4 id="6-最大努力通知与可靠消息最终一致性的区别"><a href="#6-最大努力通知与可靠消息最终一致性的区别" class="headerlink" title="6.最大努力通知与可靠消息最终一致性的区别"></a>6.最大努力通知与可靠消息最终一致性的区别</h4><p>最大努力通知型方案和可靠消息最终一致性方案有着本质的不同，主要体现在设计不同、业务场景不同和解决的问题不同 3 个方面</p>
+<p>设计不同：</p>
+<p><strong>1、</strong> 可靠消息最终一致性方案需要事务发起方一定要将消息发送成功；<br><strong>2、</strong> 最大努力通知型方案中，业务主动方尽最大努力将消息通知给业务被动方，但消息可能会丢失，业务被动方不一定能接收到消息；</p>
+<p>业务场景不同：</p>
+<p><strong>1、</strong> 可靠消息最终一致性方案适用于时间敏感度高的场景，以异步的方式达到事务的最终一直；<br><strong>2、</strong> 最大努力通知型方案适用于时间敏感度低的场景，业务主动方只需要将处理结果通知出去；</p>
+<p>解决的问题不同：</p>
+<p><strong>1、</strong> 可靠消息最终一致性方案解决的时消息从事务发起方发出，到事务参与方接收的一致性，并且事务参与方接收到消息后，能够正确地执行事务操作，达到事务最终一致；<br><strong>2、</strong> 最大努力通知型方案虽然无法保证消息从业务主动方发出到业务被动方接收的一致性，但是能够提供消息接收的可靠性这里的可靠性包括业务被动方能够接收到业务主动方通知的消息和业务被动方能够主动查询业务主动方提供的消息回查接口，来恢复丢失的业务；</p>
+<h2 id="TCC事务原理"><a href="#TCC事务原理" class="headerlink" title="TCC事务原理"></a>TCC事务原理</h2><h3 id="一、TCC-核心思想"><a href="#一、TCC-核心思想" class="headerlink" title="一、TCC 核心思想"></a>一、TCC 核心思想</h3><p>TCC分布式事务最核心的思想就是在应用层将一个完整的事务操作分为三个阶段。在某种程度上讲，TCC 是一种资源，实现了 Try、Confirm、Cancel 三个操作接口。与传统的两阶段提交协议不同的是，TCC 是一种在应用层实现的两阶段提交协议，在 TCC 分布式事务中，对每个业务操作都会分为 Try、Confirm 和 Cancel 三个阶段，每个阶段所关注的重点不同，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347196431.png" class="">
+
+<p><strong>Try 阶段</strong></p>
+<p>Try阶段是准备执行业务的阶段，在这个阶段尝试执行业务，重点关注如下事项：</p>
+<p><strong>1、</strong> 完成所有的业务检查，确保数据的一致性；<br><strong>2、</strong> 预留必要的业务资源，确保数据的隔离性；</p>
+<p>在下单扣减库存的业务场景中，如果使用了 TCC 分布式事务，则需要在 Try 阶段检查商品的库存数量是否大于或者等于下单提交的商品数量，如果商品的库存数量大于或者等于下单提交的商品数量，则标记扣减库存数量。此时的商品数量并没有真正扣减，只是做资源预留操作，并且会将订单信息保存到数据库，标记为待提交状态。如果商品的库存数量小于下单提交的商品数量，则提示用户库存不足，并且删除提交的订单数据或者将订单状态标记为删除</p>
+<p><strong>Confirm 阶段</strong></p>
+<p>Confirm 阶段是确认执行业务的阶段，在这个阶段确认执行的业务。此时，重点关注如下事项：</p>
+<p><strong>1、</strong> 真正执行业务；<br><strong>2、</strong> 不做任何业务逻辑检查，直接将数据持久化到数据库；<br><strong>3、</strong> 直接使用Try阶段预留的业务资源；</p>
+<p>在下单扣减库存的业务场景中，由于在 Try 阶段已经检查过商品的库存数量大于或者等于下单提交的商品数量，因此在 Confirm 阶段不会进行二次检查，直接将订单的抓过你太更新为 “已提交”，并且真正执行扣减库存操作。在 Confrim 阶段是真正地执行业务操作，其间不会做任何业务检查，直接使用 Try 阶段预留的业务资源</p>
+<p><strong>Cancel 阶段</strong></p>
+<p>Cancel 阶段取消执行业务，重点关注如下事项：</p>
+<p><strong>1、</strong> 释放Try阶段预留的业务资源；<br><strong>2、</strong> 将数据库中的数据恢复到最初的状态；</p>
+<p>在下单扣减库存地业务场景中，假设 Try 阶段检查的结果为商品地库存数量大于或者等于下单提交的商品数量，在执行完订单提交业务后，执行扣减库存操作时发生异常，或者在执行 Confirm 阶段地业务时发生异常。此时，会执行 Cancel 阶段的操作回滚业务，使数据回到提交订单之前的状态</p>
+<p>在某种程度上，TCC 分布式事务的三个阶段与关系型数据库的事务操作也存在类似的地方，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347198131.png" class="">
+
+<p>在一个分布式或微服务系统中，TCC 分布式事务的 Try 阶段是先把多个应用中的业务资源锁定，预留执行分布式事务的资源。同样，关系型数据库的 DML 操作会锁定数据库的行记录，持有数据库的资源。TCC 分布式事务的 Confirm 操作是在所有涉及分布式事务的应用的 Try 阶段都执行成功后确认并提交最终事务状态的操作，而关系型数据库的 Commit 操作是在所有的 DML 操作执行成功之后提交事务。TCC 分布式事务的 Cancel 操作是在涉及分布式事务的应用没有全部执行成功时，将已经执行成功的应用进行回滚，而关系型数据库的回滚操作是在执行的 DML 操作存在异常时执行的。关系型数据库中的 Commit 操作和 Rollback 操作也是一对反向业务操作，TCC 分布式事务中的 Confirm 操作和 Cancel 操作也是一对反向业务操作</p>
+<p>另外，由于使用 TCC 分布式事务时，各业务系统的事务未达到最终状态时，会存在短暂的数据不一致现象，因此各业务系统需要具备兼容数据最终一致性之前带来的可见性问题的能力</p>
+<h3 id="二、TCC-实现原理"><a href="#二、TCC-实现原理" class="headerlink" title="二、TCC 实现原理"></a>二、TCC 实现原理</h3><p>TCC分布式事务在应用层将整体事务的执行分为 Try、Confirm、Cancel 三个阶段。每个阶段的执行不会过多地占用数据库资源，而是在 Try 阶段预留事务必须的业务资源。TCC 分布式事务的实现与其核心原理密不可分</p>
+<h4 id="1-TCC-核心组成"><a href="#1-TCC-核心组成" class="headerlink" title="1.TCC 核心组成"></a>1.TCC 核心组成</h4><p>一个完整的 TCC 分布式事务需要包含三个部分：主业务服务、从业务服务和 TCC 管理器，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347199361.png" class="">
+
+<p>主业务服务是 TCC 分布式事务的发起方，在下单扣减库存的业务场景中，订单服务是 TCC 分布式事务的发起方，就是主业务服务</p>
+<p>从业务服务主要负责提供 TCC 业务操作，是整个业务活动的操作方。从业务活动必须实现 TCC 分布式事务 Try、Confirm 和 Cancel 三个阶段的接口，供主业务服务调用。由于在 TCC 分布式事务的执行过程中，Confirm 阶段的操作和 Cancel 阶段的操作可能会被执行多次，因此需要 Confirm 阶段的操作和 Cancel 阶段的操作保证幂等性</p>
+<p>TCC管理器在整个 TCC 分布式事务的执行过程中，管理并控制着整个事务活动，包括记录并维护 TCC 全局事务的事务状态和每个从业务服务的分支事务状态，并在参与分布式事务的所有分支事务的 Try 阶段都执行成功时，自动调用每个分支事务的 Confirm 阶段的操作，完成分布式事务，同时会在参与分布式事务的某些分支事务执行失败时，自动调用分支事务的 Cancel 操作回滚分布式事务</p>
+<h4 id="2-TCC-核心原理"><a href="#2-TCC-核心原理" class="headerlink" title="2.TCC 核心原理"></a>2.TCC 核心原理</h4><p>在使用TCC 分布式事务解决分布式场景下的数据一致性问题时，需要将原本的一个事务接口改造成三个不同的事务逻辑，也就是前文说的 Try 阶段、Confirm 阶段和 Cancel 阶段</p>
+<p>原本一个接口的方法完成的事务逻辑也要分拆成如下执行流程：</p>
+<p><strong>1、</strong> 依次执行所有参与TCC分布式事务的分支事务Try阶段的操作；<br><strong>2、</strong> 如果每个分支事务Try阶段的逻辑都执行成功，则TCC分布式事务管理器会自动调用每个分支事务Confirm阶段的方法并执行，完成整个分布式事务的逻辑；<br><strong>3、</strong> 如果某个分支事务的Try逻辑或者Confirm逻辑的执行出现问题，则TCC分布式事务管理器会自动感知这些异常信息，然后自动调用每个分支事务Cancel阶段的方法执行Cancel逻辑，回滚之前执行的各种操作，使数据恢复到执行TCC分布式事务之前的状态；</p>
+<p>讲得直白点，就是如果遇到如下情况，TCC 分布式事务会在 Try 阶段检查参与分布式事务的各个服务、数据库和资源是否都能够保证分布式事务正常执行，能否将执行分布式事务的资源预留出来，而不是先执行业务逻辑操作：</p>
+<p><strong>1、</strong> 数据库或其他数据存储服务宕机；<br><strong>2、</strong> 某个应用服务宕机；<br><strong>3、</strong> 参与分布式事务的资源不足；</p>
+<p>如果参与分布式事务的服务都正常执行了，也就是说，数据库或其他数据存储能够正常提供服务，所有参与分布式事务的应用服务正常，执行分布式事务时需要的资源充足，并且在 Try 阶段顺利预留出执行分布式事务需要的资源，再执行 TCC 分布式事务的 Confirm 阶段，就能够大概率保证分布式事务成功执行</p>
+<p>如果在Try 阶段，某个服务执行失败了，可能是数据库或者其他数据存储宕机了，或者是这个服务宕机了，也有可能是这个服务对应的数据资源不足。此时，会自动执行各个服务 Cancel 阶段的的逻辑，回滚 Try 阶段执行的业务逻辑，将数据恢复到执行分布式事务之前的状态</p>
+<p>其实，通过上面的逻辑，TCC 分布式事务还是不能保证执行结果数据的一致性。这里存在一个问题，那就是如果发生了异常情况，例如，在下单扣减库存的业务场景中，订单服务突然宕机，然后重启订单服务，TCC 分布式事务如何保证之前没有执行完的事务继续执行呢？</p>
+<p>这种问题在实际的业务场景中是经常出现的，在设计 TCC 分布式事务框架时必须要考虑这种异常场景。在执行 TCC 分布式事务时，需要记录一些分布式事务的活动日志，将这些活动日志存储到文件或者数据库中，将分布式事务的各个阶段和每个阶段执行的状态全部记录下来</p>
+<p>除了参与 TCC 分布式事务的某些服务宕机这种问题，还需要注意空回滚、幂等和悬挂等问题</p>
+<p>综，可以得出 TCC 分布式事务总体执行的示意图：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347200093.png" class="">
+
+<p>无论是主业务服务还是从业务服务，在执行 TCC 分布式事务时，都需要 TCC 事务管理器的参与。在实际业务场景中，TCC 事务管理器作为某一种具体的 TCC 分布式事务框架，例如 Dromara 开源社区的 Hmily 框架，会在 Try 阶段进行业务检查、预留业务资源。在 Confirm 阶段不再进行业务检查，使用 Try 阶段预留的业务资源真正地执行业务操作。在 Cancel 阶段释放 Try 阶段预留的资源，使数据回滚到执行 YCC 分布式事务之前地状态。在 TCC 分布式事务地每个姐u但，TCC 事务管理器都会将各个阶段和每个阶段执行的状态全部记录到事务记录数据库或者事务记录文件中</p>
+<p>通过上面的执行逻辑，只要业务逻辑中不存在明显的 Bug 和异常，TCC 分布式事务就能够保证所有参与分布式事务的服务逻辑要么全部执行成功，要么全部不执行</p>
+<h3 id="三、TCC-核心流程"><a href="#三、TCC-核心流程" class="headerlink" title="三、TCC 核心流程"></a>三、TCC 核心流程</h3><p>为了更好地理解 TCC 分布式事务的执行流程程，本节以电商业务场景中提交订单、扣减库存、增加积分、创建出库单的场景为例，简单介绍 TCC 分布式事务每个阶段的核心执行流程</p>
+<h4 id="1-业务场景介绍"><a href="#1-业务场景介绍" class="headerlink" title="1.业务场景介绍"></a>1.业务场景介绍</h4><p>在电商业务场景中，一个典型的业务场景就是支付订单。这个场景包含修改订单抓过你太、扣减库存、增加积分、创建出库单等业务，这些业务要么全部执行成功， 要么全部执行失败，必须是一个完整的事务。如果不能构成一个完整的事务，就有可能出现库存未扣减或者超卖的问题</p>
+<p>如果没有使用分布式事务，在订单服务中，修改订单状态成功，调用远程的库存服务出现异常，此时有可能出现修改订单成功，但库存未扣减的情况，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347201946.png" class="">
+
+<p>如果库存服务出现异常，则订单服务在第 ② 步调用库存服务执行扣减库存的操作就失败了，随后调用积分服务增加积分和调用存储服务生成出库单却都成功了，此时就出现了支付修改订单状态成功，商品库存未扣减的情况</p>
+<p>如果修改订单状态的操作执行失败，而调用库存服务扣减商品库存的操作执行成功，此时就出现了商品库存被异常扣减的情况，可能会导致超卖的现象，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347203597.png" class="">
+
+<p>在支付订单的场景中，第 ① 步更新订单操作失败，但是后续调用库存服务、积分服务和仓储服务都执行成功，这种情况可能就是用户支付失败，或者取消了支付，但是仍旧扣减了库存、增加了用户积分、提交了出库单，最终可能会导致商品超卖的严重问题</p>
+<p>在电商支付订单的业务场景中，涉及多个服务之间的调用，为了保证数据的一致性，必须使用分布式事务。接下来，结合电商支付订单的业务场景，简单介绍一下 TCC 分布式事务中每个阶段的执行流程</p>
+<h4 id="2-Try-阶段流程"><a href="#2-Try-阶段流程" class="headerlink" title="2.Try 阶段流程"></a>2.Try 阶段流程</h4><p>在电商支付订单的业务场景中，为了保证最终数据的一致性，对于订单服务，不能将订单状态直接更新为 “支付成功”，而是要先更新为 “支付中” 的状态；对于库存服务，也不能直接扣减库存，而是要扣减库存后在冻结库存的字段中保存扣减库存的数量；对于积分服务，不能直接为用户账户增加积分，而是要在单独的字段中设置用户应该增加的积分；对于仓储服务，创建的出库单状态应该被标记为 “不确定”，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347205103.png" class="">
+
+<p>在电商支付订单的场景中，Try 阶段主要的业务流程如下所示：</p>
+<p><strong>1、</strong> 订单服务将订单数据库中订单的状态更新为“支付中”；<br><strong>2、</strong> 订单服务调用库存服务冻结部分库存，将冻结的库存数量也就是用户下单时提交的商品数量，单独写入商品库存表的冻结字段中，同时将商品库存数量减去冻结的商品数量；<br><strong>3、</strong> 订单服务调用积分服务进行预增加积分的操作，在用户积分数据表中，将要增加的积分写入单独的预增加积分字段中，而不是直接增加用户的积分；<br><strong>4、</strong> 订单服务调用仓储服务生成出库单时，将出库单的状态标记为“未知”，并不直接生成正常的出库单；</p>
+<h4 id="3-Confirm-阶段流程"><a href="#3-Confirm-阶段流程" class="headerlink" title="3.Confirm 阶段流程"></a>3.Confirm 阶段流程</h4><p>如果Try 阶段的业务逻辑全部执行成功，则 TCC 分布式事务会执行 Confirm 阶段的业务逻辑。在实际场景中，Confirm 阶段的执行往往是由 TCC 分布式事务框架调用完成的。在订单服务中会将订单的状态由 “支付中” 更新为 “支付成功”。在库存服务中会真正地扣减库存，将写入冻结字段的库存数量减去当次下单时提交的商品数量。在积分服务中会将当次支付产生的积分从预增加积分字段中扣除，并将对应的积分增加到用户积分账户中。在仓储服务中会将出库单的状态由 “未知” 更新为 “已创建”，如下图所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347206729.png" class="">
+
+<p>在电商支付订单的场景中，Confirm 阶段主要的业务流程如下所示：</p>
+<p><strong>1、</strong> 订单服务将订单数据库中订单的状态更新为“支付成功”；<br><strong>2、</strong> TCC分布式事务框架调用库存服务中Confirm阶段的方法，真正地扣减库存，将预扣减字段中的库存数量减去当次下单提交的商品数量；<br><strong>3、</strong> TCC分布式事务框架调用积分服务中Confirm阶段的方法，真正地增加积分，将预增加积分字段中的积分数量减去当次支付产生地积分数量，并且在用户的积分账户中增加当次支付产生的积分数量；<br><strong>4、</strong> TCC分布式事务框架调用仓储服务中Confirm阶段的方法，将出库单的状态更新为“已创建”；</p>
+<h4 id="4-Cancel-阶段流程"><a href="#4-Cancel-阶段流程" class="headerlink" title="4.Cancel 阶段流程"></a>4.Cancel 阶段流程</h4><p>如果Try 阶段的业务执行失败，或者某个服务出现异常等，TCC 分布式事务框架能够感知到这些异常信息，会自动执行 Cancel 阶段的流程，对整个 TCC 分布式事务进行回滚。在实际场景中，Cancel 阶段的执行往往是由 TCC 分布式事务框架调用完成的</p>
+<p>在订单服务中，将订单的状态更新为 “已取消”。在库存服务中，将当次下单提交的商品数量加回到商品库存字段中，并且在预扣减库存的字段中减去当次下单提交的商品数量。在积分服务中，在预增加积分字段中减去当次支付产生的积分数量。在仓储服务中，将出库单的状态标记为 “已取消”。具体流程如下所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1699347208450.png" class="">
+
+<p>在电商支付的场景中，Cancel 阶段主要的业务流程如下所示：</p>
+<p><strong>1、</strong> 订单服务将订单数据库中订单的状态标记为“已取消”；<br><strong>2、</strong> TCC分布式事务框架调用库存服务Cancel阶段的方法进行事务回滚，将库存数据表中的预扣减库存字段中存储的商品数量减去当次下单提交的商品数量，并且将库存数据表中的商品库存字段存储的商品库存数量增加当次下单提交的商品数量；<br><strong>3、</strong> TCC分布式事务框架调用积分服务Cancel阶段的方法进行事务回滚，将积分数据中的预增加积分字段中的积分数量减去当次支付产生的积分数量；<br><strong>4、</strong> TCC分布式事务框架调用仓储服务Cancel阶段的方法进行事务回滚，将出库单的状态标记为“已取消”；</p>
+<h3 id="四、TCC-关键技术"><a href="#四、TCC-关键技术" class="headerlink" title="四、TCC 关键技术"></a>四、TCC 关键技术</h3><p>在TCC 事务管理器，也就是 TCC 分布式事务框架的实现过程中，有几项关键技术需要注意。本节就以 Dromara 开源社区的 TCC 分布式事务框架 Hmily 为例，简单介绍实现 TCC 分布式事务框架的关键技术</p>
+<p><strong>AOP 切面</strong></p>
+<p>实现TC 分布式事务的第一个核心技术就是 AOP 切面。无论是 TCC 分布式事务的发起者，还是参与者，都需要经过 AOP 切面的处理。通过 AOP 切面拦截具体的业务逻辑，在 AOP 切面中执行事务日志的记录、远程调用等逻辑。Hmily 框架中大量使用了 Spring 的 AOP 切面，处理分布式事务问题</p>
+<p><strong>反射技术</strong></p>
+<p>实现TCC 分布式事务的第二个核心技术就是反射技术。TCC 分布式事务中 Confirm 阶段的方法和 Cancel 阶段的方法是通过反射技术调用的。这也就是 Hmily 框架在 Try 阶段的方法上使用注解来指定 Confirm 方法和 Cancel 方法的原因。在 Try 阶段的方法上使用注解指定 Confirm 方法和 Cancel 方法，Hmily 框架会在执行完 Try 方法后，使用反射技术自动调用 Confirm 方法或者 Cancel 方法</p>
+<p><strong>持久化技术</strong></p>
+<p>实现TCC 分布式事务的第三个核心技术就是持久化技术。在分布式事务的实现中，所有参与事务的服务都存在数据的持久化操作。在分布式环境中，由于网络的不稳定性，随时都有可能出现调用服务方法失败的情况，在 TCC 分布式事务中，需要保证数据的最终一致性。如果只有一部分服务的请求被正常处理，则另一部分的请求最终也需要被处理，对请求数据持久化是必不可少的。Hmily 框架不仅支持使用 Redis、ZooKeeper、文件、缓存、ETCD、MongoDB 等进行持久化操作，还提供了 SPI 扩展接口，使具体业务能够根据实际需求实现自身的持久化技术</p>
+<p><strong>序列化技术</strong></p>
+<p>实现TCC 分布式事务的第四个核心技术就是序列化技术。在分布式环境中，数据的持久化和在网络传输中的传输，都需要序列化技术的支持。Hmily 框架支持的序列化技术包括 JDK 自带的序列化技术、Hessiian 序列化技术、Kyro 序列化技术、MsgPack 序列化技术和 ProtoBuf 序列化技术。另外，Hmily 框架还提供了 SPI 扩展接口，使具体的业务能够根据实际需求实现自身的序列化技术</p>
+<p><strong>定时任务</strong></p>
+<p>实现TCC 分布式事务的第五个核心技术就是定时任务。在分布式环境中，由于网络的不稳定性，难免会出现方法调用失败的情况，此时，需要利用定时任务来重试方法的调用操作。Hmily 框架实现了当方法调用失败时，使用定时任务进行重试的机制</p>
+<p><strong>动态代理</strong></p>
+<p>实现TCC 分布式事务的第六个核心技术就是动态代理。分布式环境中存在很多远程调用框架，在分布式事务的实现过程中，需要通过动态代理的方式支持多种远程调用框架，在分布式事务的实现过程中，需要通过动态代理的方式支持多种远程调用框架。例如，在 Hmily 框架中通过动态代理支持多种远程调用框架，这些远程调用框架包括 Apache Dubbo、Alibaba Dubbo、BRPC、gRPC、Motan、Sofa-RPC、Spring Cloud、Tars 等</p>
+<p><strong>多配置源技术</strong></p>
+<p>实现TCC 分布式事务的第七个核心技术就是多配置源技术，在分布式环境中，为了便于管理各业务系统的配置，往往会几种存储各业务系统的配置，并通过相应的技术快速同步到各业务系统的本地缓存中。由于在真正的业务场景中，会存在不同的配置存储技术，因此实现分布式事务时，需要支持多配置源技术。例如，在 Hmily 框架中，就实现了多种配置源技术，这些配置源包括 Apollo、Consul、ETCD、Loader、Nacos、Zookeeper、本地存储等。另外，Hmily 框架还提供了 SPI 扩展接口，使具体的业务能够根据实际需求实现自身的配置源技术</p>
+<h2 id="Sega方案"><a href="#Sega方案" class="headerlink" title="Sega方案"></a>Sega方案</h2><p>Saga模式是一种分布式异步事务，一种最终一致性事务，是一种柔性事务。</p>
+<p>Saga事务模型又叫做长时间运行的事务（Long-running-transaction）, 它是由普林斯顿大学的H.Garcia-Molina等人提出，它描述的是另外一种在没有两阶段提交的的情况下解决分布式系统中复杂的业务事务问题。</p>
+<h3 id="Saga的组成"><a href="#Saga的组成" class="headerlink" title="Saga的组成"></a>Saga的组成</h3><p>每个Saga由一系列sub-transaction Ti 组成<br>每个Ti 都有对应的补偿动作Ci，补偿动作用于撤销Ti造成的结果<br>可以看到，和TCC相比，Saga没有“预留”动作，它的Ti就是直接提交到库。</p>
+<p>Saga的执行顺序有两种：</p>
+<p>T1,T2, T3, …, Tn<br>T1,T2, …, Tj, Cj,…, C2, C1，其中0 &lt; j &lt; n</p>
+<p>Saga定义了两种恢复策略：<br>backward recovery，向后恢复，即上面提到的第二种执行顺序，其中j是发生错误的sub-transaction，这种做法的效果是撤销掉之前所有成功的sub-transation，使得整个Saga的执行结果撤销。<br>forward recovery，向前恢复，适用于必须要成功的场景，执行顺序是类似于这样的：T1, T2, …, Tj(失败), Tj(重试),…, Tn，其中j是发生错误的sub-transaction。该情况下不需要Ci。</p>
+<h3 id="和TCC对比"><a href="#和TCC对比" class="headerlink" title="和TCC对比"></a>和TCC对比</h3><p>Saga相比TCC的缺点是缺少预留动作，导致补偿动作的实现比较麻烦：Ti就是commit，比如一个业务是发送邮件，在TCC模式下，先保存草稿（Try）再发送（Confirm），撤销的话直接删除草稿（Cancel）就行了。而Saga则就直接发送邮件了（Ti），如果要撤销则得再发送一份邮件说明撤销（Ci），实现起来有一些麻烦。</p>
+<p>如果把上面的发邮件的例子换成：A服务在完成Ti后立即发送Event到ESB（企业服务总线，可以认为是一个消息中间件），下游服务监听到这个Event做自己的一些工作然后再发送Event到ESB，如果A服务执行补偿动作Ci，那么整个补偿动作的层级就很深。</p>
+<h4 id="不过没有预留动作也可以认为是优点："><a href="#不过没有预留动作也可以认为是优点：" class="headerlink" title="不过没有预留动作也可以认为是优点："></a>不过没有预留动作也可以认为是优点：</h4><p>有些业务很简单，套用TCC需要修改原来的业务逻辑，而Saga只需要添加一个补偿动作就行了。</p>
+<p>TCC最少通信次数为2n，而Saga为n（n&#x3D;sub-transaction的数量）。</p>
+<p>有些第三方服务没有Try接口，TCC模式实现起来就比较棘手了，而Saga则很简单。</p>
+<p>没有预留动作就意味着不必担心资源释放的问题，异常处理起来也更简单（请对比Saga的恢复策略和TCC的异常处理）。</p>
+<h3 id="实现Saga的注意事项"><a href="#实现Saga的注意事项" class="headerlink" title="实现Saga的注意事项"></a>实现Saga的注意事项</h3><p>对于服务来说，实现Saga有以下这些要求：</p>
+<p>Ti和Ci是幂等的。<br>Ci必须是能够成功的，如果无法成功则需要人工介入。<br>Ti- Ci和Ci - Ti的执行结果必须是一样的：sub-transaction被撤销了。</p>
+<p>第一点要求Ti和Ci是幂等的，举个例子，假设在执行Ti的时候超时了，此时我们是不知道执行结果的，如果采用forward recovery策略就会再次发送Ti，那么就有可能出现Ti被执行了两次，所以要求Ti幂等。如果采用backward recovery策略就会发送Ci，而如果Ci也超时了，就会尝试再次发送Ci，那么就有可能出现Ci被执行两次，所以要求Ci幂等。</p>
+<p>第二点要求Ci必须能够成功，这个很好理解，因为，如果Ci不能执行成功就意味着整个Saga无法完全撤销，这个是不允许的。但总会出现一些特殊情况比如Ci的代码有bug、服务长时间崩溃等，这个时候就需要人工介入了。</p>
+<p>第三点乍看起来比较奇怪，举例说明，还是考虑Ti执行超时的场景，我们采用了backward recovery，发送一个Ci，那么就会有三种情况：</p>
+<p>Ti的请求丢失了，服务之前没有、之后也不会执行Ti<br>Ti在Ci之前执行<br>Ci在Ti之前执行<br>对于第1种情况，容易处理。对于第2、3种情况，则要求Ti和Ci是可交换的（commutative)，并且其最终结果都是sub-transaction被撤销。</p>
+<h3 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h3><p>电子商务示例，用户下单涉及到订单，支付，库存，发货等服务。非常高层次级的Saga设计实现如下所示：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1711848628792.png" class="">
+
+<p>实现方式一：事件&#x2F;编排Choreography</p>
+<p>在Events&#x2F;Choreography方法中，第一个服务执行一个事务，然后发布一个事件。该事件被一个或多个服务进行监听，这些服务再执行本地事务并发布（或不发布）新的事件。当最后一个服务执行本地事务并且不发布任何事件时，意味着分布式事务结束，或者它发布的事件没有被任何Saga参与者听到都意味着事务结束。</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1711848629209.png" class="">
+
+<p>步骤如下：</p>
+<p><strong>1、</strong> 订单服务保存新订单，将状态设置为pengding挂起状态，并发布名为ORDER_CREATED_EVENT的事件；<br><strong>2、</strong> 支付服务监听ORDER_CREATED_EVENT，并公布事件BILLED_ORDER_EVENT；<br><strong>3、</strong> 库存服务监听BILLED_ORDER_EVENT，更新库存，并发布ORDER_PREPARED_EVENT；<br><strong>4、</strong> 货运服务监听ORDER_PREPARED_EVENT，然后交付产品最后，它发布ORDER_DELIVERED_EVENT；<br><strong>5、</strong> 最后，订单服务侦听ORDER_DELIVERED_EVENT并设置订单的状态为concluded完成；</p>
+<p>在上面的情况下，如果需要跟踪订单的状态，订单服务可以简单地监听所有事件并更新其状态。 在这个案例中，除了订单服务以外的其他服务都是订单服务的子服务，也就是说，为完成一个订单服务，需要经过这些步骤，订单服务与这些服务是包含与被包含关系，因此，订单服务在业务上天然是一个协调器。回滚分布式事务并不是免费的。通常情况下，您必须实施额外操作才能弥补以前所做的工作。</p>
+<p>假设库存服务在事务过程中失败了。让我们看看回滚是什么样子的：</p>
+<p><strong>1、</strong> 库存服务产生PRODUCT_OUT_OF_STOCK_EVENT;；<br><strong>2、</strong> 订购服务和支付服务会监听到上面库存服务的这一事件：；<br><strong>1、</strong> 支付服务会退款给客户；<br><strong>2、</strong> 订单服务将订单状态设置为失败；</p>
+<p>请注意，为每个事务定义一个公共共享ID非常重要，因此每当您抛出一个事件时，所有侦听器都可以立即知道它引用的是哪个事务。</p>
+<p>saga事件&#x2F;编排设计的优点和缺点</p>
+<p>事件&#x2F;编排是实现Saga模式的自然方式; 它很简单，容易理解，不需要太多的努力来构建，所有参与者都是松散耦合的，因为他们彼此之间没有直接的耦合。如果您的事务涉及2至4个步骤，则可能是非常合适的。<br>但是，如果您在事务中不断添加额外步骤，则此方法可能会很快变得混乱，因为很难跟踪哪些服务监听哪些事件。此外，它还可能在服务之间添加循环依赖，因为它们必须订阅彼此的事件。<br>最后，使用这种设计来实现测试将会非常棘手。为了模拟交易行为，您应该运行所有服务。</p>
+<p>实现方式二：命令&#x2F;协调orchestrator</p>
+<p>这里我们定义了一项新服务，全权负责告诉每个参与者该做什么以及什么时候该做什么。saga协调器orchestrator以命令&#x2F;回复的方式与每项服务进行通信，告诉他们应该执行哪些操作。</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1711848629886.png" class="">
+
+<p><strong>1、</strong> 订单服务保存pending状态，并要求订单Saga协调器（简称OSO）开始启动订单事务；<br><strong>2、</strong> OSO向收款服务发送执行收款命令，收款服务回复PaymentExecuted消息；<br><strong>3、</strong> OSO向库存服务发送准备订单命令，库存服务将回复OrderPrepared消息；<br><strong>4、</strong> OSO向货运服务发送订单发货命令，货运服务将回复OrderDelivered消息；</p>
+<p>OSO订单Saga协调器必须事先知道执行“创建订单”事务所需的流程(通过读取BPM业务流程XML配置获得)。如果有任何失败，它还负责通过向每个参与者发送命令来撤销之前的操作来协调分布式的回滚。当你有一个中央协调器协调一切时，回滚要容易得多，因为协调器默认是执行正向流程，回滚时只要执行反向流程即可。类似saga协调器的标准模式是状态机，其中每个转换对应于命令或消息。状态机是构建定义明确的行为的极好模式，因为它们易于实现，特别适用于测试。</p>
+<p>命令&#x2F;协调器设计的优点和缺点</p>
+<p>基于协调器的Saga有很多好处：</p>
+<p><strong>1、</strong> 避免服务之间的循环依赖关系，因为saga协调器会调用saga参与者，但参与者不会调用协调器；<br><strong>2、</strong> 集中分布式事务的编排；<br><strong>3、</strong> 只需要执行命令&#x2F;回复(其实回复消息也是一种事件消息)，降低参与者的复杂性；<br><strong>4、</strong> 更容易实施和测试；<br><strong>5、</strong> 在添加新步骤时，事务复杂性保持线性，回滚更容易管理；<br><strong>6、</strong> 如果在第一笔交易还没有执行完，想改变有第二笔事务的目标对象，则可以轻松地将其暂停在协调器上，直到第一笔交易结束；</p>
+<p>缺点:</p>
+<p><strong>1、</strong> 有在协调器中集中太多逻辑的风险，并最终导致智能协调器会告诉愚蠢的服务该做什么的架构，这不符合Martinfowler定义微服务应该是聪明的服务+哑巴或愚蠢的管道；<br><strong>2、</strong> 是它会稍微增加基础设施的复杂性，因为您需要管理额外的服务同时增加单点风险，协调器一旦出问题，全局影响；</p>
+<h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><p><strong>1、</strong> 为每个事务创建一个唯一的ID；<br>为每项事务设置一个唯一的标识符是追踪后续处理步骤的常用技术，但它也有助于参与者以标准方式向对方请求数据。例如，通过使用事务ID，送货服务可以要求库存服务在哪里提取产品，如果订单已付款，请与支付服务进行双重检查。</p>
+<p><strong>2、</strong> 在命令Command中添加回复地址；<br>可以考虑像在消息中发送回复地址，而不是让参与者回复固定地址，这样您可以让参与者回复多个协调人。</p>
+<p><strong>3、</strong> 幂等操作；<br>如果您使用队列进行服务之间的通信（如SQS，Kafka，RabbitMQ等），我个人建议您将您的操作设置为幂等。这些队列中的大多数可能会传递相同的消息两次。（Kafak 0.10以后已经支持正好一次消息传递，消除了重复消息传递）</p>
+<p><strong>4、</strong> 它也可能会增加服务的容错能力通常，客户端中的错误可能会触发&#x2F;重放不需要的消息，并与数据库混淆；</p>
+<p><strong>5、</strong> 避免同步通信；<br>随着事务的进行，不要忘记在消息中添加每个要执行的操作所需的所有数据。整个目标是避免服务之间再进行同步调用，以请求更多的数据。它将使您的服务能够在其他服务脱机时执行其本地事务。很多人错误地使用消息系统，先使用消息系统发送一个提醒通知，然后再让消息接受者通过服务接口过来取数据，这等同于没有使用消息系统，因为同步操作会堵塞，而消息系统是非堵塞的，大数据读取时同步经常会堵塞，这是无法通过事前评估数据量大小来主观以为这么小数据量不会造成堵塞的。</p>
+<h2 id="Seata-产品"><a href="#Seata-产品" class="headerlink" title="Seata 产品"></a>Seata 产品</h2><p>2019年1月，阿里巴巴中间件团队发起了开源项目 Fescar（Fast &amp; EaSy Commit And Rollback），和社区一起共建开源分布式事务解决方案。Fescar 的愿景是让分布式事务的使用像本地事务的使用一样，简单和高效，并逐步解决开发者们遇到的分布式事务方面的所有难题。Fescar 开源后，蚂蚁金服加入 Fescar 社区参与共建，并在 Fescar 0.4.0 版本中贡献了 TCC 模式。</p>
+<p>2019年3月，对 Fescar 进行品牌升级，并更名为 Seata，意为：Simple Extensible Autonomous Transaction Architecture，是一套一站式分布式事务解决方案。</p>
+<p>蚂蚁金服内部大量使用TCC解决跨服务事务问题，TCC是一种高性能灵活的事务解决方案，支持了蚂蚁金服双十一的高性能需求，支持了异地多活的高可用需求；此外，为了让分布式事务使用更加便捷，我们推出AT、XA 两种无侵入的事务解决方案；当前蚂蚁的分布式事务解决方案主要有TCC、AT和XA 三种模式，丰富的模式覆盖了分布式事务的各类使用场景。</p>
+<p>蚂蚁金服分布式事务经过12年的发展和演进，积累了TCC、AT、XA 三种使用模式，有丰富的应用场景，在高性能和高用方面也有大量实践经验；开源产品Seata中将逐步集成 AT、TCC、和XA三种模式，目前已经有了AT和TCC模式，XA也已规划。</p>
+<h3 id="AT模式"><a href="#AT模式" class="headerlink" title="AT模式"></a>AT模式</h3> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1711848630446.png" class="">
+
+<p>步骤：</p>
+<p><strong>1、</strong> TM向TC申请开启一个全局事务，全局事务创建成功并生成一个全局唯一的XID；<br><strong>2、</strong> XID在微服务调用链路的上下文中传播；<br><strong>3、</strong> RM向TC注册分支事务，将其纳入XID对应全局事务的管辖；<br><strong>4、</strong> TM向TC发起针对XID的全局提交或回滚决议；<br><strong>5、</strong> TC调度XID下管辖的全部分支事务完成提交或回滚请求；</p>
+<p>Transaction Coordinator (TC)： 事务协调器，维护全局事务的运行状态，负责协调并驱动全局事务的提交或回滚，这个组件需要独立部署维护。<br>Transaction Manager (TM)： 控制全局事务的边界，负责开启一个全局事务，并最终发起全局提交或全局回滚的决议。<br>Resource Manager (RM)： 控制分支事务，负责分支注册、状态汇报，并接收事务协调器的指令，驱动分支（本地）事务的提交和回滚。</p>
+<p><strong>虽然是二阶段提交协议的分布式事务，但是其解决了上面XA的一些缺点:</strong></p>
+<h4 id="单点问题"><a href="#单点问题" class="headerlink" title="单点问题:"></a>单点问题:</h4><p>虽然目前还是单server的，但是官方预计将会在0.5.x中推出HA-Cluster，到时候就可以解决单点问题。</p>
+<h4 id="同步阻塞"><a href="#同步阻塞" class="headerlink" title="同步阻塞:"></a>同步阻塞:</h4><p>在第一阶段的时候本地事务就已经提交释放资源了，不会像XA会再两个prepare和commit阶段资源都锁住，并且Seata,commit是异步操作，也是提升性能的一大关键。</p>
+<h4 id="数据不一致"><a href="#数据不一致" class="headerlink" title="数据不一致:"></a>数据不一致:</h4><p>如果出现部分commit失败，那么Seata-server会根据当前的事务模式和分支事务的返回状态的结果来进行不同的重试策略。并且fescar的本地事务会在一阶段的时候进行提交，其实单看数据库来说在commit的时候数据库已经是一致的了。</p>
+<p>只能用于单一数据库: Seata提供了两种模式，AT和MT。在AT模式下事务资源可以是任何支持ACID的数据库，在MT模式下事务资源没有限制，可以是缓存，可以是文件，可以是其他的等等。当然这两个模式也可以混用。</p>
+<h3 id="TCC模式"><a href="#TCC模式" class="headerlink" title="TCC模式"></a>TCC模式</h3><p>Seata 框架把每组 TCC 接口当做一个 Resource，称为 TCC Resource。这套 TCC 接口可以是 RPC，也可以是服务内 JVM 调用。在业务启动时，Seata 框架会自动扫描识别到 TCC 接口的调用方和发布方。如果是 RPC 的话，就是 sofa:reference、sofa:service、dubbo:reference、dubbo:service 等。<br>扫描到TCC 接口的调用方和发布方之后。如果是发布方，会在业务启动时向 TC 注册 TCC Resource，与 DataSource Resource 一样，每个资源也会带有一个资源 ID。<br>如果是调用方，Seata 框架会给调用方加上切面，与 AT 模式一样，在运行时，该切面会拦截所有对 TCC 接口的调用。每调用一次 Try 接口，切面会先向 TC 注册一个分支事务，然后才去执行原来的 RPC 调用。当请求链路调用完成后，TC 通过分支事务的资源 ID 回调到正确的参与者去执行对应 TCC 资源的 Confirm 或 Cancel 方法。</p>
+<p><strong>TCC具体实现方法跟之前的TCC类似：</strong></p>
+<p><strong>1、</strong> 初步操作Try：完成所有业务检查，预留必须的业务资源；<br><strong>2、</strong> 确认操作Confirm：真正执行的业务逻辑，不做任何业务检查，只使用Try阶段预留的业务资源因此，只要Try操作成功，Confirm必须能成功另外，Confirm操作需满足幂等性，保证一笔分布式事务能且只能成功一次；<br><strong>3、</strong> 取消操作Cancel：释放Try阶段预留的业务资源同样的，Cancel操作也需要满足幂等性；</p>
+<p>Seata 项目地址：<br><a target="_blank" rel="noopener" href="https://github.com/seata/seata">https://github.com/seata/seata</a></p>
+<p>目前规划：</p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/1711848631081.png" class="">
+
+
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/08/05/transactions-basic/">http://xeons.cn/2023/08/05/transactions-basic/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/08/05/transactions-basic/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/">分布式事务</a></div><div class="post_share"><div class="social-share" data-image="/2023/08/05/transactions-basic/logo.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/08/06/redis-basic/" title="redis 基础"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/06/redis-basic/logo.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">redis 基础</div></div></a></div><div class="next-post pull-right"><a href="/2023/08/05/transactions-mysql/" title="mysql事务原理"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-mysql/logo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">mysql事务原理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/08/05/transactions-mysql/" title="mysql事务原理"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-mysql/logo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-05</div><div class="title">mysql事务原理</div></div></a></div><div><a href="/2023/06/03/hashmap-sourcecode-analyes/" title="HashMap 源码解析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-03</div><div class="title">HashMap 源码解析</div></div></a></div><div><a href="/2023/01/03/data-structure-and-algorithm/" title="常见数据结构和算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/01/03/data-structure-and-algorithm/logo.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-03</div><div class="title">常见数据结构和算法</div></div></a></div><div><a href="/2023/06/03/java-basic/" title="Java 基础试题1"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://s2.loli.net/2024/05/13/8KXvfwkxihBbtGM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-03</div><div class="title">Java 基础试题1</div></div></a></div><div><a href="/2023/05/05/es-basic/" title="ElasticSearch 介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/05/05/es-basic/logo.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-05</div><div class="title">ElasticSearch 介绍</div></div></a></div><div><a href="/2023/06/03/jvm-basic/" title="JVM 相关汇总"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://s2.loli.net/2024/05/13/8KXvfwkxihBbtGM.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-03</div><div class="title">JVM 相关汇总</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://s2.loli.net/2024/05/13/iB3TulGkshE8z76.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">33</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python进化中..</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%89%B9%E6%80%A7"><span class="toc-number">1.</span> <span class="toc-text">一、事务的特性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-number">1.1.</span> <span class="toc-text">1.原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">1.2.</span> <span class="toc-text">2.一致性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%9A%94%E7%A6%BB%E6%80%A7"><span class="toc-number">1.3.</span> <span class="toc-text">3.隔离性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8C%81%E4%B9%85%E6%80%A7"><span class="toc-number">1.4.</span> <span class="toc-text">4.持久性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">二、事务的类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%81%E5%B9%B3%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.1.</span> <span class="toc-text">1.扁平事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%B8%A6%E6%9C%89%E4%BF%9D%E5%AD%98%E7%82%B9%E7%9A%84%E6%89%81%E5%B9%B3%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.2.</span> <span class="toc-text">2.带有保存点的扁平事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%93%BE%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.3.</span> <span class="toc-text">3.链式事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%B5%8C%E5%A5%97%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.4.</span> <span class="toc-text">4.嵌套事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.5.</span> <span class="toc-text">5.分布式事务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1"><span class="toc-number">3.</span> <span class="toc-text">三、本地事务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">1.基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">2.本地事务的执行流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%9C%AC%E5%9C%B0%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">3.本地事务的优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81MySQL-%E4%BA%8B%E5%8A%A1%E5%9F%BA%E7%A1%80"><span class="toc-number">4.</span> <span class="toc-text">四、MySQL 事务基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%B9%B6%E5%8F%91%E4%BA%8B%E5%8A%A1%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.1.</span> <span class="toc-text">1.并发事务带来的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-MySQL-%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="toc-number">4.2.</span> <span class="toc-text">2.MySQL 事务隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-MySQL-%E4%B8%AD%E5%90%84%E7%A7%8D%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">4.3.</span> <span class="toc-text">3.MySQL 中各种事务的隔离级别的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-MySQL-%E4%B8%AD%E9%94%81%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">4.4.</span> <span class="toc-text">5.MySQL 中锁的分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%AD%BB%E9%94%81%E7%9A%84%E4%BA%A7%E7%94%9F%E5%92%8C%E9%A2%84%E9%98%B2"><span class="toc-number">4.5.</span> <span class="toc-text">6.死锁的产生和预防</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-MySQL-%E4%B8%AD%E7%9A%84%E6%AD%BB%E9%94%81%E9%97%AE%E9%A2%98"><span class="toc-number">4.6.</span> <span class="toc-text">7.MySQL 中的死锁问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-InnoDB-%E4%B8%AD%E7%9A%84-MVCC-%E5%8E%9F%E7%90%86"><span class="toc-number">4.7.</span> <span class="toc-text">8.InnoDB 中的 MVCC 原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%90%86%E8%AE%BA"><span class="toc-number">5.</span> <span class="toc-text">五、分布式事务理论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CAP%E5%AE%9A%E5%BE%8B"><span class="toc-number">5.1.</span> <span class="toc-text">CAP定律</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BASE%E7%90%86%E8%AE%BA"><span class="toc-number">5.2.</span> <span class="toc-text">BASE理论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E4%BA%8B%E5%8A%A1%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">6.</span> <span class="toc-text">最终一致性事务解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%A6%82%E8%BF%B0"><span class="toc-number">6.1.</span> <span class="toc-text">一、最终一致性分布式事务概述</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%85%B8%E5%9E%8B%E6%96%B9%E6%A1%88"><span class="toc-number">6.1.1.</span> <span class="toc-text">1.典型方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">6.1.2.</span> <span class="toc-text">2.适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">6.1.3.</span> <span class="toc-text">3.优缺点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.2.</span> <span class="toc-text">二、服务模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8F%AF%E6%9F%A5%E8%AF%A2%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.1.</span> <span class="toc-text">1.可查询操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%B9%82%E7%AD%89%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.2.</span> <span class="toc-text">2.幂等操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-TCC-%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.3.</span> <span class="toc-text">3.TCC 操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%8F%AF%E8%A1%A5%E5%81%BF%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.4.</span> <span class="toc-text">4.可补偿操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81TCC-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">6.3.</span> <span class="toc-text">三、TCC 解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">6.3.1.</span> <span class="toc-text">1.适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9C%80%E8%A6%81%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.3.2.</span> <span class="toc-text">2.需要实现的服务模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%96%B9%E6%A1%88%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-number">6.3.3.</span> <span class="toc-text">3.方案的执行流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%96%B9%E6%A1%88%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">6.3.4.</span> <span class="toc-text">4.方案的优缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">6.3.5.</span> <span class="toc-text">5.需要注意的问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">6.4.</span> <span class="toc-text">四、可靠消息最终一致性解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="toc-number">6.4.1.</span> <span class="toc-text">1.适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9C%80%E8%A6%81%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%BC%8F-1"><span class="toc-number">6.4.2.</span> <span class="toc-text">2.需要实现的服务模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%96%B9%E6%A1%88%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B-1"><span class="toc-number">6.4.3.</span> <span class="toc-text">3.方案的执行流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%96%B9%E6%A1%88%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9-1"><span class="toc-number">6.4.4.</span> <span class="toc-text">4.方案的优缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98-1"><span class="toc-number">6.4.5.</span> <span class="toc-text">5.需要注意的问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E9%80%9A%E7%9F%A5%E5%9E%8B%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">6.5.</span> <span class="toc-text">五、最大努力通知型解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-2"><span class="toc-number">6.5.1.</span> <span class="toc-text">1.适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%9C%80%E8%A6%81%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%BC%8F-2"><span class="toc-number">6.5.2.</span> <span class="toc-text">2.需要实现的服务模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%96%B9%E6%A1%88%E7%9A%84%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B-2"><span class="toc-number">6.5.3.</span> <span class="toc-text">3.方案的执行流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E6%96%B9%E6%A1%88%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9-2"><span class="toc-number">6.5.4.</span> <span class="toc-text">4.方案的优缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98-2"><span class="toc-number">6.5.5.</span> <span class="toc-text">5.需要注意的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E6%9C%80%E5%A4%A7%E5%8A%AA%E5%8A%9B%E9%80%9A%E7%9F%A5%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%B6%88%E6%81%AF%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">6.5.6.</span> <span class="toc-text">6.最大努力通知与可靠消息最终一致性的区别</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCC%E4%BA%8B%E5%8A%A1%E5%8E%9F%E7%90%86"><span class="toc-number">7.</span> <span class="toc-text">TCC事务原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81TCC-%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">7.1.</span> <span class="toc-text">一、TCC 核心思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81TCC-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">7.2.</span> <span class="toc-text">二、TCC 实现原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-TCC-%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="toc-number">7.2.1.</span> <span class="toc-text">1.TCC 核心组成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-TCC-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="toc-number">7.2.2.</span> <span class="toc-text">2.TCC 核心原理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81TCC-%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B"><span class="toc-number">7.3.</span> <span class="toc-text">三、TCC 核心流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E4%BB%8B%E7%BB%8D"><span class="toc-number">7.3.1.</span> <span class="toc-text">1.业务场景介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Try-%E9%98%B6%E6%AE%B5%E6%B5%81%E7%A8%8B"><span class="toc-number">7.3.2.</span> <span class="toc-text">2.Try 阶段流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Confirm-%E9%98%B6%E6%AE%B5%E6%B5%81%E7%A8%8B"><span class="toc-number">7.3.3.</span> <span class="toc-text">3.Confirm 阶段流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-Cancel-%E9%98%B6%E6%AE%B5%E6%B5%81%E7%A8%8B"><span class="toc-number">7.3.4.</span> <span class="toc-text">4.Cancel 阶段流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81TCC-%E5%85%B3%E9%94%AE%E6%8A%80%E6%9C%AF"><span class="toc-number">7.4.</span> <span class="toc-text">四、TCC 关键技术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sega%E6%96%B9%E6%A1%88"><span class="toc-number">8.</span> <span class="toc-text">Sega方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Saga%E7%9A%84%E7%BB%84%E6%88%90"><span class="toc-number">8.1.</span> <span class="toc-text">Saga的组成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%92%8CTCC%E5%AF%B9%E6%AF%94"><span class="toc-number">8.2.</span> <span class="toc-text">和TCC对比</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E8%BF%87%E6%B2%A1%E6%9C%89%E9%A2%84%E7%95%99%E5%8A%A8%E4%BD%9C%E4%B9%9F%E5%8F%AF%E4%BB%A5%E8%AE%A4%E4%B8%BA%E6%98%AF%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="toc-number">8.2.1.</span> <span class="toc-text">不过没有预留动作也可以认为是优点：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0Saga%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">8.3.</span> <span class="toc-text">实现Saga的注意事项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">8.4.</span> <span class="toc-text">举例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">8.5.</span> <span class="toc-text">注意点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Seata-%E4%BA%A7%E5%93%81"><span class="toc-number">9.</span> <span class="toc-text">Seata 产品</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AT%E6%A8%A1%E5%BC%8F"><span class="toc-number">9.1.</span> <span class="toc-text">AT模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%95%E7%82%B9%E9%97%AE%E9%A2%98"><span class="toc-number">9.1.1.</span> <span class="toc-text">单点问题:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9E"><span class="toc-number">9.1.2.</span> <span class="toc-text">同步阻塞:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-number">9.1.3.</span> <span class="toc-text">数据不一致:</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCC%E6%A8%A1%E5%BC%8F"><span class="toc-number">9.2.</span> <span class="toc-text">TCC模式</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/08/15/vue3-quick/" title="vue3快速上手（尚硅谷b站）"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/15/vue3-quick/logo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vue3快速上手（尚硅谷b站）"/></a><div class="content"><a class="title" href="/2023/08/15/vue3-quick/" title="vue3快速上手（尚硅谷b站）">vue3快速上手（尚硅谷b站）</a><time datetime="2023-08-14T16:00:00.000Z" title="发表于 2023-08-15 00:00:00">2023-08-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/06/redis-basic/" title="redis 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/06/redis-basic/logo.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="redis 基础"/></a><div class="content"><a class="title" href="/2023/08/06/redis-basic/" title="redis 基础">redis 基础</a><time datetime="2023-08-05T16:00:00.000Z" title="发表于 2023-08-06 00:00:00">2023-08-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/05/transactions-basic/" title="事务详解"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-basic/logo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="事务详解"/></a><div class="content"><a class="title" href="/2023/08/05/transactions-basic/" title="事务详解">事务详解</a><time datetime="2023-08-04T16:00:00.000Z" title="发表于 2023-08-05 00:00:00">2023-08-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/08/05/transactions-mysql/" title="mysql事务原理"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/05/transactions-mysql/logo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="mysql事务原理"/></a><div class="content"><a class="title" href="/2023/08/05/transactions-mysql/" title="mysql事务原理">mysql事务原理</a><time datetime="2023-08-04T16:00:00.000Z" title="发表于 2023-08-05 00:00:00">2023-08-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/06/23/java-memory-optimize/" title="JVM内存调优"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/06/23/java-memory-optimize/logo.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="JVM内存调优"/></a><div class="content"><a class="title" href="/2023/06/23/java-memory-optimize/" title="JVM内存调优">JVM内存调优</a><time datetime="2023-06-22T16:00:00.000Z" title="发表于 2023-06-23 00:00:00">2023-06-23</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
