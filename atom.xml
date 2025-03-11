@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2024-09-04T13:16:46.788Z</updated>
+  <updated>2023-08-14T16:00:00.000Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://xeons.cn/2023/08/15/vue3-quick/"/>
     <id>http://xeons.cn/2023/08/15/vue3-quick/</id>
     <published>2023-08-14T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.788Z</updated>
+    <updated>2023-08-14T16:00:00.000Z</updated>
     
     
       
@@ -50,7 +50,7 @@
     <link href="http://xeons.cn/2023/08/06/redis-basic/"/>
     <id>http://xeons.cn/2023/08/06/redis-basic/</id>
     <published>2023-08-05T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.454Z</updated>
+    <updated>2023-08-05T16:00:00.000Z</updated>
     
     
       
@@ -79,42 +79,11 @@
   </entry>
   
   <entry>
-    <title>事务详解</title>
-    <link href="http://xeons.cn/2023/08/05/transactions-basic/"/>
-    <id>http://xeons.cn/2023/08/05/transactions-basic/</id>
-    <published>2023-08-04T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.708Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;一、事务的特性&quot;&gt;&lt;a href=&quot;#一、事务的特性&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="transactions" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/transactions/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="分布式事务" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-  </entry>
-  
-  <entry>
     <title>mysql事务原理</title>
     <link href="http://xeons.cn/2023/08/05/transactions-mysql/"/>
     <id>http://xeons.cn/2023/08/05/transactions-mysql/</id>
     <published>2023-08-04T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.767Z</updated>
+    <updated>2023-08-04T16:00:00.000Z</updated>
     
     
       
@@ -141,11 +110,42 @@
   </entry>
   
   <entry>
+    <title>事务详解</title>
+    <link href="http://xeons.cn/2023/08/05/transactions-basic/"/>
+    <id>http://xeons.cn/2023/08/05/transactions-basic/</id>
+    <published>2023-08-04T16:00:00.000Z</published>
+    <updated>2023-08-04T16:00:00.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;一、事务的特性&quot;&gt;&lt;a href=&quot;#一、事务的特性&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
+    
+    <category term="transactions" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/transactions/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+    <category term="分布式事务" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
+    
+  </entry>
+  
+  <entry>
     <title>JVM内存调优</title>
     <link href="http://xeons.cn/2023/06/23/java-memory-optimize/"/>
     <id>http://xeons.cn/2023/06/23/java-memory-optimize/</id>
     <published>2023-06-22T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:45.948Z</updated>
+    <updated>2023-06-22T16:00:00.000Z</updated>
     
     
       
@@ -176,7 +176,7 @@
     <link href="http://xeons.cn/2023/06/04/java-concurrent-basic/"/>
     <id>http://xeons.cn/2023/06/04/java-concurrent-basic/</id>
     <published>2023-06-03T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:45.942Z</updated>
+    <updated>2023-06-03T16:00:00.000Z</updated>
     
     
       
@@ -203,7 +203,7 @@
     <link href="http://xeons.cn/2023/06/03/hashmap-sourcecode-analyes/"/>
     <id>http://xeons.cn/2023/06/03/hashmap-sourcecode-analyes/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:45.937Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -230,7 +230,7 @@
     <link href="http://xeons.cn/2023/06/03/java-basic/"/>
     <id>http://xeons.cn/2023/06/03/java-basic/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:45.939Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -257,7 +257,7 @@
     <link href="http://xeons.cn/2023/06/03/jvm-basic/"/>
     <id>http://xeons.cn/2023/06/03/jvm-basic/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.000Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -286,7 +286,7 @@
     <link href="http://xeons.cn/2023/06/03/jvm-faq/"/>
     <id>http://xeons.cn/2023/06/03/jvm-faq/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.070Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -315,7 +315,7 @@
     <link href="http://xeons.cn/2023/06/03/python-base-questions/"/>
     <id>http://xeons.cn/2023/06/03/python-base-questions/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T12:51:38.629Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -342,7 +342,7 @@
     <link href="http://xeons.cn/2023/06/03/python-project-deploy/"/>
     <id>http://xeons.cn/2023/06/03/python-project-deploy/</id>
     <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2024-09-04T12:51:38.640Z</updated>
+    <updated>2023-06-02T16:00:00.000Z</updated>
     
     
       
@@ -371,7 +371,7 @@
     <link href="http://xeons.cn/2023/06/02/django-for-web/"/>
     <id>http://xeons.cn/2023/06/02/django-for-web/</id>
     <published>2023-06-01T16:00:00.000Z</published>
-    <updated>2024-09-04T12:51:38.577Z</updated>
+    <updated>2023-06-01T16:00:00.000Z</updated>
     
     
       
@@ -400,7 +400,7 @@
     <link href="http://xeons.cn/2023/05/24/docker-init/"/>
     <id>http://xeons.cn/2023/05/24/docker-init/</id>
     <published>2023-05-24T07:27:07.000Z</published>
-    <updated>2024-09-04T12:51:38.598Z</updated>
+    <updated>2023-05-24T07:27:07.000Z</updated>
     
     
       
@@ -431,7 +431,7 @@
     <link href="http://xeons.cn/2023/05/23/mysql-performance-optimization/"/>
     <id>http://xeons.cn/2023/05/23/mysql-performance-optimization/</id>
     <published>2023-05-23T02:27:07.000Z</published>
-    <updated>2024-09-04T12:51:38.628Z</updated>
+    <updated>2023-05-23T02:27:07.000Z</updated>
     
     
       
@@ -460,7 +460,7 @@
     <link href="http://xeons.cn/2023/05/22/python-data-analysis-1p/"/>
     <id>http://xeons.cn/2023/05/22/python-data-analysis-1p/</id>
     <published>2023-05-22T02:27:07.000Z</published>
-    <updated>2024-09-04T12:51:38.635Z</updated>
+    <updated>2023-05-22T02:27:07.000Z</updated>
     
     
       
@@ -494,7 +494,7 @@
     <link href="http://xeons.cn/2023/05/18/python-crawer/"/>
     <id>http://xeons.cn/2023/05/18/python-crawer/</id>
     <published>2023-05-18T05:47:07.000Z</published>
-    <updated>2024-09-04T12:51:38.630Z</updated>
+    <updated>2023-05-18T05:47:07.000Z</updated>
     
     
       
@@ -527,7 +527,7 @@
     <link href="http://xeons.cn/2023/05/05/es-basic/"/>
     <id>http://xeons.cn/2023/05/05/es-basic/</id>
     <published>2023-05-04T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:45.928Z</updated>
+    <updated>2023-05-04T16:00:00.000Z</updated>
     
     
       
@@ -558,7 +558,7 @@
     <link href="http://xeons.cn/2023/05/04/mq-kafka/"/>
     <id>http://xeons.cn/2023/05/04/mq-kafka/</id>
     <published>2023-05-03T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.111Z</updated>
+    <updated>2023-05-03T16:00:00.000Z</updated>
     
     
       
@@ -589,7 +589,7 @@
     <link href="http://xeons.cn/2023/05/04/tomcat-basic/"/>
     <id>http://xeons.cn/2023/05/04/tomcat-basic/</id>
     <published>2023-05-03T16:00:00.000Z</published>
-    <updated>2024-09-04T13:16:46.677Z</updated>
+    <updated>2023-05-03T16:00:00.000Z</updated>
     
     
       
