@@ -253,9 +253,9 @@
   </entry>
   
   <entry>
-    <title>JVM 相关汇总</title>
-    <link href="http://xeons.cn/2023/06/03/jvm-basic/"/>
-    <id>http://xeons.cn/2023/06/03/jvm-basic/</id>
+    <title>JVM 常见问答题</title>
+    <link href="http://xeons.cn/2023/06/03/jvm-faq/"/>
+    <id>http://xeons.cn/2023/06/03/jvm-faq/</id>
     <published>2023-06-02T16:00:00.000Z</published>
     <updated>2023-06-02T16:00:00.000Z</updated>
     
@@ -264,7 +264,7 @@
       
         
         
-    <summary type="html">&lt;h3 id=&quot;jvm-概念&quot;&gt;&lt;a href=&quot;#jvm-概念&quot; class=&quot;headerlink&quot; title=&quot;jvm 概念&quot;&gt;&lt;/a&gt;jvm</summary>
+    <summary type="html">&lt;h3 id=&quot;什么是增量式垃圾收集&quot;&gt;&lt;a href=&quot;#什么是增量式垃圾收集&quot; class=&quot;headerlink&quot; title=&quot;什么是增量式垃圾收集?&quot;&gt;&lt;/a&gt;什么是增量式垃圾收集?&lt;/h3&gt;&lt;p&gt;首先， G1的堆内存不再单纯划分为年轻代和老年代， 而是划分为多个（</summary>
         
       
     
@@ -282,9 +282,9 @@
   </entry>
   
   <entry>
-    <title>JVM 常见问答题</title>
-    <link href="http://xeons.cn/2023/06/03/jvm-faq/"/>
-    <id>http://xeons.cn/2023/06/03/jvm-faq/</id>
+    <title>JVM 相关汇总</title>
+    <link href="http://xeons.cn/2023/06/03/jvm-basic/"/>
+    <id>http://xeons.cn/2023/06/03/jvm-basic/</id>
     <published>2023-06-02T16:00:00.000Z</published>
     <updated>2023-06-02T16:00:00.000Z</updated>
     
@@ -293,7 +293,7 @@
       
         
         
-    <summary type="html">&lt;h3 id=&quot;什么是增量式垃圾收集&quot;&gt;&lt;a href=&quot;#什么是增量式垃圾收集&quot; class=&quot;headerlink&quot; title=&quot;什么是增量式垃圾收集?&quot;&gt;&lt;/a&gt;什么是增量式垃圾收集?&lt;/h3&gt;&lt;p&gt;首先， G1的堆内存不再单纯划分为年轻代和老年代， 而是划分为多个（</summary>
+    <summary type="html">&lt;h3 id=&quot;jvm-概念&quot;&gt;&lt;a href=&quot;#jvm-概念&quot; class=&quot;headerlink&quot; title=&quot;jvm 概念&quot;&gt;&lt;/a&gt;jvm</summary>
         
       
     
