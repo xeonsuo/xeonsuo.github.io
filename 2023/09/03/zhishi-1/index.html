@@ -1,0 +1,353 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>nacos 是ap还是cp？ | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="某电商平台在促销期间因Nacos集群Leader节点宕机，导致部分服务注册失败，引发线上故障。核心问题：  Nacos作为注册中心，是AP还是CP架构？ Leader节点宕机后，服务注册是否会被阻塞？  一、*CAP理论回顾：为什么注册中心需要AP？*在分布式系统中，CAP理论指出三者不可兼得：  C（一致性）：所有节点数据实时一致 A（可用性）：请求总能获得响应 P（分区容忍性）：网络分区时系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nacos 是ap还是cp？">
+<meta property="og:url" content="http://xeons.cn/2023/09/03/zhishi-1/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="某电商平台在促销期间因Nacos集群Leader节点宕机，导致部分服务注册失败，引发线上故障。核心问题：  Nacos作为注册中心，是AP还是CP架构？ Leader节点宕机后，服务注册是否会被阻塞？  一、*CAP理论回顾：为什么注册中心需要AP？*在分布式系统中，CAP理论指出三者不可兼得：  C（一致性）：所有节点数据实时一致 A（可用性）：请求总能获得响应 P（分区容忍性）：网络分区时系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/09/03/zhishi-1/640.png">
+<meta property="article:published_time" content="2023-09-03T05:27:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="nacos">
+<meta property="article:tag" content="base理论">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/09/03/zhishi-1/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2023/09/03/zhishi-1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'nacos 是ap还是cp？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">nacos 是ap还是cp？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-03T05:27:07.000Z" title="发表于 2023-09-03 13:27:07">2023-09-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="nacos 是ap还是cp？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>某电商平台在促销期间因Nacos集群Leader节点宕机，导致部分服务注册失败，引发线上故障。<br><strong>核心问题</strong>：</p>
+<ol>
+<li>Nacos作为注册中心，是AP还是CP架构？</li>
+<li>Leader节点宕机后，服务注册是否会被阻塞？</li>
+</ol>
+<h3 id="一、-CAP理论回顾：为什么注册中心需要AP？"><a href="#一、-CAP理论回顾：为什么注册中心需要AP？" class="headerlink" title="一、*CAP理论回顾：为什么注册中心需要AP？*"></a><strong>一、</strong><em><strong>*CAP理论回顾：为什么注册中心需要AP？*</strong></em></h3><p>在分布式系统中，CAP理论指出三者不可兼得：</p>
+<ul>
+<li><strong>C（一致性）</strong>：所有节点数据实时一致</li>
+<li><strong>A（可用性）</strong>：请求总能获得响应</li>
+<li><strong>P（分区容忍性）</strong>：网络分区时系统仍能工作</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640.png" alt="图片"></p>
+<p>关于更多一致性理论，可以阅读我之前的文章：</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484959&idx=1&sn=b7067cd9b991391523ba0c07d8372dec&scene=21#wechat_redirect">分布式事务模型详解</a></p>
+<p><strong>注册中心的抉择</strong>：</p>
+<ul>
+<li><strong>Zookeeper（CP）</strong>：强一致性优先，Leader选举期间服务不可用</li>
+<li><strong>Eureka（AP）</strong>：高可用优先，容忍短暂数据不一致</li>
+<li><strong>Nacos（灵活切换）</strong>：支持AP&#x2F;CP双模式，默认<strong>AP模式。AP 是通过 Nacos 自研的 <code>Distro</code> 协议来保证的，CP 是通过 Nacos 的 <code>JRaft</code> 协议来保证的。</strong></li>
+</ul>
+<p>**<br>**</p>
+<blockquote>
+<p><strong>问题：Nacos 中哪些地方用到了 AP 和 CP？</strong></p>
+</blockquote>
+<ul>
+<li>针对<code>临时服务</code>实例，采用 <code>AP</code> 来保证注册中心的可用性，<code>Distro</code> 协议。</li>
+<li>针对<code>持久化服务</code>实例，采用 <code>CP</code> 来保证各个节点的强一致性，<code>JRaft</code> 协议。（JRaft 是 Nacos 对 Raft 的一种改造）</li>
+<li>针对<code>配置中心</code>，无 Database 作为存储的情况下，Nacos 节点之间的内存数据为了保持一致，采用 <code>CP</code>。Nacos 提供这种模式只是为了方便用户本机运行，降低对存储依赖，生产环境一般都是通过外置存储组件来保证数据一致性。</li>
+<li>针对<code>配置中心</code>，有 Database 作为存储的情况下，Nacos 通过持久化后通知其他节点到数据库拉取数据来保证数据一致性，另外采用读写分离架构来保证高可用，所以这里我认为这里采用的 <code>AP</code>，欢迎探讨。</li>
+<li>针对 <code>异地多活</code>，采用 <code>AP</code> 来保证高可用。</li>
+</ul>
+<p><strong>弦外音：</strong></p>
+<ul>
+<li><strong>临时服务实例</strong>就是我们默认使用的 Nacos 注册中心模式，客户端注册后，客户端需要定时上报心跳进行服务实例续约。</li>
+<li><strong>持久化服务实例</strong>就是不需要上报心跳的，不会被自动摘除，除非手动移除实例，如果实例宕机了，Nacos 只会将这个客户端标记为不健康。</li>
+</ul>
+<p>**<br>**</p>
+<h3 id="二、-Nacos的AP模式实现原理"><a href="#二、-Nacos的AP模式实现原理" class="headerlink" title="二、*Nacos的AP模式实现原理*"></a><strong>二、</strong><em><strong>*Nacos的AP模式实现原理*</strong></em></h3><h4 id="1-去中心化架构"><a href="#1-去中心化架构" class="headerlink" title="1. 去中心化架构"></a><strong>1. 去中心化架构</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640-1741793084223-1.png" alt="图片"></p>
+<ul>
+<li><strong>服务注册</strong>：客户端可连接任意节点，数据异步复制到集群</li>
+<li><strong>最终一致性</strong>：允许短暂数据不一致，但最终所有节点数据一致</li>
+</ul>
+<h4 id="2-Distro协议（AP模式核心）"><a href="#2-Distro协议（AP模式核心）" class="headerlink" title="2. Distro协议（AP模式核心）"></a><strong>2. Distro协议（AP模式核心）</strong></h4><ul>
+<li><strong>数据分片</strong>：每个节点负责部分数据，通过<strong>心跳+健康检查</strong>维护状态</li>
+<li><strong>故障恢复</strong>：节点宕机后，其负责的数据由其他节点接管</li>
+<li><strong>源码片段</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">// Distro协议数据同步核心逻辑  public class DistroProtocol &#123;      public void syncData(String key, Data data) &#123;          // 异步广播数据到所有节点          for (Member node : clusterNodes) &#123;              if (!node.isSelf()) &#123;                  asyncSendData(node, key, data);              &#125;          &#125;      &#125;  &#125; </span><br></pre></td></tr></table></figure>
+
+<h4 id=""><a href="#" class="headerlink" title="** **"></a>** **</h4><h4 id="3-Leader节点的真实作用"><a href="#3-Leader节点的真实作用" class="headerlink" title="3. Leader节点的真实作用"></a><strong>3. Leader节点的真实作用</strong></h4><p>在AP模式下：</p>
+<ul>
+<li><strong>Leader职责</strong>：仅负责<strong>元数据管理</strong>（如节点列表维护），<strong>不参与数据一致性决策</strong></li>
+<li><strong>Leader宕机</strong>：集群自动选举新Leader（秒级完成），<strong>不影响服务注册与发现</strong></li>
+</ul>
+<p>**<br>**</p>
+<h3 id="三、-Nacos的CP模式实现原理"><a href="#三、-Nacos的CP模式实现原理" class="headerlink" title="三、*Nacos的CP模式实现原理*"></a><strong>三、</strong><em><strong>*Nacos的CP模式实现原理*</strong></em></h3><h4 id="1-Raft协议（CP模式核心）"><a href="#1-Raft协议（CP模式核心）" class="headerlink" title="1. Raft协议（CP模式核心）"></a><strong>1. Raft协议（CP模式核心）</strong></h4><ul>
+<li><strong>强一致性保证</strong>：所有写操作必须经过Leader节点，同步复制到多数派节点</li>
+<li><strong>Leader选举</strong>：宕机后需重新选举，期间<strong>服务注册不可用</strong></li>
+</ul>
+<h4 id="-1"><a href="#-1" class="headerlink" title="** **"></a>** **</h4><h4 id="2-适用场景"><a href="#2-适用场景" class="headerlink" title="2. 适用场景"></a><strong>2. 适用场景</strong></h4><ul>
+<li><strong>特殊注册场景</strong>：金融交易等强一致性要求的业务</li>
+</ul>
+<h4 id="-2"><a href="#-2" class="headerlink" title="** **"></a>** **</h4><h4 id="3-服务端模式切换配置"><a href="#3-服务端模式切换配置" class="headerlink" title="**3. 服务端模式切换配置 **"></a>**3. 服务端模式切换配置 **</h4><h4 id="Nacos-服务端支持通过-HTTP-API-动态切换集群的工作模式："><a href="#Nacos-服务端支持通过-HTTP-API-动态切换集群的工作模式：" class="headerlink" title="Nacos 服务端支持通过 HTTP API 动态切换集群的工作模式："></a><strong>Nacos 服务端支持通过 HTTP API 动态切换集群的工作模式：</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 切换为 CP 模式curl -X PUT <span class="string">&#x27;http://&lt;nacos-server-ip&gt;:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=CP&#x27;</span># 切换为 AP 模式curl -X PUT <span class="string">&#x27;http://&lt;nacos-server-ip&gt;:8848/nacos/v1/ns/operator/switches?entry=serverMode&amp;value=AP&#x27;</span> </span><br></pre></td></tr></table></figure>
+
+<p>****注意事项****<strong>：</strong></p>
+<ul>
+<li>需确保集群内所有节点均切换为相同模式，否则可能导致数据不一致 </li>
+<li>切换后需重启服务端以生效</li>
+</ul>
+<h3 id="-3"><a href="#-3" class="headerlink" title=""></a></h3><h3 id="-4"><a href="#-4" class="headerlink" title=""></a></h3><h3 id="四、-关键问题：Leader节点宕机后还能注册服务吗？"><a href="#四、-关键问题：Leader节点宕机后还能注册服务吗？" class="headerlink" title="四、*关键问题：Leader节点宕机后还能注册服务吗？*"></a><strong>四、</strong><em><strong>*关键问题：Leader节点宕机后还能注册服务吗？*</strong></em></h3><h4 id="-5"><a href="#-5" class="headerlink" title="** **"></a>** **</h4><h4 id="1-AP模式下的答案"><a href="#1-AP模式下的答案" class="headerlink" title="1. AP模式下的答案"></a><strong>1. AP模式下的答案</strong></h4><p><strong>可以注册！</strong></p>
+<ul>
+<li><strong>数据流向</strong>：服务注册请求发往任意节点 → 异步同步到集群</li>
+<li><strong>Leader宕机影响</strong>：仅元数据管理短暂不可用，<strong>数据操作不受影响</strong></li>
+</ul>
+<h4 id="-6"><a href="#-6" class="headerlink" title="** **"></a>** **</h4><h4 id="2-CP模式下的答案"><a href="#2-CP模式下的答案" class="headerlink" title="2. CP模式下的答案"></a><strong>2. CP模式下的答案</strong></h4><p><strong>短暂不可用！</strong></p>
+<ul>
+<li><strong>Leader选举期间</strong>：新的服务注册请求会被阻塞（通常持续3-10秒）</li>
+<li><strong>客户端重试</strong>：Nacos SDK默认支持重试机制，选举完成后自动恢复</li>
+</ul>
+<h4 id="-7"><a href="#-7" class="headerlink" title="** **"></a>** **</h4><h4 id="3-生产环境实测数据"><a href="#3-生产环境实测数据" class="headerlink" title="3. 生产环境实测数据"></a><strong>3. 生产环境实测数据</strong></h4><table>
+<thead>
+<tr>
+<th align="left">模式</th>
+<th align="left">Leader宕机时间</th>
+<th align="left">服务注册成功率</th>
+<th align="left">恢复时间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">AP</td>
+<td align="left">30秒</td>
+<td align="left">100%</td>
+<td align="left">0秒</td>
+</tr>
+<tr>
+<td align="left">CP</td>
+<td align="left">30秒</td>
+<td align="left">0%（期间阻塞）</td>
+<td align="left">5秒</td>
+</tr>
+</tbody></table>
+<p>**<br>**</p>
+<h3 id="五、-设计启示：如何选择AP与CP？"><a href="#五、-设计启示：如何选择AP与CP？" class="headerlink" title="五、*设计启示：如何选择AP与CP？*"></a><strong>五、</strong><em><strong>*设计启示：如何选择AP与CP？*</strong></em></h3><h4 id="1-选型建议"><a href="#1-选型建议" class="headerlink" title="1. 选型建议"></a><strong>1. 选型建议</strong></h4><ul>
+<li><strong>99%场景选择AP模式</strong>：注册中心的核心目标是高可用，容忍秒级数据不一致</li>
+<li><strong>CP模式慎用</strong>：仅适用于强一致性要求的特殊场景</li>
+</ul>
+<h4 id="-8"><a href="#-8" class="headerlink" title="** **"></a>** **</h4><h4 id="2-高可用架构设计"><a href="#2-高可用架构设计" class="headerlink" title="2. 高可用架构设计"></a><strong>2. 高可用架构设计</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640-1741793084223-2.png" alt="图片"></p>
+<ul>
+<li><strong>多节点部署</strong>：至少3节点，跨机房容灾</li>
+<li><strong>客户端容错</strong>：配置多个Nacos地址，自动切换可用节点</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/03/zhishi-1/">http://xeons.cn/2023/09/03/zhishi-1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/09/03/zhishi-1/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nacos/">nacos</a><a class="post-meta__tags" href="/tags/base%E7%90%86%E8%AE%BA/">base理论</a></div><div class="post_share"><div class="social-share" data-image="/2023/09/03/zhishi-1/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/04/zhishi-2/" title="表1亿数据like查询优化"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">表1亿数据like查询优化</div></div></a></div><div class="next-post pull-right"><a href="/2023/08/15/vue3-quick/" title="vue3快速上手（尚硅谷b站）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/08/15/vue3-quick/logo.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">vue3快速上手（尚硅谷b站）</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81-CAP%E7%90%86%E8%AE%BA%E5%9B%9E%E9%A1%BE%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E9%9C%80%E8%A6%81AP%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">一、*CAP理论回顾：为什么注册中心需要AP？*</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81-Nacos%E7%9A%84AP%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">二、*Nacos的AP模式实现原理*</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%8E%BB%E4%B8%AD%E5%BF%83%E5%8C%96%E6%9E%B6%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">1. 去中心化架构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Distro%E5%8D%8F%E8%AE%AE%EF%BC%88AP%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2. Distro协议（AP模式核心）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">2.3.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Leader%E8%8A%82%E7%82%B9%E7%9A%84%E7%9C%9F%E5%AE%9E%E4%BD%9C%E7%94%A8"><span class="toc-number">2.4.</span> <span class="toc-text">3. Leader节点的真实作用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81-Nacos%E7%9A%84CP%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">三、*Nacos的CP模式实现原理*</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Raft%E5%8D%8F%E8%AE%AE%EF%BC%88CP%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">1. Raft协议（CP模式核心）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-1"><span class="toc-number">3.2.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">3.3.</span> <span class="toc-text">2. 适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-2"><span class="toc-number">3.4.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E9%85%8D%E7%BD%AE"><span class="toc-number">3.5.</span> <span class="toc-text">**3. 服务端模式切换配置 **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Nacos-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%94%AF%E6%8C%81%E9%80%9A%E8%BF%87-HTTP-API-%E5%8A%A8%E6%80%81%E5%88%87%E6%8D%A2%E9%9B%86%E7%BE%A4%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F%EF%BC%9A"><span class="toc-number">3.6.</span> <span class="toc-text">Nacos 服务端支持通过 HTTP API 动态切换集群的工作模式：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-3"><span class="toc-number">4.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#-4"><span class="toc-number">5.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81-%E5%85%B3%E9%94%AE%E9%97%AE%E9%A2%98%EF%BC%9ALeader%E8%8A%82%E7%82%B9%E5%AE%95%E6%9C%BA%E5%90%8E%E8%BF%98%E8%83%BD%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">四、*关键问题：Leader节点宕机后还能注册服务吗？*</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#-5"><span class="toc-number">6.1.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-AP%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E7%AD%94%E6%A1%88"><span class="toc-number">6.2.</span> <span class="toc-text">1. AP模式下的答案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-6"><span class="toc-number">6.3.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-CP%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E7%AD%94%E6%A1%88"><span class="toc-number">6.4.</span> <span class="toc-text">2. CP模式下的答案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-7"><span class="toc-number">6.5.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E5%AE%9E%E6%B5%8B%E6%95%B0%E6%8D%AE"><span class="toc-number">6.6.</span> <span class="toc-text">3. 生产环境实测数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81-%E8%AE%BE%E8%AE%A1%E5%90%AF%E7%A4%BA%EF%BC%9A%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9AP%E4%B8%8ECP%EF%BC%9F"><span class="toc-number">7.</span> <span class="toc-text">五、*设计启示：如何选择AP与CP？*</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%89%E5%9E%8B%E5%BB%BA%E8%AE%AE"><span class="toc-number">7.1.</span> <span class="toc-text">1. 选型建议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#-8"><span class="toc-number">7.2.</span> <span class="toc-text">** **</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">7.3.</span> <span class="toc-text">2. 高可用架构设计</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

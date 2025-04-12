@@ -1,0 +1,420 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ConcurrentHashMap 和ConcurrentSkipListMap 详解 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. JUC包下的并发容器 Java的集合容器框架中，主要有四大类别：List、Set、Queue、Map，大家熟知的这些集合类ArrayList、LinkedList、HashMap这些容器都是非线程安全的。 所以，Java先提供了同步容器供用户使用。同步容器可以简单地理解为通过synchronized来实现同步的容器，比如Vector、Hashtable以及SynchronizedList等容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ConcurrentHashMap 和ConcurrentSkipListMap 详解">
+<meta property="og:url" content="http://xeons.cn/2023/09/05/zhishi-10/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="1. JUC包下的并发容器 Java的集合容器框架中，主要有四大类别：List、Set、Queue、Map，大家熟知的这些集合类ArrayList、LinkedList、HashMap这些容器都是非线程安全的。 所以，Java先提供了同步容器供用户使用。同步容器可以简单地理解为通过synchronized来实现同步的容器，比如Vector、Hashtable以及SynchronizedList等容">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/09/05/zhishi-10/640.png">
+<meta property="article:published_time" content="2023-09-05T10:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="并发包">
+<meta property="article:tag" content="并行计算">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/09/05/zhishi-10/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2023/09/05/zhishi-10/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ConcurrentHashMap 和ConcurrentSkipListMap 详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">ConcurrentHashMap 和ConcurrentSkipListMap 详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-05T10:45:07.000Z" title="发表于 2023-09-05 18:45:07">2023-09-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ConcurrentHashMap 和ConcurrentSkipListMap 详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p><strong>1. JUC包下的并发容器</strong></p>
+<p>Java的集合容器框架中，主要有四大类别：List、Set、Queue、Map，大家熟知的这些集合类ArrayList、LinkedList、HashMap这些容器都是非线程安全的。</p>
+<p>所以，Java先提供了同步容器供用户使用。同步容器可以简单地理解为通过synchronized来实现同步的容器，比如Vector、Hashtable以及SynchronizedList等容器。这样做的代价是削弱了并发性，当多个线程共同竞争容器级的锁时，吞吐量就会降低。</p>
+<p>因此为了解决同步容器的性能问题，所以才有了并发容器。java.util.concurrent包中提供了多种并发类容器：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640.png" alt="图片"></p>
+<p><strong>CopyOnWriteArrayList</strong></p>
+<p>对应的非并发容器：ArrayList</p>
+<p>目标：代替Vector、synchronizedList</p>
+<p>原理：利用高并发往往是读多写少的特性，对读操作不加锁，对写操作，先复制一份新的集合，在新的集合上面修改，然后将新集合赋值给旧的引用，并通过volatile 保证其可见性，当然写操作的锁是必不可少的了。</p>
+<p><strong>CopyOnWriteArraySet</strong></p>
+<p>对应的非并发容器：HashSet</p>
+<p>目标：代替synchronizedSet</p>
+<p>原理：基于CopyOnWriteArrayList实现，其唯一的不同是在add时调用的是CopyOnWriteArrayList的addIfAbsent方法，其遍历当前Object数组，如Object数组中已有了当前元素，则直接返回，如果没有则放入Object数组的尾部，并返回。</p>
+<p><strong>ConcurrentHashMap</strong></p>
+<p>对应的非并发容器：HashMap</p>
+<p>目标：代替Hashtable、synchronizedMap，支持复合操作</p>
+<p>原理：JDK6中采用一种更加细粒度的加锁机制Segment“分段锁”，JDK8中采用CAS无锁算法。</p>
+<p><strong>ConcurrentSkipListMap</strong></p>
+<p>对应的非并发容器：TreeMap</p>
+<p>目标：代替synchronizedSortedMap(TreeMap)</p>
+<p>原理：Skip list（跳表）是一种可以代替平衡树的数据结构，默认是按照Key值升序的。</p>
+<p>**<br>**</p>
+<p><strong>2. CopyOnWriteArrayList</strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247485106&idx=1&sn=7c38807ea7a13c3ce5a390ccdb711d80&scene=21#wechat_redirect">并发容器（Map、List、Set）实战及其原理分析——CopyOnWriteArrayList篇</a></strong></p>
+<p>**<br>**</p>
+<p><strong>3. ConcurrentHashMap</strong></p>
+<p>ConcurrentHashMap 是 Java 中线程安全的哈希表，它支持高并发并且能够同时进行读写操作。</p>
+<p>在JDK1.8之前，ConcurrentHashMap使用分段锁以在保证线程安全的同时获得更大的效率。JDK1.8开始舍弃了分段锁，使用自旋+CAS+synchronized关键字来实现同步。官方的解释中：一是节省内存空间 ，二是分段锁需要更多的内存空间，而大多数情况下，并发粒度达不到设置的粒度，竞争概率较小，反而导致更新的长时间等待（因为锁定一段后整个段就无法更新了）三是提高GC效率。</p>
+<p>**<br>**</p>
+<p><strong>3.1 应用场景</strong></p>
+<p>ConcurrentHashMap 的应用场景包括但不限于以下几种：</p>
+<ul>
+<li><p>共享数据的线程安全：在多线程编程中，如果需要进行共享数据的读写，可以使用 ConcurrentHashMap 保证线程安全。</p>
+</li>
+<li><p>缓存：ConcurrentHashMap 的高并发性能和线程安全能力，使其成为一种很好的缓存实现方案。在多线程环境下，使用 ConcurrentHashMap 作为缓存的数据结构，能够提高程序的并发性能，同时保证数据的一致性。</p>
+</li>
+</ul>
+<p>**<br>**</p>
+<p><strong>3.2 ConcurrentHashMap使用</strong></p>
+<p><strong>基本用法</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个 ConcurrentHashMap 对象ConcurrentHashMap&lt;Object, Object&gt; concurrentHashMap = new ConcurrentHashMap&lt;&gt;();// 添加键值对concurrentHashMap.put(&quot;key&quot;, &quot;value&quot;);// 添加一批键值对concurrentHashMap.putAll(new HashMap());// 使用指定的键获取值concurrentHashMap.get(&quot;key&quot;);// 判定是否为空concurrentHashMap.isEmpty();// 获取已经添加的键值对个数concurrentHashMap.size();// 获取已经添加的所有键的集合concurrentHashMap.keys();// 获取已经添加的所有值的集合concurrentHashMap.values();// 清空concurrentHashMap.clear();</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>其他方法：</strong></p>
+<ul>
+<li>V putIfAbsent(K key, V value)</li>
+</ul>
+<p>如果 key 对应的 value 不存在，则 put 进去，返回 null。否则不 put，返回已存在的 value。</p>
+<ul>
+<li>boolean remove(Object key, Object value)</li>
+</ul>
+<p>如果 key 对应的值是 value，则移除 K-V，返回 true。否则不移除，返回 false。</p>
+<ul>
+<li>boolean replace(K key, V oldValue, V newValue)</li>
+</ul>
+<p>如果 key 对应的当前值是 oldValue，则替换为 newValue，返回 true。否则不替换，返回 false。</p>
+<ul>
+<li>computeIfAbsent(key,Function)</li>
+</ul>
+<p>如果存在则返回key的值。如果不存在，则Function返回值作为key的值</p>
+<ul>
+<li>merge(key，value，BiFunction)</li>
+</ul>
+<p>不存在指定的key时，将value设置为key的值。当key存在值时，执行BiFunction接收oldKey和value，返回结果设置为key的值。</p>
+<p><strong>统计文件中英文字母出现的总次数</strong></p>
+<ul>
+<li><p>将26个英文字母分别循环200次，每个字母作为一个单词，一共有5200个单词。</p>
+</li>
+<li><p>每个单词中间用”\n”分隔，乱序存入26个文件中</p>
+</li>
+<li><p>生成26个线程对26个文件中的单词进行计数，存入map中</p>
+</li>
+</ul>
+<p><strong>1）生成测试文件</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** * 生成测试文件 * </span></span><br><span class="line"><span class="comment"><span class="doctag">@throws</span> IOException </span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">produceData</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;    </span><br><span class="line"><span class="comment">//定义26个字母的字符串    </span></span><br><span class="line">String data=<span class="string">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span>;    </span><br><span class="line">List&lt;String&gt; list=<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();    </span><br><span class="line">    <span class="comment">//循环遍历26个字母，每个字母循环200次，最后将5200个字母放入集合    </span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; data.length(); i++) &#123;        </span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">200</span>; j++) &#123;            </span><br><span class="line">            list.add(String.valueOf(data.charAt(i)));       </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    <span class="comment">//将集合打乱    Collections.shuffle(list);    //遍历26次。每次取出集合中的200个元素加上“换行符”放入文件中    for (int i = 0; i &lt; 26; i++) &#123;        </span></span><br><span class="line">    <span class="keyword">try</span>(FileWriter fw=<span class="keyword">new</span> <span class="title class_">FileWriter</span>((i+<span class="number">1</span>)+<span class="string">&quot;.txt&quot;</span>))&#123;            </span><br><span class="line">        fw.write(list.subList(i*<span class="number">200</span>,(i+<span class="number">1</span>)*<span class="number">200</span>).stream().collect(Collectors.joining(<span class="string">&quot;\n&quot;</span>)));        </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>2）读取文件</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/** * 定义读文件的方法 */private static void read(List list, int i) &#123;    //创建输入缓冲字符流    try (BufferedReader bf = new BufferedReader(new FileReader((i + 1) + &quot;.txt&quot;))) &#123;        String data;        //读取每行数据，判断是否为空        while ((data = bf.readLine()) != null) &#123;            //将字母加入到集合中            list.add(data);        &#125;    &#125; catch (FileNotFoundException e) &#123;        e.printStackTrace();    &#125; catch (IOException e) &#123;        e.printStackTrace();    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>3）生成线程：操作每个文件对应的list，存放到线程共享的map</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/** * 定义26个线程读26个文件并将结果放入map。map由函数式接口作为参数提供，放入map由Consumer函数式接口处理。 * * @param supplier 提供者：提供map集合存放单词计数 * @param consumer 消费者：对list（第二个参数）进行计数并存入map（第一个参数）中 */private static &lt;T&gt; void deal(Supplier&lt;Map&lt;String, T&gt;&gt; supplier, BiConsumer&lt;Map&lt;String, T&gt;, List&lt;String&gt;&gt; consumer) &#123;    //获得map集合，用于存放单词计数    Map&lt;String, T&gt; map = supplier.get();    //利用闭锁保证26个线程都执行完任务    CountDownLatch count = new CountDownLatch(26);    //循环创建26个线程，读取26个文件的内容，并进行计数操作    for (int i = 0; i &lt; 26; i++) &#123;        int j = i;        new Thread(() -&gt; &#123;            List&lt;String&gt; list = new ArrayList();            //读取文件            read(list, j);            consumer.accept(map, list);            count.countDown();        &#125;).start();    &#125;    try &#123;        count.await();    &#125; catch (InterruptedException e) &#123;        e.printStackTrace();    &#125;    System.out.println(map);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你要做的是实现两个参数</p>
+<ul>
+<li>一是提供一个 map 集合，用来存放每个单词的计数结果，key 为单词，value 为计数</li>
+<li>二是提供一组操作，保证计数的安全性，会传递 map 集合以及 单词 List</li>
+</ul>
+<p>正确结果输出应该是每个单词出现 200 次</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;a=200, b=200, c=200, d=200, e=200, f=200, g=200, h=200, i=200, j=200, k=200, l=200, m=200, n=200, o=200, p=200, q=200, r=200, s=200, t=200, u=200, v=200, w=200, x=200, y=200, z=200&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>4）测试代码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">// 换成ConcurrentHashMap可以吗？deal(() -&gt; new HashMap&lt;String, Integer&gt;(), (map, words) -&gt; &#123;    for (String word : words) &#123;        Integer counter = map.get(word);        int newValue = counter == null ? 1 : counter + 1;        map.put(word, newValue);    &#125;&#125;);//正确的实现1deal(() -&gt; new ConcurrentHashMap&lt;String, LongAdder&gt;(), (map, list) -&gt; &#123;    //遍历集合内容    list.forEach(str -&gt; &#123;        //单词数累加：map中没有str的key则new LongAdder，有则进行加1        map.computeIfAbsent(str, (key) -&gt; new LongAdder()).increment();    &#125;);&#125;);//正确的实现2deal(() -&gt; new ConcurrentHashMap&lt;String, Integer&gt;(), (map, list) -&gt; &#123;    //遍历集合内容    list.forEach(str -&gt; &#123;        //单词数累加：map中没有str的key则set(str,1)，有则set(str,Integer.sum(oldvalue,1))        map.merge(str, 1, Integer::sum);    &#125;);&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><strong>3.3 数据结构</strong></p>
+<p><strong>HashTable的数据结构</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-1.png" alt="图片"></p>
+<p><strong>JDK1.7 中的ConcurrentHashMap</strong></p>
+<p>在jdk1.7中，结构是用Segments数组 + HashEntry数组 + 链表实现的 （写分散的思想）。ConcurrentHashMap内部维护了一个Segment数组。每个Segment继承自ReentrantLock并且它内部本质上是一个Hash表。这样做的好处是能够减小锁的粒度，提高并发访问的效率。默认Segment 数量为 16，可以通过构造函数来修改默认值。当需要put或get一个元素时，线程首先通过hash定位到具体的Segment，然后在对应的Segment上进行锁定操作。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-2.png" alt="图片"></p>
+<p><strong>JDK1.8中的ConcurrentHashMap</strong></p>
+<p>jdk1.8抛弃了Segments分段锁的方案，而是改用了和HashMap一样的结构操作，也就是数组 + 链表 + 红黑树结构，比jdk1.7中的ConcurrentHashMap提高了效率，在并发方面，使用了cas + synchronized的方式保证数据的一致性</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-3.png" alt="图片"></p>
+<p>链表转化为红黑树需要满足2个条件:</p>
+<ul>
+<li><p>链表的节点数量大于等于树化阈值8</p>
+</li>
+<li><p>Node数组的长度大于等于最小树化容量值64</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#树化阈值为8static final int TREEIFY_THRESHOLD = 8;#最小树化容量值为64static final int MIN_TREEIFY_CAPACITY = 64;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>4. ConcurrentSkipListMap</strong></p>
+<p>ConcurrentSkipListMap 是 Java 中的一种线程安全、基于跳表实现的有序映射（Map）数据结构。它是对 TreeMap 的并发实现，支持高并发读写操作。</p>
+<p>ConcurrentSkipListMap适用于需要高并发性能、支持<strong>有序性</strong>和区间查询的场景，能够有效地提高系统的性能和可扩展性。</p>
+<p>**<br>**</p>
+<p><strong>4.1 跳表</strong></p>
+<p>跳表是一种基于有序链表的数据结构，支持快速插入、删除、查找操作，其时间复杂度为O(log n)，比普通链表的O(n)更高效。</p>
+<p>图一</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-4.png" alt="图片"></p>
+<p>图二</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-5.png" alt="图片"></p>
+<p>图三</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-6.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>跳表的特性有这么几点：</strong></p>
+<ul>
+<li><p>一个跳表结构由很多层数据结构组成。</p>
+</li>
+<li><p>每一层都是一个有序的链表，默认是升序。也可以自定义排序方法。</p>
+</li>
+<li><p>最底层链表（图中所示Level1）包含了所有的元素。</p>
+</li>
+<li><p>如果每一个元素出现在LevelN的链表中（N&gt;1)，那么这个元素必定在下层链表出现。</p>
+</li>
+<li><p>每一个节点都包含了两个指针，一个指向同一级链表中的下一个元素，一个指向下一层级别链表中的相同值元素。</p>
+</li>
+</ul>
+<p><strong>跳表的查找</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-7.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>跳表的插入</strong></p>
+<p>跳表插入数据的流程如下：</p>
+<ol>
+<li>找到元素适合的插入层级K，这里的K采用随机的方式。若K大于跳表的总层级，那么开辟新的一层，否则在对应的层级插入。</li>
+<li>申请新的节点。</li>
+<li>调整对应的指针。</li>
+</ol>
+<p>假设我要插入元素13，原有的层级是3级，假设K&#x3D;4：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704253-8.png" alt="图片"></p>
+<p>倘若K&#x3D;2：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-10/640-1742217704254-9.png" alt="图片"></p>
+<p><strong>4.2</strong> <strong>ConcurrentSkipListMap****使用</strong></p>
+<p><strong>基本用法</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class ConcurrentSkipListMapDemo &#123;    public static void main(String[] args) &#123;        ConcurrentSkipListMap&lt;Integer, String&gt; map = new ConcurrentSkipListMap&lt;&gt;();                // 添加元素        map.put(1, &quot;a&quot;);        map.put(3, &quot;c&quot;);        map.put(2, &quot;b&quot;);        map.put(4, &quot;d&quot;);                // 获取元素        String value1 = map.get(2);        System.out.println(value1); // 输出：b                // 遍历元素        for (Integer key : map.keySet()) &#123;            String value = map.get(key);            System.out.println(key + &quot; : &quot; + value);        &#125;                // 删除元素        String value2 = map.remove(3);        System.out.println(value2); // 输出：c    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>5. 电商场景中并发容器的选择</strong>  </p>
+<p><strong>案例一：电商网站中记录一次活动下各个商品售卖的数量。</strong></p>
+<p>场景分析：需要频繁按商品id做get和set，但是商品id（key）的数量相对稳定不会频繁增删</p>
+<p>初级方案：选用HashMap，key为商品id，value为商品购买的次数。每次下单取出次数，增加后再写入</p>
+<p>问题：HashMap线程不安全！在多次商品id写入后，如果发生扩容，在JDK1.7 之前，在并发场景下HashMap 会出现死循环，从而导致CPU 使用率居高不下。JDK1.8 中修复了HashMap 扩容导致的死循环问题，但在高并发场景下，依然会有数据丢失以及不准确的情况出现。</p>
+<p>选型：Hashtable 不推荐，锁太重，选ConcurrentHashMap 确保高并发下多线程的安全性</p>
+<p>**<br>**</p>
+<p><strong>案例二：在一次活动下，为每个用户记录浏览商品的历史和次数。</strong></p>
+<p>场景分析：每个用户各自浏览的商品量级非常大，并且每次访问都要更新次数，频繁读写</p>
+<p>初级方案：为确保线程安全，采用上面的思路，ConcurrentHashMap</p>
+<p>问题：ConcurrentHashMap 内部机制在数据量大时，会把链表转换为红黑树。而红黑树在高并发情况下，删除和插入过程中有个平衡的过程，会牵涉到大量节点，因此竞争锁资源的代价相对比较高</p>
+<p>选型：用跳表，ConcurrentSkipListMap将key值分层，逐个切段，增删效率高于ConcurrentHashMap</p>
+<p>结论：如果对数据有强一致要求，则需使用Hashtable；在大部分场景通常都是弱一致性的情况下，使用ConcurrentHashMap 即可；如果数据量级很高，且存在大量增删改操作，则可以考虑使用ConcurrentSkipListMap。</p>
+<p>**<br>**</p>
+<p><strong>案例三：在活动中，创建一个用户列表，记录冻结的用户。一旦冻结，不允许再下单抢购，但是可以浏览。</strong></p>
+<p>场景分析：违规被冻结的用户不会太多，但是绝大多数非冻结用户每次抢单都要去查一下这个列表。低频写，高频读。</p>
+<p>初级方案：ArrayList记录要冻结的用户id</p>
+<p>问题：ArrayList对冻结用户id的插入和读取操作在高并发时，线程不安全。Vector可以做到线程安全，但并发性能差，锁太重。可以使用CopyOnWriteArrayList。</p>
+<p>选型：综合业务场景，选CopyOnWriteArrayList，会占空间，但是也仅仅发生在添加新冻结用户的时候。绝大多数的访问在非冻结用户的读取和比对上，不会阻塞。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/05/zhishi-10/">http://xeons.cn/2023/09/05/zhishi-10/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/09/05/zhishi-10/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B9%B6%E5%8F%91%E5%8C%85/">并发包</a><a class="post-meta__tags" href="/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/">并行计算</a></div><div class="post_share"><div class="social-share" data-image="/2023/09/05/zhishi-10/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/05/zhishi-11/" title="CopyOnWriteArrayList 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-11/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CopyOnWriteArrayList 详解</div></div></a></div><div class="next-post pull-right"><a href="/2023/09/05/zhishi-9/" title="Fork/Join框架介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-9/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Fork/Join框架介绍</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/09/05/zhishi-11/" title="CopyOnWriteArrayList 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-11/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">CopyOnWriteArrayList 详解</div></div></a></div><div><a href="/2023/09/05/zhishi-9/" title="Fork&#x2F;Join框架介绍"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-9/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">Fork&#x2F;Join框架介绍</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

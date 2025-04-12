@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2023-08-14T16:00:00.000Z</updated>
+  <updated>2024-09-09T06:45:07.000Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -17,320 +17,27 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>vue3快速上手（尚硅谷b站）</title>
-    <link href="http://xeons.cn/2023/08/15/vue3-quick/"/>
-    <id>http://xeons.cn/2023/08/15/vue3-quick/</id>
-    <published>2023-08-14T16:00:00.000Z</published>
-    <updated>2023-08-14T16:00:00.000Z</updated>
+    <title>AI之 panda</title>
+    <link href="http://xeons.cn/2024/09/09/ai-pandas1/"/>
+    <id>http://xeons.cn/2024/09/09/ai-pandas1/</id>
+    <published>2024-09-09T06:45:07.000Z</published>
+    <updated>2024-09-09T06:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h1 id=&quot;1-Vue3简介&quot;&gt;&lt;a href=&quot;#1-Vue3简介&quot; class=&quot;headerlink&quot; title=&quot;1. Vue3简介&quot;&gt;&lt;/a&gt;1.</summary>
+    <summary type="html">&lt;p&gt;pandas 是python中的一个 数据分析库，填补了python在数据分析中的不足，同 numpy 、matplotlib一起 为python的小规模数据分析提供强大的支持。&lt;/p&gt;
+&lt;p&gt;**</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="AI大教程" scheme="http://xeons.cn/categories/AI%E5%A4%A7%E6%95%99%E7%A8%8B/"/>
     
-    <category term="前端" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/"/>
-    
-    <category term="vue" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/vue/"/>
-    
-    
-    <category term="vue" scheme="http://xeons.cn/tags/vue/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>redis 基础</title>
-    <link href="http://xeons.cn/2023/08/06/redis-basic/"/>
-    <id>http://xeons.cn/2023/08/06/redis-basic/</id>
-    <published>2023-08-05T16:00:00.000Z</published>
-    <updated>2023-08-05T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;Redis 是完全开源免费的，遵守 BSD 协议，是一个高性能的 &lt;strong&gt;key-value 数据库&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;Redis 与其它 key&amp;#x2F;value 缓存产品有以下三个特点：&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;1、&lt;/strong&gt;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="redis" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/redis/"/>
-    
-    
-    <category term="redis" scheme="http://xeons.cn/tags/redis/"/>
-    
-    <category term="缓存" scheme="http://xeons.cn/tags/%E7%BC%93%E5%AD%98/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>mysql事务原理</title>
-    <link href="http://xeons.cn/2023/08/05/transactions-mysql/"/>
-    <id>http://xeons.cn/2023/08/05/transactions-mysql/</id>
-    <published>2023-08-04T16:00:00.000Z</published>
-    <updated>2023-08-04T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;一、Redo-Log&quot;&gt;&lt;a href=&quot;#一、Redo-Log&quot; class=&quot;headerlink&quot; title=&quot;一、Redo Log&quot;&gt;&lt;/a&gt;一、Redo Log&lt;/h2&gt;&lt;p&gt;MySQL 中事务的原子性和持久性是由 Redo Log 实现的，它确保</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="transactions" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/transactions/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="分布式事务" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>事务详解</title>
-    <link href="http://xeons.cn/2023/08/05/transactions-basic/"/>
-    <id>http://xeons.cn/2023/08/05/transactions-basic/</id>
-    <published>2023-08-04T16:00:00.000Z</published>
-    <updated>2023-08-04T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;一、事务的特性&quot;&gt;&lt;a href=&quot;#一、事务的特性&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="transactions" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/transactions/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="分布式事务" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JVM内存调优</title>
-    <link href="http://xeons.cn/2023/06/23/java-memory-optimize/"/>
-    <id>http://xeons.cn/2023/06/23/java-memory-optimize/</id>
-    <published>2023-06-22T16:00:00.000Z</published>
-    <updated>2023-06-22T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;java 应用的内存优化一部分在jvm的调优，本篇主要讲述 &lt;code&gt;内存溢出的问题定位和问题分析&lt;/code&gt; 相关的的方式方法。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;详细的 jvm部分优化可以参考文章： &lt;a</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java“并发”常见问题概述</title>
-    <link href="http://xeons.cn/2023/06/04/java-concurrent-basic/"/>
-    <id>http://xeons.cn/2023/06/04/java-concurrent-basic/</id>
-    <published>2023-06-03T16:00:00.000Z</published>
-    <updated>2023-06-03T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;进程和线程区别？&quot;&gt;&lt;a href=&quot;#进程和线程区别？&quot; class=&quot;headerlink&quot; title=&quot;进程和线程区别？&quot;&gt;&lt;/a&gt;进程和线程区别？&lt;/h3&gt;&lt;p&gt;  </summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>HashMap 源码解析</title>
-    <link href="http://xeons.cn/2023/06/03/hashmap-sourcecode-analyes/"/>
-    <id>http://xeons.cn/2023/06/03/hashmap-sourcecode-analyes/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;1-HashMap集合简介&quot;&gt;&lt;a href=&quot;#1-HashMap集合简介&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java 基础试题1</title>
-    <link href="http://xeons.cn/2023/06/03/java-basic/"/>
-    <id>http://xeons.cn/2023/06/03/java-basic/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;java-基本语法&quot;&gt;&lt;a href=&quot;#java-基本语法&quot; class=&quot;headerlink&quot; title=&quot;java 基本语法&quot;&gt;&lt;/a&gt;java 基本语法&lt;/h2&gt;&lt;h3 id=&quot;Java是一门面向对象的编程语言-。&quot;&gt;&lt;a</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JVM 常见问答题</title>
-    <link href="http://xeons.cn/2023/06/03/jvm-faq/"/>
-    <id>http://xeons.cn/2023/06/03/jvm-faq/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;什么是增量式垃圾收集&quot;&gt;&lt;a href=&quot;#什么是增量式垃圾收集&quot; class=&quot;headerlink&quot; title=&quot;什么是增量式垃圾收集?&quot;&gt;&lt;/a&gt;什么是增量式垃圾收集?&lt;/h3&gt;&lt;p&gt;首先， G1的堆内存不再单纯划分为年轻代和老年代， 而是划分为多个（</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JVM 相关汇总</title>
-    <link href="http://xeons.cn/2023/06/03/jvm-basic/"/>
-    <id>http://xeons.cn/2023/06/03/jvm-basic/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;jvm-概念&quot;&gt;&lt;a href=&quot;#jvm-概念&quot; class=&quot;headerlink&quot; title=&quot;jvm 概念&quot;&gt;&lt;/a&gt;jvm</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="jvm" scheme="http://xeons.cn/tags/jvm/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>python 基础题</title>
-    <link href="http://xeons.cn/2023/06/03/python-base-questions/"/>
-    <id>http://xeons.cn/2023/06/03/python-base-questions/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h4 id=&quot;题目001-在Python中如何实现单例模式。&quot;&gt;&lt;a href=&quot;#题目001-在Python中如何实现单例模式。&quot; class=&quot;headerlink&quot; title=&quot;题目001: 在Python中如何实现单例模式。&quot;&gt;&lt;/a&gt;题目001:</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    <category term="python" scheme="http://xeons.cn/categories/python/"/>
     
     
     <category term="python" scheme="http://xeons.cn/tags/python/"/>
@@ -338,28 +45,355 @@
   </entry>
   
   <entry>
-    <title>python 项目的部署</title>
-    <link href="http://xeons.cn/2023/06/03/python-project-deploy/"/>
-    <id>http://xeons.cn/2023/06/03/python-project-deploy/</id>
-    <published>2023-06-02T16:00:00.000Z</published>
-    <updated>2023-06-02T16:00:00.000Z</updated>
+    <title>AI之 python 基础</title>
+    <link href="http://xeons.cn/2024/09/09/ai-python1/"/>
+    <id>http://xeons.cn/2024/09/09/ai-python1/</id>
+    <published>2024-09-09T05:45:07.000Z</published>
+    <updated>2024-09-09T05:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;准备上线&quot;&gt;&lt;a href=&quot;#准备上线&quot; class=&quot;headerlink&quot; title=&quot;准备上线&quot;&gt;&lt;/a&gt;准备上线&lt;/h3&gt;&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;上线前的检查工作。&lt;/p&gt;
+    <summary type="html">&lt;h1 id=&quot;为什么是python&quot;&gt;&lt;a href=&quot;#为什么是python&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AI大教程" scheme="http://xeons.cn/categories/AI%E5%A4%A7%E6%95%99%E7%A8%8B/"/>
+    
+    <category term="python" scheme="http://xeons.cn/categories/python/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>1g内存如何存储1亿数据</title>
+    <link href="http://xeons.cn/2024/04/09/1gneicun1yishuju/"/>
+    <id>http://xeons.cn/2024/04/09/1gneicun1yishuju/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;1g内存如何存储1亿数据&quot;&gt;&lt;a href=&quot;#1g内存如何存储1亿数据&quot; class=&quot;headerlink&quot; title=&quot;1g内存如何存储1亿数据&quot;&gt;&lt;/a&gt;1g内存如何存储1亿数据&lt;/h2&gt;&lt;h3 id=&quot;假设每条地址数据包含如下字段：&quot;&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>上亿号码去重方案</title>
+    <link href="http://xeons.cn/2024/04/09/40yiqqhaoquchong/"/>
+    <id>http://xeons.cn/2024/04/09/40yiqqhaoquchong/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;40亿个qq号，如何实现去重，限制内存1g的情况下。&quot;&gt;&lt;a href=&quot;#40亿个qq号，如何实现去重，限制内存1g的情况下。&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>seate中的tcc</title>
+    <link href="http://xeons.cn/2024/04/09/alibaba_seata/"/>
+    <id>http://xeons.cn/2024/04/09/alibaba_seata/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Alibaba-Seata-TCC&quot;&gt;&lt;a href=&quot;#Alibaba-Seata-TCC&quot; class=&quot;headerlink&quot; title=&quot;Alibaba-Seata TCC&quot;&gt;&lt;/a&gt;Alibaba-Seata</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>cpu打到100的分析</title>
+    <link href="http://xeons.cn/2024/04/09/cpu100100/"/>
+    <id>http://xeons.cn/2024/04/09/cpu100100/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;CPU 飙升是一个常见的问题。&lt;/p&gt;
+&lt;h2 id=&quot;CPU100-定位的两大神器&quot;&gt;&lt;a href=&quot;#CPU100-定位的两大神器&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>java中的各种锁</title>
+    <link href="http://xeons.cn/2024/04/09/24locks/"/>
+    <id>http://xeons.cn/2024/04/09/24locks/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;1、锁选择维度&quot;&gt;&lt;a href=&quot;#1、锁选择维度&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>java中CAS</title>
+    <link href="http://xeons.cn/2024/04/09/cas/"/>
+    <id>http://xeons.cn/2024/04/09/cas/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;1-CAS介绍&quot;&gt;&lt;a href=&quot;#1-CAS介绍&quot; class=&quot;headerlink&quot; title=&quot;1.CAS介绍&quot;&gt;&lt;/a&gt;&lt;strong&gt;1.CAS介绍&lt;/strong&gt;&lt;/h1&gt;&lt;h2 id=&quot;什么是-CAS&quot;&gt;&lt;a href=&quot;#什么是-CAS&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ES 深度分页问题</title>
+    <link href="http://xeons.cn/2024/04/09/es_deep_page/"/>
+    <id>http://xeons.cn/2024/04/09/es_deep_page/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;ES-深度分页问题及其解决方案详解&quot;&gt;&lt;a href=&quot;#ES-深度分页问题及其解决方案详解&quot; class=&quot;headerlink&quot; title=&quot;ES 深度分页问题及其解决方案详解&quot;&gt;&lt;/a&gt;ES 深度分页问题及其解决方案详解&lt;/h1&gt;&lt;h2</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java异步编程Future&amp;CompletableFuture实战</title>
+    <link href="http://xeons.cn/2024/04/09/java_async/"/>
+    <id>http://xeons.cn/2024/04/09/java_async/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;Java异步编程Future-CompletableFuture实战&quot;&gt;&lt;a href=&quot;#Java异步编程Future-CompletableFuture实战&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>redis 热key</title>
+    <link href="http://xeons.cn/2024/04/09/redis_hotkey/"/>
+    <id>http://xeons.cn/2024/04/09/redis_hotkey/</id>
+    <published>2024-04-09T06:45:07.000Z</published>
+    <updated>2024-04-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;1-理解题目：从Redis和热key说起&quot;&gt;&lt;a href=&quot;#1-理解题目：从Redis和热key说起&quot; class=&quot;headerlink&quot; title=&quot;1. 理解题目：从Redis和热key说起&quot;&gt;&lt;/a&gt;&lt;strong&gt;1.</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>nacos高并发问题</title>
+    <link href="http://xeons.cn/2024/04/01/nacos_gaobingfaquexian/"/>
+    <id>http://xeons.cn/2024/04/01/nacos_gaobingfaquexian/</id>
+    <published>2024-04-01T06:45:07.000Z</published>
+    <updated>2024-04-01T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;&lt;strong&gt;引言&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;场景描述&lt;/strong&gt;：&lt;br&gt;你负责的微服务系统使用Nacos作为注册中心，服务实例数超过5000个，且业务高峰期每秒有数百个服务实例发生注册、注销或心跳续约操作。近期发现Nacos集群CPU使用率</summary>
+        
+      
+    
+    
+    
+    <category term="程序优化" scheme="http://xeons.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>分布式事务的一般方案</title>
+    <link href="http://xeons.cn/2024/03/09/fenbushishiwu/"/>
+    <id>http://xeons.cn/2024/03/09/fenbushishiwu/</id>
+    <published>2024-03-09T06:45:07.000Z</published>
+    <updated>2024-03-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;1-分布式基础理论&quot;&gt;&lt;a href=&quot;#1-分布式基础理论&quot; class=&quot;headerlink&quot; title=&quot;1. 分布式基础理论&quot;&gt;&lt;/a&gt;&lt;strong&gt;1. 分布式基础理论&lt;/strong&gt;&lt;/h1&gt;&lt;h2 id=&quot;1-1-CAP理论&quot;&gt;&lt;a</summary>
+        
+      
+    
+    
+    
+    <category term="java" scheme="http://xeons.cn/categories/java/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>微服务架构介绍</title>
+    <link href="http://xeons.cn/2023/11/09/wei_fu_wu_jia_gou/"/>
+    <id>http://xeons.cn/2023/11/09/wei_fu_wu_jia_gou/</id>
+    <published>2023-11-09T06:45:07.000Z</published>
+    <updated>2023-11-09T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h2 id=&quot;1-什么是微服务架构&quot;&gt;&lt;a href=&quot;#1-什么是微服务架构&quot; class=&quot;headerlink&quot; title=&quot;1. 什么是微服务架构&quot;&gt;&lt;/a&gt;&lt;strong&gt;1. 什么是微服务架构&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;2012年，Fred</summary>
+        
+      
+    
+    
+    
+    <category term="java" scheme="http://xeons.cn/categories/java/"/>
+    
+    
+    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python 高级特性</title>
+    <link href="http://xeons.cn/2023/09/09/shijianfuzadu/"/>
+    <id>http://xeons.cn/2023/09/09/shijianfuzadu/</id>
+    <published>2023-09-09T05:45:07.000Z</published>
+    <updated>2023-09-09T05:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h3 id=&quot;重要知识点&quot;&gt;&lt;a href=&quot;#重要知识点&quot; class=&quot;headerlink&quot; title=&quot;重要知识点&quot;&gt;&lt;/a&gt;重要知识点&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;生成式（推导式）的用法&lt;/p&gt;
 &lt;figure class=&quot;highlight</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
+    <category term="python" scheme="http://xeons.cn/categories/python/"/>
     
     
     <category term="python" scheme="http://xeons.cn/tags/python/"/>
@@ -367,247 +401,148 @@
   </entry>
   
   <entry>
-    <title>python web开发之Django</title>
-    <link href="http://xeons.cn/2023/06/02/django-for-web/"/>
-    <id>http://xeons.cn/2023/06/02/django-for-web/</id>
-    <published>2023-06-01T16:00:00.000Z</published>
-    <updated>2023-06-01T16:00:00.000Z</updated>
+    <title>Zookeeper 结点特性详解</title>
+    <link href="http://xeons.cn/2023/09/06/zhishi-12/"/>
+    <id>http://xeons.cn/2023/09/06/zhishi-12/</id>
+    <published>2023-09-06T10:45:07.000Z</published>
+    <updated>2023-09-06T10:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;使用Django-开发web项目&quot;&gt;&lt;a href=&quot;#使用Django-开发web项目&quot; class=&quot;headerlink&quot; title=&quot;使用Django 开发web项目&quot;&gt;&lt;/a&gt;使用Django</summary>
+    <summary type="html">&lt;p&gt;&lt;strong&gt;1. Zookeeper介绍&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
     
-    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
-    
-    <category term="web" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/web/"/>
+    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
     
     
-    <category term="django" scheme="http://xeons.cn/tags/django/"/>
+    <category term="Zookeeper" scheme="http://xeons.cn/tags/Zookeeper/"/>
     
   </entry>
   
   <entry>
-    <title>初识 docker</title>
-    <link href="http://xeons.cn/2023/05/24/docker-init/"/>
-    <id>http://xeons.cn/2023/05/24/docker-init/</id>
-    <published>2023-05-24T07:27:07.000Z</published>
-    <updated>2023-05-24T07:27:07.000Z</updated>
+    <title>CopyOnWriteArrayList 详解</title>
+    <link href="http://xeons.cn/2023/09/05/zhishi-11/"/>
+    <id>http://xeons.cn/2023/09/05/zhishi-11/</id>
+    <published>2023-09-05T10:45:07.000Z</published>
+    <updated>2023-09-05T10:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;Docker容器技术详解&quot;&gt;&lt;a href=&quot;#Docker容器技术详解&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;h1 id=&quot;1-JUC包下的并发容器&quot;&gt;&lt;a href=&quot;#1-JUC包下的并发容器&quot; class=&quot;headerlink&quot; title=&quot;1. JUC包下的并发容器&quot;&gt;&lt;/a&gt;&lt;strong&gt;1.</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
     
-    <category term="docker" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/docker/"/>
-    
-    <category term="容器化" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E5%AE%B9%E5%99%A8%E5%8C%96/"/>
+    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
     
     
-    <category term="docker" scheme="http://xeons.cn/tags/docker/"/>
+    <category term="并发包" scheme="http://xeons.cn/tags/%E5%B9%B6%E5%8F%91%E5%8C%85/"/>
     
-    <category term="k8s" scheme="http://xeons.cn/tags/k8s/"/>
+    <category term="并行计算" scheme="http://xeons.cn/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
     
   </entry>
   
   <entry>
-    <title>mysql性能优化</title>
-    <link href="http://xeons.cn/2023/05/23/mysql-performance-optimization/"/>
-    <id>http://xeons.cn/2023/05/23/mysql-performance-optimization/</id>
-    <published>2023-05-23T02:27:07.000Z</published>
-    <updated>2023-05-23T02:27:07.000Z</updated>
+    <title>ConcurrentHashMap 和ConcurrentSkipListMap 详解</title>
+    <link href="http://xeons.cn/2023/09/05/zhishi-10/"/>
+    <id>http://xeons.cn/2023/09/05/zhishi-10/</id>
+    <published>2023-09-05T10:45:07.000Z</published>
+    <updated>2023-09-05T10:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;MySQL性能优化&quot;&gt;&lt;a href=&quot;#MySQL性能优化&quot; class=&quot;headerlink&quot; title=&quot;MySQL性能优化&quot;&gt;&lt;/a&gt;MySQL性能优化&lt;/h2&gt;&lt;h3 id=&quot;基本原则&quot;&gt;&lt;a href=&quot;#基本原则&quot;</summary>
+    <summary type="html">&lt;p&gt;&lt;strong&gt;1.</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
     
-    <category term="mysql" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/mysql/"/>
-    
-    <category term="DB" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/DB/"/>
+    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
     
     
-    <category term="mysql" scheme="http://xeons.cn/tags/mysql/"/>
+    <category term="并发包" scheme="http://xeons.cn/tags/%E5%B9%B6%E5%8F%91%E5%8C%85/"/>
+    
+    <category term="并行计算" scheme="http://xeons.cn/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
     
   </entry>
   
   <entry>
-    <title>python 生态下的数据分析学习</title>
-    <link href="http://xeons.cn/2023/05/22/python-data-analysis-1p/"/>
-    <id>http://xeons.cn/2023/05/22/python-data-analysis-1p/</id>
-    <published>2023-05-22T02:27:07.000Z</published>
-    <updated>2023-05-22T02:27:07.000Z</updated>
+    <title>Fork/Join框架介绍</title>
+    <link href="http://xeons.cn/2023/09/05/zhishi-9/"/>
+    <id>http://xeons.cn/2023/09/05/zhishi-9/</id>
+    <published>2023-09-05T05:45:07.000Z</published>
+    <updated>2023-09-05T05:45:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;定义：&lt;strong&gt;数据分析是有针对性的收集、加工、整理数据并采用统计、挖掘等技术对数据进行探索、分析、呈现和解释的科学&lt;/strong&gt;。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;数据分析领域&quot;&gt;&lt;a href=&quot;#数据分析领域&quot;</summary>
+    <summary type="html">&lt;p&gt;&lt;strong&gt;1. 由一道算法题引发的思考&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;算法题：如何充分利用多核CPU的性能，快速对一个2千万大小的数组进行排序？&lt;/p&gt;
+&lt;p&gt;&lt;a</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
     
-    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
-    
-    <category term="数据分析" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/"/>
+    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
     
     
-    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    <category term="并行计算" scheme="http://xeons.cn/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
     
-    <category term="数据分析" scheme="http://xeons.cn/tags/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/"/>
+    <category term="高并发" scheme="http://xeons.cn/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"/>
     
   </entry>
   
   <entry>
-    <title>使用 Python 做数据采集(爬虫)</title>
-    <link href="http://xeons.cn/2023/05/18/python-crawer/"/>
-    <id>http://xeons.cn/2023/05/18/python-crawer/</id>
-    <published>2023-05-18T05:47:07.000Z</published>
-    <updated>2023-05-18T05:47:07.000Z</updated>
+    <title>两千万数据，20万热点数据如何存储</title>
+    <link href="http://xeons.cn/2023/09/05/zhishi-8/"/>
+    <id>http://xeons.cn/2023/09/05/zhishi-8/</id>
+    <published>2023-09-05T05:33:07.000Z</published>
+    <updated>2023-09-05T05:33:07.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;python数据采集&quot;&gt;&lt;a href=&quot;#python数据采集&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;h3 id=&quot;一、问题本质：缓存系统的“生存游戏”&quot;&gt;&lt;a href=&quot;#一、问题本质：缓存系统的“生存游戏”&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
     
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
+    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
     
-    <category term="python" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/python/"/>
-    
-    <category term="数据采集" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/"/>
+    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
     
     
-    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    <category term="高并发" scheme="http://xeons.cn/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"/>
     
-    <category term="数据采集" scheme="http://xeons.cn/tags/%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/"/>
-    
-    <category term="爬虫" scheme="http://xeons.cn/tags/%E7%88%AC%E8%99%AB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ElasticSearch 介绍</title>
-    <link href="http://xeons.cn/2023/05/05/es-basic/"/>
-    <id>http://xeons.cn/2023/05/05/es-basic/</id>
-    <published>2023-05-04T16:00:00.000Z</published>
-    <updated>2023-05-04T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;相关概念&quot;&gt;&lt;a href=&quot;#相关概念&quot; class=&quot;headerlink&quot; title=&quot;相关概念&quot;&gt;&lt;/a&gt;相关概念&lt;/h2&gt;&lt;h3 id=&quot;1-Elasticsearch概述&quot;&gt;&lt;a href=&quot;#1-Elasticsearch概述&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="es" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/es/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="elasticsearch" scheme="http://xeons.cn/tags/elasticsearch/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>消息队列-kafka</title>
-    <link href="http://xeons.cn/2023/05/04/mq-kafka/"/>
-    <id>http://xeons.cn/2023/05/04/mq-kafka/</id>
-    <published>2023-05-03T16:00:00.000Z</published>
-    <updated>2023-05-03T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h1 id=&quot;1、应用场景&quot;&gt;&lt;a href=&quot;#1、应用场景&quot; class=&quot;headerlink&quot; title=&quot;1、应用场景&quot;&gt;&lt;/a&gt;1、应用场景&lt;/h1&gt;&lt;h2 id=&quot;1-1-kafka场景&quot;&gt;&lt;a href=&quot;#1-1-kafka场景&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    <category term="mq" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/mq/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
-    
-    <category term="mq" scheme="http://xeons.cn/tags/mq/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Tomcat 详解</title>
-    <link href="http://xeons.cn/2023/05/04/tomcat-basic/"/>
-    <id>http://xeons.cn/2023/05/04/tomcat-basic/</id>
-    <published>2023-05-03T16:00:00.000Z</published>
-    <updated>2023-05-03T16:00:00.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;整体架构&quot;&gt;&lt;a href=&quot;#整体架构&quot; class=&quot;headerlink&quot; title=&quot;整体架构&quot;&gt;&lt;/a&gt;整体架构&lt;/h3&gt;&lt;img src=&quot;/2023/05/04/tomcat-basic/platform.png&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="技术" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="java" scheme="http://xeons.cn/categories/%E6%8A%80%E6%9C%AF/java/"/>
-    
-    
-    <category term="java" scheme="http://xeons.cn/tags/java/"/>
+    <category term="分布式" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   

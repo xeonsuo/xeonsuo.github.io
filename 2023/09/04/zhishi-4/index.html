@@ -1,0 +1,330 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>3tb日增量200gb的es搜索面试题 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第一题：分片容量设计（P7必考）面试官：“现有3TB商品数据，日均增长200GB，要求支持万级QPS搜索，如何设计分片策略？” 技术拆解：  避坑指南： 错误案例：某公司直接设置number_of_shards&#x3D;5导致单分片超过200GB 正确公式：主分片数 &#x3D; ⌈总数据量 * 1.2 &#x2F; 30GB⌉ 动态扩容方案： 1# 通过_split API扩容POST &#x2F;products&#x2F;_split&#x2F;p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3tb日增量200gb的es搜索面试题">
+<meta property="og:url" content="http://xeons.cn/2023/09/04/zhishi-4/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="第一题：分片容量设计（P7必考）面试官：“现有3TB商品数据，日均增长200GB，要求支持万级QPS搜索，如何设计分片策略？” 技术拆解：  避坑指南： 错误案例：某公司直接设置number_of_shards&#x3D;5导致单分片超过200GB 正确公式：主分片数 &#x3D; ⌈总数据量 * 1.2 &#x2F; 30GB⌉ 动态扩容方案： 1# 通过_split API扩容POST &#x2F;products&#x2F;_split&#x2F;p">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/09/04/zhishi-4/640.png">
+<meta property="article:published_time" content="2023-09-04T14:27:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="es">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/09/04/zhishi-4/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2023/09/04/zhishi-4/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '3tb日增量200gb的es搜索面试题',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">3tb日增量200gb的es搜索面试题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-04T14:27:07.000Z" title="发表于 2023-09-04 22:27:07">2023-09-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">759</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="3tb日增量200gb的es搜索面试题"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h3 id="第一题：分片容量设计（P7必考）"><a href="#第一题：分片容量设计（P7必考）" class="headerlink" title="第一题：分片容量设计（P7必考）"></a><strong>第一题：分片容量设计（P7必考）</strong></h3><p><strong>面试官</strong>：<br>“现有3TB商品数据，日均增长200GB，要求支持万级QPS搜索，如何设计分片策略？”</p>
+<p><strong>技术拆解</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640.png" alt="图片"></p>
+<p><strong>避坑指南</strong>：</p>
+<p>错误案例：某公司直接设置<code>number_of_shards=5</code>导致单分片超过200GB</p>
+<p>正确公式：<code>主分片数 = ⌈总数据量 * 1.2 / 30GB⌉</code></p>
+<p>动态扩容方案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 通过_split API扩容POST /products/_split/products_v2&#123;  &quot;settings&quot;: &#123; &quot;number_of_shards&quot;: 12 &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>冷热数据分离架构：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953840-1.png" alt="图片"></p>
+</li>
+</ul>
+<h3 id="第二题：深度分页性能压榨（P6-高频考点）"><a href="#第二题：深度分页性能压榨（P6-高频考点）" class="headerlink" title="第二题：深度分页性能压榨（P6+高频考点）"></a><strong>第二题：深度分页性能压榨（P6+高频考点）</strong></h3><p><strong>面试场景</strong>：<br>“用户投诉翻到第50页时系统卡死，日志显示<code>from 10000</code>查询耗时8秒，如何优化？”</p>
+<p><strong>技术解析</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953840-2.png" alt="图片"></p>
+<p><strong>优化方案对比</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953840-3.png" alt="图片"></p>
+<p><strong>代码级优化</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用Search After实现深度分页</span></span><br><span class="line"><span class="type">SearchSourceBuilder</span> <span class="variable">sourceBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SearchSourceBuilder</span>();</span><br><span class="line">sourceBuilder.sort(SortBuilders.scoreSort());</span><br><span class="line">sourceBuilder.sort(SortBuilders.fieldSort(<span class="string">&quot;_id&quot;</span>));</span><br><span class="line">sourceBuilder.searchAfter(<span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;lastScore, lastId&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="第三题：缓存穿透（P7-设计题）"><a href="#第三题：缓存穿透（P7-设计题）" class="headerlink" title="第三题：缓存穿透（P7+设计题）"></a><strong>第三题：缓存穿透（P7+设计题）</strong></h3><p><strong>架构题</strong>：<br>“突发流量导致大量<code>product_id=-1</code>的恶意查询，ES集群CPU飙升到95%，如何设计防御体系？”</p>
+<p><strong>分层架构</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-4.png" alt="图片"></p>
+<p>**<em>*代码级防御*<em>：</em></em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 布隆过滤器校验</span></span><br><span class="line"><span class="keyword">if</span>(!bloomFilter.mightContain(queryKey))&#123;    </span><br><span class="line"><span class="keyword">return</span> emptyResult();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// ES层面设置索引级熔断</span></span><br><span class="line">PUT /_cluster/settings&#123;  <span class="string">&quot;persistent&quot;</span>: &#123;    <span class="string">&quot;indices.breaker.request.limit&quot;</span>: <span class="string">&quot;60%&quot;</span>  &#125; &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>架构题</strong>：<br>“设计百万QPS商品搜索系统的多级缓存方案，要求命中率&gt;85%”</p>
+<p><strong>分层架构</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-5.png" alt="图片"></p>
+<p>**<em>*关键技术点*<em>：</em></em></p>
+<ul>
+<li><strong>布隆过滤器防穿透：</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初始化布隆过滤器</span></span><br><span class="line">    <span class="keyword">from</span> pybloom_live <span class="keyword">import</span> ScalableBloomFilterbloom = ScalableBloomFilter(initial_capacity=<span class="number">1000000</span>, error_rate=<span class="number">0.001</span>)</span><br><span class="line"><span class="comment"># 数据预热时添加合法Keyfor item in all_items:    bloom.add(item.id)</span></span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li><strong>热点数据自动发现：</strong></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 通过慢查询日志分析热点</span><br><span class="line">POST /_sql?format=txt&#123;  &quot;query&quot;: &quot;SELECT query, COUNT(*) as cnt            FROM &quot;logs-*&quot;            WHERE latency &gt; 1000            GROUP BY query            ORDER BY cnt DESC            LIMIT 10&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="第四题：GC调优实战（P6-实战题）"><a href="#第四题：GC调优实战（P6-实战题）" class="headerlink" title="第四题：GC调优实战（P6+实战题）"></a><strong>第四题：GC调优实战（P6+实战题）</strong></h3><p><strong>监控数据</strong>：</p>
+<ul>
+<li>Young GC频率：5次&#x2F;秒</li>
+<li>Old GC持续时间：1.2秒&#x2F;次</li>
+<li>堆内存使用率：98%</li>
+</ul>
+<p><strong>调优步骤</strong>：</p>
+<p><strong>1.堆内存配置：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># jvm.options配置-Xms31g-Xmx31g-XX:+UseG1GC-XX:MaxGCPauseMillis=200</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.GC算法对比：</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-6.png" alt="图片"></p>
+<h3 id="第五题：性能诊断（P8专家题）"><a href="#第五题：性能诊断（P8专家题）" class="headerlink" title="第五题：性能诊断（P8专家题）"></a><strong>第五题：性能诊断（P8专家题）</strong></h3><p><strong>终极挑战</strong>：<br>“现有集群搜索延迟突增3倍，请给出系统化的诊断路径”</p>
+<p><strong>诊断矩阵</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-7.png" alt="图片"></p>
+<h3 id="第六题：灾备方案（P8架构题）"><a href="#第六题：灾备方案（P8架构题）" class="headerlink" title="第六题：灾备方案（P8架构题）"></a><strong>第六题：灾备方案（P8架构题）</strong></h3><p><strong>设计题</strong>：<br>“请设计跨机房ES集群架构，要求RTO&lt;5分钟，RPO&lt;10秒”</p>
+<p><strong>高可用架构</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-8.png" alt="图片"></p>
+<p><strong>核心配置</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /_ccr/follow/product_index&#123;  &quot;remote_cluster&quot;: &quot;backup_cluster&quot;,  &quot;settings&quot;: &#123;    &quot;index.write.wait_for_active_shards&quot;: &quot;2&quot;  &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="面试总结"><a href="#面试总结" class="headerlink" title="面试总结"></a><strong>面试总结</strong></h3><p><strong>ES优化能力矩阵</strong>：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-4/640-1741875953841-9.png" alt="图片"></p>
+<p><strong>避坑箴言</strong>：</p>
+<ol>
+<li><p>永远不要在生产环境执行<code>forcemerge</code></p>
+</li>
+<li><pre><code>search_after
+</code></pre>
+<p>必须配合唯一排序字段</p>
+</li>
+<li><p>监控比优化更重要</p>
+</li>
+</ol>
+<p><strong>关于ElasticSearch，更多精彩内容请看我之前的文章：</strong></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484043&idx=1&sn=ccd479dca88efe35c28e19381899e2b2&scene=21#wechat_redirect">16、如何保证Mysql数据库到ES的数据一致性</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484033&idx=1&sn=87c4a0b0fb2451ad5bcddabba1c058b9&scene=21#wechat_redirect">15、ElasticSearch性能调优最佳实践</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484026&idx=1&sn=1e37b971c130f19752c5cbce20c60e70&scene=21#wechat_redirect">14、ElasticSearch集群架构生产最佳实践</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484008&idx=1&sn=57d531e541b3020d4c779e56497e1feb&scene=21#wechat_redirect">13、ElasticSearch高可用集群架构实战</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247483959&idx=1&sn=fcfb9bb179dbbcfc4228dfdd2c8b1dd6&scene=21#wechat_redirect">12、 ES 深度分页问题及其解决方案详解</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/04/zhishi-4/">http://xeons.cn/2023/09/04/zhishi-4/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/09/04/zhishi-4/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/es/">es</a></div><div class="post_share"><div class="social-share" data-image="/2023/09/04/zhishi-4/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/04/zhishi-5/" title="高效短链系统的设计方案记录"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-5/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">高效短链系统的设计方案记录</div></div></a></div><div class="next-post pull-right"><a href="/2023/09/04/zhishi-3/" title="0心跳检测方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-3/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">0心跳检测方案</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%A2%98%EF%BC%9A%E5%88%86%E7%89%87%E5%AE%B9%E9%87%8F%E8%AE%BE%E8%AE%A1%EF%BC%88P7%E5%BF%85%E8%80%83%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">第一题：分片容量设计（P7必考）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%A2%98%EF%BC%9A%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E6%80%A7%E8%83%BD%E5%8E%8B%E6%A6%A8%EF%BC%88P6-%E9%AB%98%E9%A2%91%E8%80%83%E7%82%B9%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">第二题：深度分页性能压榨（P6+高频考点）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E9%A2%98%EF%BC%9A%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%EF%BC%88P7-%E8%AE%BE%E8%AE%A1%E9%A2%98%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">第三题：缓存穿透（P7+设计题）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E9%A2%98%EF%BC%9AGC%E8%B0%83%E4%BC%98%E5%AE%9E%E6%88%98%EF%BC%88P6-%E5%AE%9E%E6%88%98%E9%A2%98%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">第四题：GC调优实战（P6+实战题）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E9%A2%98%EF%BC%9A%E6%80%A7%E8%83%BD%E8%AF%8A%E6%96%AD%EF%BC%88P8%E4%B8%93%E5%AE%B6%E9%A2%98%EF%BC%89"><span class="toc-number">5.</span> <span class="toc-text">第五题：性能诊断（P8专家题）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E9%A2%98%EF%BC%9A%E7%81%BE%E5%A4%87%E6%96%B9%E6%A1%88%EF%BC%88P8%E6%9E%B6%E6%9E%84%E9%A2%98%EF%BC%89"><span class="toc-number">6.</span> <span class="toc-text">第六题：灾备方案（P8架构题）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%A2%E8%AF%95%E6%80%BB%E7%BB%93"><span class="toc-number">7.</span> <span class="toc-text">面试总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>java中CAS | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1.CAS介绍什么是 CASCAS（Compare And Swap，比较与交换），是非阻塞同步的实现原理，它是CPU硬件层面的一种指令，从CPU层面能保证”比较与交换”两个操作的原子性。CAS指令操作包括三个参数：内存值(内存地址值)V、预期值E、新值N，当CAS指令执行时，当且仅当预期值E和内存值V相同时，才更新内存值为N，否则就不执行更新，无论更新与否都会返回否会返回旧的内存值V，上述的处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java中CAS">
+<meta property="og:url" content="http://xeons.cn/2024/04/09/cas/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="1.CAS介绍什么是 CASCAS（Compare And Swap，比较与交换），是非阻塞同步的实现原理，它是CPU硬件层面的一种指令，从CPU层面能保证”比较与交换”两个操作的原子性。CAS指令操作包括三个参数：内存值(内存地址值)V、预期值E、新值N，当CAS指令执行时，当且仅当预期值E和内存值V相同时，才更新内存值为N，否则就不执行更新，无论更新与否都会返回否会返回旧的内存值V，上述的处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2024/04/09/cas/640.png">
+<meta property="article:published_time" content="2024-04-09T06:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2024/04/09/cas/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2024/04/09/cas/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java中CAS',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">java中CAS</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/">程序优化</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>11分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="java中CAS"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h1 id="1-CAS介绍"><a href="#1-CAS介绍" class="headerlink" title="1.CAS介绍"></a><strong>1.CAS介绍</strong></h1><h2 id="什么是-CAS"><a href="#什么是-CAS" class="headerlink" title="什么是 CAS"></a><strong>什么是 CAS</strong></h2><p>CAS（Compare And Swap，比较与交换），是非阻塞同步的实现原理，它是CPU硬件层面的一种指令，从CPU层面能保证”比较与交换”两个操作的原子性。CAS指令操作包括三个参数：内存值(内存地址值)V、预期值E、新值N，当CAS指令执行时，当且仅当预期值E和内存值V相同时，才更新内存值为N，否则就不执行更新，无论更新与否都会返回否会返回旧的内存值V，上述的处理过程是一个原子操作。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640.png" alt="img"></p>
+<p>用Java代码等效实现一下CAS的执行过程：</p>
+<p>- </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CASDemo</span> &#123;    </span><br><span class="line">    <span class="comment">// 内存中当前的值    </span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="type">int</span> ramAddress;    </span><br><span class="line">    <span class="comment">/**     </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> expectedValue 期望值     </span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> newValue 更新的值     </span></span><br><span class="line"><span class="comment">    **/</span>    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">compareAndSwap</span><span class="params">(<span class="type">int</span> expectedValue, <span class="type">int</span> newValue)</span> &#123;        </span><br><span class="line">        <span class="comment">//TODO 模拟直接从内存地址读取到内存中的值        </span></span><br><span class="line">        <span class="type">int</span> <span class="variable">oldRamAddress</span>  <span class="operator">=</span> accessMemory(ramAddress);        </span><br><span class="line">        <span class="comment">//内存中的值和期望的值进行比较        </span></span><br><span class="line">        <span class="keyword">if</span> (oldRamAddress  == expectedValue) &#123;            </span><br><span class="line">            ramAddress = newValue;        </span><br><span class="line">        &#125;        </span><br><span class="line">        <span class="keyword">return</span> oldRamAddress;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="title function_">accessMemory</span><span class="params">(<span class="type">int</span> ramAddress)</span> &#123;        </span><br><span class="line">        <span class="comment">//TODO  模拟直接从内存地址读取到内存中的值        </span></span><br><span class="line">        <span class="keyword">return</span> ramAddress;    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上伪代码描述了一个由比较和赋值两阶段组成的复合操作，CAS 可以看作是它们合并后的整体——一个不可分割的原子操作，并且其原子性是直接在硬件层面得到保障的。</p>
+<p>CAS是一种无锁算法，在不使用锁（没有线程被阻塞）的情况下实现多线程之间的变量同步。CAS可以看做是乐观锁（对比数据库的悲观、乐观锁）的一种实现方式，Java原子类中的递增操作就通过CAS自旋实现的。</p>
+<h2 id="CAS使用"><a href="#CAS使用" class="headerlink" title="CAS使用"></a><strong>CAS使用</strong></h2><p>在 Java 中，CAS 操作是由 Unsafe 类提供支持的，该类定义了三种针对不同类型变量的 CAS 操作，如图</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206570-1.png" alt="img"></p>
+<p>它们都是 native 方法，由 Java 虚拟机提供具体实现，这意味着不同的 Java 虚拟机对它们的实现可能会略有不同。</p>
+<blockquote>
+<p>Unsafe是位于sun.misc包下的一个类，主要提供一些用于执行低级别、不安全操作的方法，如直接访问系统内存资源、自主管理内存资源等，这些方法在提升Java运行效率、增强Java语言底层资源操作能力方面起到了很大的作用。但由于Unsafe类使Java语言拥有了类似C语言指针一样操作内存空间的能力，这无疑也增加了程序发生相关指针问题的风险。在程序中过度、不正确使用Unsafe类会使得程序出错的概率变大，使得Java这种安全的语言变得不再“安全”，因此对Unsafe的使用一定要慎重。</p>
+</blockquote>
+<p>以 compareAndSwapInt 为例，Unsafe 的 compareAndSwapInt 方法接收 4 个参数，分别是：对象实例、内存偏移量、字段期望值、字段新值。该方法会针对指定对象实例中的相应偏移量的字段执行 CAS 操作。</p>
+<p>- </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CASTest</span> &#123;    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        <span class="type">Entity</span> <span class="variable">entity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Entity</span>();        <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> UnsafeFactory.getUnsafe();        <span class="type">long</span> <span class="variable">offset</span> <span class="operator">=</span> UnsafeFactory.getFieldOffset(unsafe, Entity.class, <span class="string">&quot;x&quot;</span>);        <span class="type">boolean</span> successful;        <span class="comment">// 4个参数分别是：对象实例、字段的内存偏移量、字段期望值、字段新值        successful = unsafe.compareAndSwapInt(entity, offset, 0, 3);        System.out.println(successful + &quot;\t&quot; + entity.x);        successful = unsafe.compareAndSwapInt(entity, offset, 3, 5);        System.out.println(successful + &quot;\t&quot; + entity.x);        successful = unsafe.compareAndSwapInt(entity, offset, 3, 8);        System.out.println(successful + &quot;\t&quot; + entity.x);    &#125;&#125;public class UnsafeFactory &#123;    /**     * 获取 Unsafe 对象     * @return     */    public static Unsafe getUnsafe() &#123;        try &#123;            Field field = Unsafe.class.getDeclaredField(&quot;theUnsafe&quot;);            field.setAccessible(true);            return (Unsafe) field.get(null);        &#125; catch (Exception e) &#123;            e.printStackTrace();        &#125;        return null;    &#125;    /**     * 获取字段的内存偏移量     * @param unsafe     * @param clazz     * @param fieldName     * @return     */    public static long getFieldOffset(Unsafe unsafe, Class clazz, String fieldName) &#123;        try &#123;            return unsafe.objectFieldOffset(clazz.getDeclaredField(fieldName));        &#125; catch (NoSuchFieldException e) &#123;            throw new Error(e);        &#125;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>测试</p>
+<p>针对 entity.x 的 3 次 CAS 操作，分别试图将它从 0 改成 3、从 3 改成 5、从 3 改成 8。执行结果如下：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206570-2.png" alt="img"></p>
+<h2 id="CAS应用场景"><a href="#CAS应用场景" class="headerlink" title="CAS应用场景"></a><strong>CAS应用场景</strong></h2><p>CAS在java.util.concurrent.atomic相关类、Java AQS、CurrentHashMap等实现上有非常广泛的应用。如下图所示，AtomicInteger的实现中，静态字段valueOffset即为字段value的内存偏移地址，valueOffset的值在AtomicInteger初始化时，在静态代码块中通过Unsafe的objectFieldOffset方法获取。在AtomicInteger中提供的线程安全方法中，通过字段valueOffset的值可以定位到AtomicInteger对象中value的内存地址，从而可以根据CAS实现对value字段的原子操作。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-3.png" alt="img"></p>
+<p>下图为某个AtomicInteger对象自增操作前后的内存示意图，对象的基地址baseAddress&#x3D;“0x110000”，通过baseAddress+valueOffset得到value的内存地址valueAddress&#x3D;“0x11000c”；然后通过CAS进行原子性的更新操作，成功则返回，否则继续重试，直到更新成功为止。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-4.png" alt="img"></p>
+<h2 id="CAS源码分析"><a href="#CAS源码分析" class="headerlink" title="CAS源码分析"></a><strong>CAS源码分析</strong></h2><p>Hotspot 虚拟机对compareAndSwapInt 方法的实现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#unsafe.cppUNSAFE_ENTRY(jboolean, Unsafe_CompareAndSwapInt(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jint e, jint x))  UnsafeWrapper(&quot;Unsafe_CompareAndSwapInt&quot;);  oop p = JNIHandles::resolve(obj);  // 根据偏移量，计算value的地址  jint* addr = (jint *) index_oop_from_field_offset_long(p, offset);  // Atomic::cmpxchg(x, addr, e) cas逻辑 x:要交换的值   e:要比较的值  //cas成功，返回期望值e，等于e,此方法返回true   //cas失败，返回内存中的value值，不等于e，此方法返回false  return (jint)(Atomic::cmpxchg(x, addr, e)) == e;UNSAFE_END2</span><br></pre></td></tr></table></figure>
+
+<p>核心逻辑在Atomic::cmpxchg方法中，这个根据不同操作系统和不同CPU会有不同的实现。这里我们以linux_64x的为例，查看Atomic::cmpxchg的实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#atomic_linux_x86.inline.hppinline jint     Atomic::cmpxchg    (jint     exchange_value, volatile jint*     dest, jint     compare_value) &#123;  //判断当前执行环境是否为多处理器环境  int mp = os::is_MP();  //LOCK_IF_MP(%4) 在多处理器环境下，为 cmpxchgl 指令添加 lock 前缀，以达到内存屏障的效果  //cmpxchgl 指令是包含在 x86 架构及 IA-64 架构中的一个原子条件指令，  //它会首先比较 dest 指针指向的内存值是否和 compare_value 的值相等，  //如果相等，则双向交换 dest 与 exchange_value，否则就单方面地将 dest 指向的内存值交给exchange_value。  //这条指令完成了整个 CAS 操作，因此它也被称为 CAS 指令。  __asm__ volatile (LOCK_IF_MP(%4) &quot;cmpxchgl %1,(%3)&quot;                    : &quot;=a&quot; (exchange_value)                    : &quot;r&quot; (exchange_value), &quot;a&quot; (compare_value), &quot;r&quot; (dest), &quot;r&quot; (mp)                    : &quot;cc&quot;, &quot;memory&quot;);  return exchange_value;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>cmpxchgl的详细执行过程：</p>
+<p>首先，输入是”r” (exchange_value), “a” (compare_value), “r” (dest), “r” (mp)，表示compare_value存入eax寄存器，而exchange_value、dest、mp的值存入任意的通用寄存器。嵌入式汇编规定把输出和输入寄存器按统一顺序编号，顺序是从输出寄存器序列从左到右从上到下以“%0”开始，分别记为%0、%1···%9。也就是说，输出的eax是%0，输入的exchange_value、compare_value、dest、mp分别是%1、%2、%3、%4。</p>
+<p>因此，cmpxchg %1,(%3)实际上表示cmpxchg exchange_value,(dest)</p>
+<p>需要注意的是cmpxchg有个隐含操作数eax，其实际过程是先比较eax的值(也就是compare_value)和dest地址所存的值是否相等，</p>
+<p>输出是”&#x3D;a” (exchange_value)，表示把eax中存的值写入exchange_value变量中。</p>
+<p>Atomic::cmpxchg这个函数最终返回值是exchange_value，也就是说，如果cmpxchgl执行时compare_value和dest指针指向内存值相等则会使得dest指针指向内存值变成exchange_value，最终eax存的compare_value赋值给了exchange_value变量，即函数最终返回的值是原先的compare_value。此时Unsafe_CompareAndSwapInt的返回值(jint)(Atomic::cmpxchg(x, addr, e)) &#x3D;&#x3D; e就是true，表明CAS成功。如果cmpxchgl执行时compare_value和(dest)不等则会把当前dest指针指向内存的值写入eax，最终输出时赋值给exchange_value变量作为返回值，导致(jint)(Atomic::cmpxchg(x, addr, e)) &#x3D;&#x3D; e得到false，表明CAS失败。</p>
+<p>现代处理器指令集架构基本上都会提供 CAS 指令，例如 x86 和 IA-64 架构中的 cmpxchgl 指令和 comxchgq 指令，sparc 架构中的 cas 指令和 casx 指令。</p>
+<p>不管是 Hotspot 中的 Atomic::cmpxchg 方法，还是 Java 中的 compareAndSwapInt 方法，它们本质上都是对相应平台的 CAS 指令的一层简单封装。CAS 指令作为一种硬件原语，有着天然的原子性，这也正是 CAS 的价值所在。</p>
+<h2 id="CAS缺陷"><a href="#CAS缺陷" class="headerlink" title="CAS缺陷"></a><strong>CAS缺陷</strong></h2><p>CAS 虽然高效地解决了原子操作，但是还是存在一些缺陷的，主要表现在三个方面：</p>
+<ul>
+<li>自旋 CAS 长时间不成功，则会给 CPU 带来非常大的开销</li>
+<li>只能保证一个共享变量原子操作</li>
+<li>ABA 问题</li>
+</ul>
+<h2 id="ABA问题及其解决方案"><a href="#ABA问题及其解决方案" class="headerlink" title="ABA问题及其解决方案"></a><strong>ABA问题及其解决方案</strong></h2><p>CAS算法实现一个重要前提需要取出内存中某时刻的数据，而在下时刻比较并替换，那么在这个时间差类会导致数据的变化。</p>
+<h3 id="什么是ABA问题"><a href="#什么是ABA问题" class="headerlink" title="什么是ABA问题"></a><strong>什么是ABA问题</strong></h3><p>当有多个线程对一个原子类进行操作的时候，某个线程在短时间内将原子类的值A修改为B，又马上将其修改为A，此时其他线程不感知，还是会修改成功。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-5.png" alt="img"></p>
+<p>测试</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Slf4jpublic class ABATest &#123;    public static void main(String[] args) &#123;        AtomicInteger atomicInteger = new AtomicInteger(1);        new Thread(()-&gt;&#123;            int value = atomicInteger.get();            log.debug(&quot;Thread1 read value: &quot; + value);            // 阻塞1s            LockSupport.parkNanos(1000000000L);            // Thread1通过CAS修改value值为3            if (atomicInteger.compareAndSet(value, 3)) &#123;                log.debug(&quot;Thread1 update from &quot; + value + &quot; to 3&quot;);            &#125; else &#123;                log.debug(&quot;Thread1 update fail!&quot;);            &#125;        &#125;,&quot;Thread1&quot;).start();        new Thread(()-&gt;&#123;            int value = atomicInteger.get();            log.debug(&quot;Thread2 read value: &quot; + value);            // Thread2通过CAS修改value值为2            if (atomicInteger.compareAndSet(value, 2)) &#123;                log.debug(&quot;Thread2 update from &quot; + value + &quot; to 2&quot;);                // do something                value = atomicInteger.get();                log.debug(&quot;Thread2 read value: &quot; + value);                // Thread2通过CAS修改value值为1                if (atomicInteger.compareAndSet(value, 1)) &#123;                    log.debug(&quot;Thread2 update from &quot; + value + &quot; to 1&quot;);                &#125;            &#125;        &#125;,&quot;Thread2&quot;).start();    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Thread1不清楚Thread2对value的操作，误以为value&#x3D;1没有修改过</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-6.png" alt="img"></p>
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="ABA问题的解决方案"><a href="#ABA问题的解决方案" class="headerlink" title="ABA问题的解决方案"></a><strong>ABA问题的解决方案</strong></h3><p>数据库有个锁称为乐观锁，是一种基于数据版本实现数据同步的机制，每次修改一次数据，版本就会进行累加。</p>
+<p>同样，Java也提供了相应的原子引用类AtomicStampedReference</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-7.png" alt="img"></p>
+<p>reference即我们实际存储的变量，stamp是版本，每次修改可以通过+1保证版本唯一性。这样就可以保证每次修改后的版本也会往上递增。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@Slf4jpublic class AtomicStampedReferenceTest &#123;    public static void main(String[] args) &#123;        // 定义AtomicStampedReference    Pair.reference值为1, Pair.stamp为1        AtomicStampedReference atomicStampedReference = new AtomicStampedReference(1,1);        new Thread(()-&gt;&#123;            int[] stampHolder = new int[1];            int value = (int) atomicStampedReference.get(stampHolder);            int stamp = stampHolder[0];            log.debug(&quot;Thread1 read value: &quot; + value + &quot;, stamp: &quot; + stamp);            // 阻塞1s            LockSupport.parkNanos(1000000000L);            // Thread1通过CAS修改value值为3            if (atomicStampedReference.compareAndSet(value, 3,stamp,stamp+1)) &#123;                log.debug(&quot;Thread1 update from &quot; + value + &quot; to 3&quot;);            &#125; else &#123;                log.debug(&quot;Thread1 update fail!&quot;);            &#125;        &#125;,&quot;Thread1&quot;).start();        new Thread(()-&gt;&#123;            int[] stampHolder = new int[1];            int value = (int)atomicStampedReference.get(stampHolder);            int stamp = stampHolder[0];            log.debug(&quot;Thread2 read value: &quot; + value+ &quot;, stamp: &quot; + stamp);            // Thread2通过CAS修改value值为2            if (atomicStampedReference.compareAndSet(value, 2,stamp,stamp+1)) &#123;                log.debug(&quot;Thread2 update from &quot; + value + &quot; to 2&quot;);                // do something                value = (int) atomicStampedReference.get(stampHolder);                stamp = stampHolder[0];                log.debug(&quot;Thread2 read value: &quot; + value+ &quot;, stamp: &quot; + stamp);                // Thread2通过CAS修改value值为1                if (atomicStampedReference.compareAndSet(value, 1,stamp,stamp+1)) &#123;                    log.debug(&quot;Thread2 update from &quot; + value + &quot; to 1&quot;);                &#125;            &#125;        &#125;,&quot;Thread2&quot;).start();    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Thread1并没有成功修改value</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-8.png" alt="img"></p>
+<p>补充：AtomicMarkableReference可以理解为上面AtomicStampedReference的简化版，就是不关心修改过几次，仅仅关心是否修改过。因此变量mark是boolean类型，仅记录值是否有过修改。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./cas.assets/640-1742534206571-9.png" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2024/04/09/cas/">http://xeons.cn/2024/04/09/cas/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2024/04/09/cas/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post_share"><div class="social-share" data-image="/2024/04/09/cas/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/04/09/24locks/" title="java中的各种锁"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/24locks/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">java中的各种锁</div></div></a></div><div class="next-post pull-right"><a href="/2024/04/09/es_deep_page/" title="ES 深度分页问题"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/es_deep_page/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ES 深度分页问题</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">1g内存如何存储1亿数据</div></div></a></div><div><a href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">上亿号码去重方案</div></div></a></div><div><a href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">seate中的tcc</div></div></a></div><div><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">cpu打到100的分析</div></div></a></div><div><a href="/2024/04/09/24locks/" title="java中的各种锁"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/24locks/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中的各种锁</div></div></a></div><div><a href="/2023/01/03/data-structure-and-algorithm/" title="常见数据结构和算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/01/03/data-structure-and-algorithm/logo.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-03</div><div class="title">常见数据结构和算法</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-CAS%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">1.CAS介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-CAS"><span class="toc-number">1.1.</span> <span class="toc-text">什么是 CAS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">CAS使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.3.</span> <span class="toc-text">CAS应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.4.</span> <span class="toc-text">CAS源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS%E7%BC%BA%E9%99%B7"><span class="toc-number">1.5.</span> <span class="toc-text">CAS缺陷</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ABA%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.6.</span> <span class="toc-text">ABA问题及其解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFABA%E9%97%AE%E9%A2%98"><span class="toc-number">1.6.1.</span> <span class="toc-text">什么是ABA问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ABA%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.6.3.</span> <span class="toc-text">ABA问题的解决方案</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,795 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>AI之 panda | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="pandas 是python中的一个 数据分析库，填补了python在数据分析中的不足，同 numpy 、matplotlib一起 为python的小规模数据分析提供强大的支持。 ** 数据分析的一般步骤**  数据整理和清洗 数据分析与建模 数据可视化和制表  pandas 在数据的处理方面表现卓越. 数据结构seriesseries （系列），在pandas中可以表示所有的由一维数据组成的数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI之 panda">
+<meta property="og:url" content="http://xeons.cn/2024/09/09/ai-pandas1/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="pandas 是python中的一个 数据分析库，填补了python在数据分析中的不足，同 numpy 、matplotlib一起 为python的小规模数据分析提供强大的支持。 ** 数据分析的一般步骤**  数据整理和清洗 数据分析与建模 数据可视化和制表  pandas 在数据的处理方面表现卓越. 数据结构seriesseries （系列），在pandas中可以表示所有的由一维数据组成的数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2024/09/09/ai-pandas1/algorithm_complexity_1.png">
+<meta property="article:published_time" content="2024-09-09T06:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2024/09/09/ai-pandas1/algorithm_complexity_1.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2024/09/09/ai-pandas1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AI之 panda',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">AI之 panda</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI%E5%A4%A7%E6%95%99%E7%A8%8B/">AI大教程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/python/">python</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>21分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="AI之 panda"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p>pandas 是python中的一个 数据分析库，填补了python在数据分析中的不足，同 numpy 、matplotlib一起 为python的小规模数据分析提供强大的支持。</p>
+<p>** 数据分析的一般步骤**</p>
+<ol>
+<li>数据整理和清洗</li>
+<li>数据分析与建模</li>
+<li>数据可视化和制表</li>
+</ol>
+<p>pandas 在数据的处理方面表现卓越.</p>
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="series"><a href="#series" class="headerlink" title="series"></a>series</h2><p>series （系列），在pandas中可以表示所有的由一维数据组成的数据结构。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">l = [<span class="number">0</span>,<span class="number">1</span>,<span class="number">7</span>,<span class="number">9</span>,np.NAN,<span class="literal">None</span>,<span class="number">1024</span>,<span class="number">512</span>]</span><br><span class="line"><span class="comment"># ⽆论是numpy中的NAN还是Python中的None在pandas中都以缺失数据NaN对待</span></span><br><span class="line">s1 = pd.Series(data = l) <span class="comment"># pandas⾃动添加索引</span></span><br><span class="line">s2 = pd.Series(data = l,index = <span class="built_in">list</span>(<span class="string">&#x27;abcdefhi&#x27;</span>),dtype=<span class="string">&#x27;float32&#x27;</span>) <span class="comment"># 指定⾏索引</span></span><br><span class="line"><span class="comment"># 传⼊字典创建， key⾏索引</span></span><br><span class="line">s3 = pd.Series(data = &#123;<span class="string">&#x27;a&#x27;</span>:<span class="number">99</span>,<span class="string">&#x27;b&#x27;</span>:<span class="number">137</span>,<span class="string">&#x27;c&#x27;</span>:<span class="number">149</span>&#125;,name = <span class="string">&#x27;Python_score&#x27;</span>)</span><br><span class="line">display(s1,s2,s3)</span><br></pre></td></tr></table></figure>
+
+<h2 id="DataFrame"><a href="#DataFrame" class="headerlink" title="DataFrame"></a>DataFrame</h2><p>与series 不同，代表所有的二维数组结构的数据结构。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="comment"># index 作为⾏索引，字典中的key作为列索引，创建了3*3的DataFrame表格⼆维数组</span></span><br><span class="line">df1 = pd.DataFrame(data = &#123;<span class="string">&#x27;Python&#x27;</span>:[<span class="number">99</span>,<span class="number">107</span>,<span class="number">122</span>],<span class="string">&#x27;Math&#x27;</span>:[<span class="number">111</span>,<span class="number">137</span>,<span class="number">88</span>],<span class="string">&#x27;En&#x27;</span>:</span><br><span class="line">[<span class="number">68</span>,<span class="number">108</span>,<span class="number">43</span>]&#125;,<span class="comment"># key作为列索引</span></span><br><span class="line">index = [<span class="string">&#x27;张三&#x27;</span>,<span class="string">&#x27;李四&#x27;</span>,<span class="string">&#x27;Michael&#x27;</span>]) <span class="comment"># ⾏索引</span></span><br><span class="line">df2 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">151</span>,size = (<span class="number">5</span>,<span class="number">3</span>)),</span><br><span class="line">index = [<span class="string">&#x27;Danial&#x27;</span>,<span class="string">&#x27;Brandon&#x27;</span>,<span class="string">&#x27;softpo&#x27;</span>,<span class="string">&#x27;Ella&#x27;</span>,<span class="string">&#x27;Cindy&#x27;</span>],<span class="comment"># ⾏索引</span></span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Math&#x27;</span>,<span class="string">&#x27;En&#x27;</span>])<span class="comment"># 列索引</span></span><br></pre></td></tr></table></figure>
+
+<p>常用的函数和方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看其属性、概览和统计信息</span></span><br><span class="line">df.head(<span class="number">10</span>) <span class="comment"># 显示头部10⾏，默认5个</span></span><br><span class="line">df.tail(<span class="number">10</span>) <span class="comment"># 显示末尾10⾏，默认5个</span></span><br><span class="line">df.shape <span class="comment"># 查看形状，⾏数和列数</span></span><br><span class="line">df.dtypes <span class="comment"># 查看数据类型</span></span><br><span class="line">df.index <span class="comment"># ⾏索引</span></span><br><span class="line">df.columns <span class="comment"># 列索引</span></span><br><span class="line">df.values <span class="comment"># 对象值，⼆维ndarray数组</span></span><br><span class="line">df.describe() <span class="comment"># 查看数值型列的汇总统计,计数、平均值、标准差、最⼩值、四分位数、最⼤值</span></span><br><span class="line">df.info() <span class="comment"># 查看列索引、数据类型、⾮空计数和内存信</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="数据加载与数据导出"><a href="#数据加载与数据导出" class="headerlink" title="数据加载与数据导出"></a>数据加载与数据导出</h1><h3 id="csv"><a href="#csv" class="headerlink" title="csv"></a>csv</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">50</span>,size = [<span class="number">50</span>,<span class="number">5</span>]), <span class="comment"># 薪资情况</span></span><br><span class="line">columns=[<span class="string">&#x27;IT&#x27;</span>,<span class="string">&#x27;化⼯&#x27;</span>,<span class="string">&#x27;⽣物&#x27;</span>,<span class="string">&#x27;教师&#x27;</span>,<span class="string">&#x27;⼠兵&#x27;</span>])</span><br><span class="line"><span class="comment"># 保存到当前路径下，⽂件命名是： salary.csv。 csv逗号分割值⽂件格式</span></span><br><span class="line">df.to_csv(<span class="string">&#x27;./salary.csv&#x27;</span>,</span><br><span class="line">sep = <span class="string">&#x27;;&#x27;</span>, <span class="comment"># ⽂本分隔符，默认是逗号</span></span><br><span class="line">header = <span class="literal">True</span>,<span class="comment"># 是否保存列索引</span></span><br><span class="line">index = <span class="literal">True</span>) <span class="comment"># 是否保存⾏索引，保存⾏索引，⽂件被加载时，默认⾏索引会作为⼀</span></span><br><span class="line">列</span><br><span class="line"><span class="comment"># 加载</span></span><br><span class="line">pd.read_csv(<span class="string">&#x27;./salary.csv&#x27;</span>,</span><br><span class="line">sep = <span class="string">&#x27;;&#x27;</span>,<span class="comment"># 默认是逗号</span></span><br><span class="line">header = [<span class="number">0</span>],<span class="comment">#指定列索引</span></span><br><span class="line">index_col=<span class="number">0</span>) <span class="comment"># 指定⾏索引</span></span><br><span class="line">pd.read_table(<span class="string">&#x27;./salary.csv&#x27;</span>, <span class="comment"># 和read_csv类似，读取限定分隔符的⽂本⽂件</span></span><br><span class="line">sep = <span class="string">&#x27;;&#x27;</span>,</span><br><span class="line">header = [<span class="number">0</span>],<span class="comment">#指定列索引</span></span><br><span class="line">index_col=<span class="number">1</span>) <span class="comment"># 指定⾏索引,IT作为⾏索引</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="excel"><a href="#excel" class="headerlink" title="excel"></a>excel</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df1 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">50</span>,size = [<span class="number">50</span>,<span class="number">5</span>]), <span class="comment"># 薪资情况</span></span><br><span class="line">columns=[<span class="string">&#x27;IT&#x27;</span>,<span class="string">&#x27;化⼯&#x27;</span>,<span class="string">&#x27;⽣物&#x27;</span>,<span class="string">&#x27;教师&#x27;</span>,<span class="string">&#x27;⼠兵&#x27;</span>])</span><br><span class="line">df2 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">50</span>,size = [<span class="number">150</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬</span></span><br><span class="line">的考试成绩</span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line"><span class="comment"># 保存到当前路径下，⽂件命名是： salary.xls</span></span><br><span class="line">df1.to_excel(<span class="string">&#x27;./salary.xls&#x27;</span>,</span><br><span class="line">sheet_name = <span class="string">&#x27;salary&#x27;</span>,<span class="comment"># Excel中⼯作表的名字</span></span><br><span class="line">header = <span class="literal">True</span>,<span class="comment"># 是否保存列索引</span></span><br><span class="line">index = <span class="literal">False</span>) <span class="comment"># 是否保存⾏索引，保存⾏索引</span></span><br><span class="line">pd.read_excel(<span class="string">&#x27;./salary.xls&#x27;</span>,</span><br><span class="line">sheet_name=<span class="number">0</span>,<span class="comment"># 读取哪⼀个Excel中⼯作表，默认第⼀个</span></span><br><span class="line">header = <span class="number">0</span>,<span class="comment"># 使⽤第⼀⾏数据作为列索引</span></span><br><span class="line">names = <span class="built_in">list</span>(<span class="string">&#x27;ABCDE&#x27;</span>),<span class="comment"># 替换⾏索引</span></span><br><span class="line">index_col=<span class="number">1</span>)<span class="comment"># 指定⾏索引， B作为⾏索引</span></span><br><span class="line"><span class="comment"># ⼀个Excel⽂件中保存多个⼯作表</span></span><br><span class="line"><span class="keyword">with</span> pd.ExcelWriter(<span class="string">&#x27;./data.xlsx&#x27;</span>) <span class="keyword">as</span> writer:</span><br><span class="line">df1.to_excel(writer,sheet_name=<span class="string">&#x27;salary&#x27;</span>,index = <span class="literal">False</span>)</span><br><span class="line">df2.to_excel(writer,sheet_name=<span class="string">&#x27;score&#x27;</span>,index = <span class="literal">False</span>)</span><br><span class="line">pd.read_excel(<span class="string">&#x27;./data.xlsx&#x27;</span>,</span><br><span class="line">sheet_name=<span class="string">&#x27;salary&#x27;</span>) <span class="comment"># 读取Excel中指定名字的⼯作表</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="数据获取"><a href="#数据获取" class="headerlink" title="数据获取"></a>数据获取</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">150</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬</span></span><br><span class="line">的考试成绩</span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line">df[<span class="string">&#x27;Python&#x27;</span>] <span class="comment"># 获取单列， Series</span></span><br><span class="line">df.Python <span class="comment"># 获取单列， Series</span></span><br><span class="line">df[[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]] <span class="comment"># 获取多列， DataFrame</span></span><br><span class="line">df[<span class="number">3</span>:<span class="number">15</span>] <span class="comment"># ⾏切⽚</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="按标签获取"><a href="#按标签获取" class="headerlink" title="按标签获取"></a>按标签获取</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">10</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬的考试成绩</span></span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),<span class="comment"># ⾏标签</span></span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line">df.loc[[<span class="string">&#x27;A&#x27;</span>,<span class="string">&#x27;C&#x27;</span>,<span class="string">&#x27;D&#x27;</span>,<span class="string">&#x27;F&#x27;</span>]] <span class="comment"># 选取指定⾏标签数据。</span></span><br><span class="line">df.loc[<span class="string">&#x27;A&#x27;</span>:<span class="string">&#x27;E&#x27;</span>,[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]] <span class="comment"># 根据⾏标签切⽚，选取指定列标签的数据</span></span><br><span class="line">df.loc[:,[<span class="string">&#x27;Keras&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>]] <span class="comment"># :默认保留所有⾏</span></span><br><span class="line">df.loc[<span class="string">&#x27;E&#x27;</span>::<span class="number">2</span>,<span class="string">&#x27;Python&#x27;</span>:<span class="string">&#x27;Tensorflow&#x27;</span>] <span class="comment"># ⾏切⽚从标签E开始每2个中取⼀个，列标签进⾏切⽚</span></span><br><span class="line">df.loc[<span class="string">&#x27;A&#x27;</span>,<span class="string">&#x27;Python&#x27;</span>] <span class="comment"># 选取标量值</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="位置选择"><a href="#位置选择" class="headerlink" title="位置选择"></a>位置选择</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df.iloc[<span class="number">4</span>] <span class="comment"># ⽤整数位置选择。</span></span><br><span class="line">df.iloc[<span class="number">2</span>:<span class="number">8</span>,<span class="number">0</span>:<span class="number">2</span>] <span class="comment"># ⽤整数切⽚，类似NumPy</span></span><br><span class="line">df.iloc[[<span class="number">1</span>,<span class="number">3</span>,<span class="number">5</span>],[<span class="number">0</span>,<span class="number">2</span>,<span class="number">1</span>]] <span class="comment"># 整数列表按位置切⽚</span></span><br><span class="line">df.iloc[<span class="number">1</span>:<span class="number">3</span>,:] <span class="comment"># ⾏切⽚</span></span><br><span class="line">df.iloc[:,:<span class="number">2</span>] <span class="comment"># 列切⽚</span></span><br><span class="line">df.iloc[<span class="number">0</span>,<span class="number">2</span>] <span class="comment"># 选取标量值</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="条件筛选"><a href="#条件筛选" class="headerlink" title="条件筛选"></a>条件筛选</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">10</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬的考试成绩</span></span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),<span class="comment"># ⾏标签，⽤户</span></span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]) <span class="comment"># 考试科⽬</span></span><br><span class="line">cond1 = df.Python &gt; <span class="number">100</span> <span class="comment"># 判断Python分数是否⼤于100，返回值是boolean类型的Series</span></span><br><span class="line">df[cond1] <span class="comment"># 返回Python分数⼤于100分的⽤户所有考试科⽬数据</span></span><br><span class="line">cond2 = (df.Python &gt; <span class="number">50</span>) &amp; (df[<span class="string">&#x27;Keras&#x27;</span>] &gt; <span class="number">50</span>) <span class="comment"># &amp;与运算</span></span><br><span class="line">df[cond2] <span class="comment"># 返回Python和Keras同时⼤于50分的⽤户的所有考试科⽬数据</span></span><br><span class="line">df[df &gt; <span class="number">50</span>]<span class="comment"># 选择DataFrame中满⾜条件的值，如果满⾜返回值，不然返回空数据NaN</span></span><br><span class="line">df[df.index.isin([<span class="string">&#x27;A&#x27;</span>,<span class="string">&#x27;C&#x27;</span>,<span class="string">&#x27;F&#x27;</span>])] <span class="comment"># isin判断是否在数组中，返回也是boolean类型值</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="赋值操作"><a href="#赋值操作" class="headerlink" title="赋值操作"></a>赋值操作</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">10</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬的考试成绩</span></span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),<span class="comment"># ⾏标签，⽤户</span></span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]) <span class="comment"># 考试科⽬</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;二维数据：&quot;</span>,df)</span><br><span class="line">s = pd.Series(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size =</span><br><span class="line"><span class="number">9</span>),index=<span class="built_in">list</span>(<span class="string">&#x27;BCDEFGHIJ&#x27;</span>),name = <span class="string">&#x27;PyTorch&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;一位数据：&quot;</span>,s)</span><br><span class="line">df[<span class="string">&#x27;PyTorch&#x27;</span>] = s <span class="comment"># 增加⼀列， DataFrame⾏索引⾃动对⻬</span></span><br><span class="line">df.loc[<span class="string">&#x27;A&#x27;</span>,<span class="string">&#x27;Python&#x27;</span>] = <span class="number">256</span> <span class="comment"># 按标签赋值</span></span><br><span class="line">df.iloc[<span class="number">3</span>,<span class="number">2</span>] = <span class="number">512</span> <span class="comment"># 按位置赋值</span></span><br><span class="line">df.loc[:,<span class="string">&#x27;Python&#x27;</span>] = np.array([<span class="number">128</span>]*<span class="number">10</span>) <span class="comment"># 按NumPy数组进⾏赋值</span></span><br><span class="line">df[df &gt;= <span class="number">128</span>] = -df <span class="comment"># 按照where条件进⾏赋值，⼤于等于128变成原来的负数，否则不变df</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">二维数据：</span><br><span class="line">    Python  Tensorflow  Keras</span><br><span class="line">A      <span class="number">99</span>          <span class="number">96</span>     <span class="number">55</span></span><br><span class="line">B      <span class="number">45</span>          <span class="number">44</span>    <span class="number">142</span></span><br><span class="line">C     <span class="number">105</span>          <span class="number">82</span>     <span class="number">49</span></span><br><span class="line">D     <span class="number">128</span>         <span class="number">113</span>    <span class="number">132</span></span><br><span class="line">E      <span class="number">76</span>           <span class="number">1</span>     <span class="number">35</span></span><br><span class="line">F     <span class="number">137</span>          <span class="number">19</span>      <span class="number">7</span></span><br><span class="line">G      <span class="number">81</span>          <span class="number">77</span>    <span class="number">117</span></span><br><span class="line">H     <span class="number">136</span>          <span class="number">48</span>    <span class="number">111</span></span><br><span class="line">I      <span class="number">15</span>          <span class="number">60</span>    <span class="number">109</span></span><br><span class="line">J      <span class="number">69</span>         <span class="number">126</span>     <span class="number">50</span></span><br><span class="line">一维数据</span><br><span class="line"> B    <span class="number">135</span></span><br><span class="line">C     <span class="number">79</span></span><br><span class="line">D     <span class="number">65</span></span><br><span class="line">E     <span class="number">81</span></span><br><span class="line">F    <span class="number">100</span></span><br><span class="line">G    <span class="number">139</span></span><br><span class="line">H     <span class="number">27</span></span><br><span class="line">I     <span class="number">15</span></span><br><span class="line">J    <span class="number">121</span></span><br><span class="line">Name<span class="punctuation">:</span> PyTorch<span class="punctuation">,</span> dtype<span class="punctuation">:</span> int32</span><br><span class="line">结果<span class="number">1</span>    Python  Tensorflow  Keras  PyTorch</span><br><span class="line">A     <span class="number">128</span>          <span class="number">96</span>     <span class="number">55</span>      NaN</span><br><span class="line">B     <span class="number">128</span>          <span class="number">44</span>    <span class="number">142</span>    <span class="number">135.0</span></span><br><span class="line">C     <span class="number">128</span>          <span class="number">82</span>     <span class="number">49</span>     <span class="number">79.0</span></span><br><span class="line">D     <span class="number">128</span>         <span class="number">113</span>    <span class="number">512</span>     <span class="number">65.0</span></span><br><span class="line">E     <span class="number">128</span>           <span class="number">1</span>     <span class="number">35</span>     <span class="number">81.0</span></span><br><span class="line">F     <span class="number">128</span>          <span class="number">19</span>      <span class="number">7</span>    <span class="number">100.0</span></span><br><span class="line">G     <span class="number">128</span>          <span class="number">77</span>    <span class="number">117</span>    <span class="number">139.0</span></span><br><span class="line">H     <span class="number">128</span>          <span class="number">48</span>    <span class="number">111</span>     <span class="number">27.0</span></span><br><span class="line">I     <span class="number">128</span>          <span class="number">60</span>    <span class="number">109</span>     <span class="number">15.0</span></span><br><span class="line">J     <span class="number">128</span>         <span class="number">126</span>     <span class="number">50</span>    <span class="number">121.0</span></span><br><span class="line">结果<span class="number">2</span>    Python  Tensorflow  Keras  PyTorch</span><br><span class="line">A    <span class="number">-128</span>          <span class="number">96</span>     <span class="number">55</span>      NaN</span><br><span class="line">B    <span class="number">-128</span>          <span class="number">44</span>   <span class="number">-142</span>   <span class="number">-135.0</span></span><br><span class="line">C    <span class="number">-128</span>          <span class="number">82</span>     <span class="number">49</span>     <span class="number">79.0</span></span><br><span class="line">D    <span class="number">-128</span>         <span class="number">113</span>   <span class="number">-512</span>     <span class="number">65.0</span></span><br><span class="line">E    <span class="number">-128</span>           <span class="number">1</span>     <span class="number">35</span>     <span class="number">81.0</span></span><br><span class="line">F    <span class="number">-128</span>          <span class="number">19</span>      <span class="number">7</span>    <span class="number">100.0</span></span><br><span class="line">G    <span class="number">-128</span>          <span class="number">77</span>    <span class="number">117</span>   <span class="number">-139.0</span></span><br><span class="line">H    <span class="number">-128</span>          <span class="number">48</span>    <span class="number">111</span>     <span class="number">27.0</span></span><br><span class="line">I    <span class="number">-128</span>          <span class="number">60</span>    <span class="number">109</span>     <span class="number">15.0</span></span><br><span class="line">J    <span class="number">-128</span>         <span class="number">126</span>     <span class="number">50</span>    <span class="number">121.0</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="数据集成"><a href="#数据集成" class="headerlink" title="数据集成"></a>数据集成</h1><h3 id="数据窜连"><a href="#数据窜连" class="headerlink" title="数据窜连"></a>数据窜连</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">df1 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">10</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬的考试成绩</span></span><br><span class="line">    index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),<span class="comment"># ⾏标签，⽤户</span></span><br><span class="line">    columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]) <span class="comment"># 考试科⽬</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;df1\n&#x27;</span>,df1)</span><br><span class="line">df2 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = [<span class="number">10</span>,<span class="number">3</span>]),<span class="comment"># 计算机科⽬的考试成绩</span></span><br><span class="line">    index = <span class="built_in">list</span>(<span class="string">&#x27;KLMNOPQRST&#x27;</span>),<span class="comment"># ⾏标签，⽤户</span></span><br><span class="line">    columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>]) <span class="comment"># 考试科⽬</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;df2\n&#x27;</span>,df2)</span><br><span class="line">df3 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">150</span>,size = (<span class="number">10</span>,<span class="number">2</span>)),index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),columns=[<span class="string">&#x27;PyTorch&#x27;</span>,<span class="string">&#x27;Paddle&#x27;</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;df3\n&#x27;</span>,df3)</span><br><span class="line">r1 = pd.concat([df1,df2],axis = <span class="number">0</span>) <span class="comment"># df1和df2⾏串联， df2的⾏追加df2⾏后⾯   x轴串联</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;结果1\n&#x27;</span>,r1)</span><br><span class="line"><span class="comment">#df1.append(df2) # 在df1后⾯追加df2 新版本已弃用该方法，推进 concat</span></span><br><span class="line">r2 = pd.concat([df1,df3],axis = <span class="number">1</span>) <span class="comment"># df1和df2列串联， df2的列追加到df1列后⾯ y轴串联</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;r2\n&#x27;</span>,r2)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">df1</span><br><span class="line">    Python  Tensorflow  Keras</span><br><span class="line">A       <span class="number">6</span>         <span class="number">137</span>     <span class="number">75</span></span><br><span class="line">B      <span class="number">73</span>          <span class="number">39</span>    <span class="number">103</span></span><br><span class="line">C      <span class="number">53</span>         <span class="number">118</span>     <span class="number">57</span></span><br><span class="line">D       <span class="number">8</span>           <span class="number">5</span>      <span class="number">3</span></span><br><span class="line">E     <span class="number">109</span>          <span class="number">65</span>    <span class="number">102</span></span><br><span class="line">F      <span class="number">63</span>         <span class="number">136</span>     <span class="number">60</span></span><br><span class="line">G      <span class="number">70</span>         <span class="number">111</span>     <span class="number">96</span></span><br><span class="line">H      <span class="number">81</span>         <span class="number">144</span>     <span class="number">50</span></span><br><span class="line">I       <span class="number">5</span>          <span class="number">64</span>     <span class="number">82</span></span><br><span class="line">J       <span class="number">6</span>          <span class="number">36</span>     <span class="number">67</span></span><br><span class="line">df2</span><br><span class="line">    Python  Tensorflow  Keras</span><br><span class="line">K     <span class="number">120</span>         <span class="number">146</span>    <span class="number">141</span></span><br><span class="line">L     <span class="number">139</span>         <span class="number">104</span>     <span class="number">67</span></span><br><span class="line">M     <span class="number">123</span>          <span class="number">54</span>     <span class="number">18</span></span><br><span class="line">N      <span class="number">10</span>          <span class="number">86</span>      <span class="number">3</span></span><br><span class="line">O      <span class="number">40</span>           <span class="number">4</span>    <span class="number">115</span></span><br><span class="line">P      <span class="number">95</span>          <span class="number">56</span>     <span class="number">93</span></span><br><span class="line">Q       <span class="number">4</span>          <span class="number">35</span>      <span class="number">0</span></span><br><span class="line">R     <span class="number">144</span>          <span class="number">70</span>    <span class="number">128</span></span><br><span class="line">S      <span class="number">62</span>          <span class="number">21</span>      <span class="number">8</span></span><br><span class="line">T      <span class="number">48</span>         <span class="number">108</span>    <span class="number">126</span></span><br><span class="line">df3</span><br><span class="line">    PyTorch  Paddle</span><br><span class="line">A       <span class="number">31</span>      <span class="number">71</span></span><br><span class="line">B      <span class="number">117</span>      <span class="number">31</span></span><br><span class="line">C       <span class="number">34</span>     <span class="number">144</span></span><br><span class="line">D        <span class="number">3</span>      <span class="number">56</span></span><br><span class="line">E       <span class="number">12</span>      <span class="number">18</span></span><br><span class="line">F       <span class="number">33</span>      <span class="number">36</span></span><br><span class="line">G       <span class="number">91</span>     <span class="number">139</span></span><br><span class="line">H      <span class="number">140</span>     <span class="number">109</span></span><br><span class="line">I       <span class="number">49</span>      <span class="number">95</span></span><br><span class="line">J      <span class="number">125</span>     <span class="number">142</span></span><br><span class="line">结果<span class="number">1</span></span><br><span class="line">    Python  Tensorflow  Keras</span><br><span class="line">A       <span class="number">6</span>         <span class="number">137</span>     <span class="number">75</span></span><br><span class="line">B      <span class="number">73</span>          <span class="number">39</span>    <span class="number">103</span></span><br><span class="line">C      <span class="number">53</span>         <span class="number">118</span>     <span class="number">57</span></span><br><span class="line">D       <span class="number">8</span>           <span class="number">5</span>      <span class="number">3</span></span><br><span class="line">E     <span class="number">109</span>          <span class="number">65</span>    <span class="number">102</span></span><br><span class="line">F      <span class="number">63</span>         <span class="number">136</span>     <span class="number">60</span></span><br><span class="line">G      <span class="number">70</span>         <span class="number">111</span>     <span class="number">96</span></span><br><span class="line">H      <span class="number">81</span>         <span class="number">144</span>     <span class="number">50</span></span><br><span class="line">I       <span class="number">5</span>          <span class="number">64</span>     <span class="number">82</span></span><br><span class="line">J       <span class="number">6</span>          <span class="number">36</span>     <span class="number">67</span></span><br><span class="line">K     <span class="number">120</span>         <span class="number">146</span>    <span class="number">141</span></span><br><span class="line">L     <span class="number">139</span>         <span class="number">104</span>     <span class="number">67</span></span><br><span class="line">M     <span class="number">123</span>          <span class="number">54</span>     <span class="number">18</span></span><br><span class="line">N      <span class="number">10</span>          <span class="number">86</span>      <span class="number">3</span></span><br><span class="line">O      <span class="number">40</span>           <span class="number">4</span>    <span class="number">115</span></span><br><span class="line">P      <span class="number">95</span>          <span class="number">56</span>     <span class="number">93</span></span><br><span class="line">Q       <span class="number">4</span>          <span class="number">35</span>      <span class="number">0</span></span><br><span class="line">R     <span class="number">144</span>          <span class="number">70</span>    <span class="number">128</span></span><br><span class="line">S      <span class="number">62</span>          <span class="number">21</span>      <span class="number">8</span></span><br><span class="line">T      <span class="number">48</span>         <span class="number">108</span>    <span class="number">126</span></span><br><span class="line">r2</span><br><span class="line">    Python  Tensorflow  Keras  PyTorch  Paddle</span><br><span class="line">A       <span class="number">6</span>         <span class="number">137</span>     <span class="number">75</span>       <span class="number">31</span>      <span class="number">71</span></span><br><span class="line">B      <span class="number">73</span>          <span class="number">39</span>    <span class="number">103</span>      <span class="number">117</span>      <span class="number">31</span></span><br><span class="line">C      <span class="number">53</span>         <span class="number">118</span>     <span class="number">57</span>       <span class="number">34</span>     <span class="number">144</span></span><br><span class="line">D       <span class="number">8</span>           <span class="number">5</span>      <span class="number">3</span>        <span class="number">3</span>      <span class="number">56</span></span><br><span class="line">E     <span class="number">109</span>          <span class="number">65</span>    <span class="number">102</span>       <span class="number">12</span>      <span class="number">18</span></span><br><span class="line">F      <span class="number">63</span>         <span class="number">136</span>     <span class="number">60</span>       <span class="number">33</span>      <span class="number">36</span></span><br><span class="line">G      <span class="number">70</span>         <span class="number">111</span>     <span class="number">96</span>       <span class="number">91</span>     <span class="number">139</span></span><br><span class="line">H      <span class="number">81</span>         <span class="number">144</span>     <span class="number">50</span>      <span class="number">140</span>     <span class="number">109</span></span><br><span class="line">I       <span class="number">5</span>          <span class="number">64</span>     <span class="number">82</span>       <span class="number">49</span>      <span class="number">95</span></span><br><span class="line">J       <span class="number">6</span>          <span class="number">36</span>     <span class="number">67</span>      <span class="number">125</span>     <span class="number">142</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="数据插入"><a href="#数据插入" class="headerlink" title="数据插入"></a>数据插入</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">151</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFGHIJ&#x27;</span>),</span><br><span class="line">columns = [<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>])</span><br><span class="line">df.insert(loc = <span class="number">1</span>,column=<span class="string">&#x27;Pytorch&#x27;</span>,value=<span class="number">1024</span>) <span class="comment"># 插⼊列df</span></span><br><span class="line"><span class="built_in">print</span>(df)</span><br><span class="line"><span class="comment"># 对⾏的操作，使⽤追加append，默认在最后⾯，⽆法指定位置</span></span><br><span class="line"><span class="comment"># 如果想要在指定位置插⼊⾏：切割-添加-合并</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="sql-式的拼接"><a href="#sql-式的拼接" class="headerlink" title="sql 式的拼接"></a>sql 式的拼接</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 表⼀中记录的是name和体重信息</span></span><br><span class="line">df1 = pd.DataFrame(data = &#123;<span class="string">&#x27;name&#x27;</span>:[<span class="string">&#x27;softpo&#x27;</span>,<span class="string">&#x27;Daniel&#x27;</span>,<span class="string">&#x27;Brandon&#x27;</span>,<span class="string">&#x27;Ella&#x27;</span>],<span class="string">&#x27;weight&#x27;</span>:[<span class="number">70</span>,<span class="number">55</span>,<span class="number">75</span>,<span class="number">65</span>]&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 表⼆中记录的是name和身⾼信息</span></span><br><span class="line">df2 = pd.DataFrame(data = &#123;<span class="string">&#x27;name&#x27;</span>:[<span class="string">&#x27;softpo&#x27;</span>,<span class="string">&#x27;Daniel&#x27;</span>,<span class="string">&#x27;Brandon&#x27;</span>,<span class="string">&#x27;Cindy&#x27;</span>],<span class="string">&#x27;height&#x27;</span>:[<span class="number">172</span>,<span class="number">170</span>,<span class="number">170</span>,<span class="number">166</span>]&#125;)</span><br><span class="line"></span><br><span class="line">df3 = pd.DataFrame(data = &#123;<span class="string">&#x27;名字&#x27;</span>:[<span class="string">&#x27;softpo&#x27;</span>,<span class="string">&#x27;Daniel&#x27;</span>,<span class="string">&#x27;Brandon&#x27;</span>,<span class="string">&#x27;Cindy&#x27;</span>],<span class="string">&#x27;height&#x27;</span>:[<span class="number">172</span>,<span class="number">170</span>,<span class="number">170</span>,<span class="number">166</span>]&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据共同的name将俩表的数据，进⾏合并</span></span><br><span class="line">r1 = pd.merge(df1,df2,</span><br><span class="line">        how = <span class="string">&#x27;inner&#x27;</span>,<span class="comment"># 内合并代表两对象交集</span></span><br><span class="line">        on = <span class="string">&#x27;name&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;r1\n&#x27;</span>,r1)</span><br><span class="line"></span><br><span class="line">r2 = pd.merge(df1,df3,</span><br><span class="line">        how = <span class="string">&#x27;outer&#x27;</span>,<span class="comment"># 全外连接，两对象并集</span></span><br><span class="line">        left_on = <span class="string">&#x27;name&#x27;</span>,<span class="comment"># 左边DataFrame使⽤列标签 name进⾏合并</span></span><br><span class="line">        right_on = <span class="string">&#x27;名字&#x27;</span>)<span class="comment"># 右边DataFrame使⽤列标签 名字进⾏合并</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;r2\n&#x27;</span>,r2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建10名学⽣的考试成绩</span></span><br><span class="line">df4 = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">151</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">        index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFHIJK&#x27;</span>),</span><br><span class="line">        columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;df4\n&#x27;</span>,df4)</span><br><span class="line"><span class="comment"># 计算每位学⽣各科平均分，转换成DataFrame</span></span><br><span class="line">score_mean = pd.DataFrame(df4.mean(axis = <span class="number">1</span>).<span class="built_in">round</span>(<span class="number">1</span>),columns=[<span class="string">&#x27;平均分&#x27;</span>])</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;score_mean&#x27;</span>,score_mean)</span><br><span class="line"><span class="comment"># 将平均分和df3使⽤merge进⾏合并，它俩有共同的⾏索引</span></span><br><span class="line">r3 = pd.merge(left = df4,right = score_mean,</span><br><span class="line">        left_index=<span class="literal">True</span>,<span class="comment"># 左边DataFrame使⽤⾏索引进⾏合并</span></span><br><span class="line">        right_index=<span class="literal">True</span>)<span class="comment"># 右边的DataFrame使⽤⾏索引进⾏合并</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;r3\n&#x27;</span>,r3)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">r1</span><br><span class="line">       name  weight  height</span><br><span class="line"><span class="number">0</span>   softpo      <span class="number">70</span>     <span class="number">172</span></span><br><span class="line"><span class="number">1</span>   Daniel      <span class="number">55</span>     <span class="number">170</span></span><br><span class="line"><span class="number">2</span>  Brandon      <span class="number">75</span>     <span class="number">170</span></span><br><span class="line">r2</span><br><span class="line">       name  weight       名字  height</span><br><span class="line"><span class="number">0</span>  Brandon    <span class="number">75.0</span>  Brandon   <span class="number">170.0</span></span><br><span class="line"><span class="number">1</span>      NaN     NaN    Cindy   <span class="number">166.0</span></span><br><span class="line"><span class="number">2</span>   Daniel    <span class="number">55.0</span>   Daniel   <span class="number">170.0</span></span><br><span class="line"><span class="number">3</span>     Ella    <span class="number">65.0</span>      NaN     NaN</span><br><span class="line"><span class="number">4</span>   softpo    <span class="number">70.0</span>   softpo   <span class="number">172.0</span></span><br><span class="line">df4</span><br><span class="line">    Python  Keras  Tensorflow</span><br><span class="line">A      <span class="number">56</span>     <span class="number">34</span>         <span class="number">136</span></span><br><span class="line">B     <span class="number">116</span>    <span class="number">148</span>         <span class="number">118</span></span><br><span class="line">C      <span class="number">44</span>    <span class="number">136</span>         <span class="number">123</span></span><br><span class="line">D      <span class="number">89</span>      <span class="number">6</span>          <span class="number">39</span></span><br><span class="line">E       <span class="number">5</span>    <span class="number">127</span>          <span class="number">91</span></span><br><span class="line">F       <span class="number">3</span>    <span class="number">110</span>         <span class="number">123</span></span><br><span class="line">H     <span class="number">133</span>     <span class="number">87</span>         <span class="number">118</span></span><br><span class="line">I     <span class="number">150</span>      <span class="number">2</span>          <span class="number">27</span></span><br><span class="line">J       <span class="number">5</span>    <span class="number">137</span>          <span class="number">34</span></span><br><span class="line">K      <span class="number">59</span>     <span class="number">18</span>         <span class="number">104</span></span><br><span class="line">score_mean      平均分</span><br><span class="line">A   <span class="number">75.3</span></span><br><span class="line">B  <span class="number">127.3</span></span><br><span class="line">C  <span class="number">101.0</span></span><br><span class="line">D   <span class="number">44.7</span></span><br><span class="line">E   <span class="number">74.3</span></span><br><span class="line">F   <span class="number">78.7</span></span><br><span class="line">H  <span class="number">112.7</span></span><br><span class="line">I   <span class="number">59.7</span></span><br><span class="line">J   <span class="number">58.7</span></span><br><span class="line">K   <span class="number">60.3</span></span><br><span class="line">r3</span><br><span class="line">    Python  Keras  Tensorflow    平均分</span><br><span class="line">A      <span class="number">56</span>     <span class="number">34</span>         <span class="number">136</span>   <span class="number">75.3</span></span><br><span class="line">B     <span class="number">116</span>    <span class="number">148</span>         <span class="number">118</span>  <span class="number">127.3</span></span><br><span class="line">C      <span class="number">44</span>    <span class="number">136</span>         <span class="number">123</span>  <span class="number">101.0</span></span><br><span class="line">D      <span class="number">89</span>      <span class="number">6</span>          <span class="number">39</span>   <span class="number">44.7</span></span><br><span class="line">E       <span class="number">5</span>    <span class="number">127</span>          <span class="number">91</span>   <span class="number">74.3</span></span><br><span class="line">F       <span class="number">3</span>    <span class="number">110</span>         <span class="number">123</span>   <span class="number">78.7</span></span><br><span class="line">H     <span class="number">133</span>     <span class="number">87</span>         <span class="number">118</span>  <span class="number">112.7</span></span><br><span class="line">I     <span class="number">150</span>      <span class="number">2</span>          <span class="number">27</span>   <span class="number">59.7</span></span><br><span class="line">J       <span class="number">5</span>    <span class="number">137</span>          <span class="number">34</span>   <span class="number">58.7</span></span><br><span class="line">K      <span class="number">59</span>     <span class="number">18</span>         <span class="number">104</span>   <span class="number">60.3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="数据清洗"><a href="#数据清洗" class="headerlink" title="数据清洗"></a>数据清洗</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">df = pd.DataFrame(data = &#123;<span class="string">&#x27;color&#x27;</span>:[<span class="string">&#x27;red&#x27;</span>,<span class="string">&#x27;blue&#x27;</span>,<span class="string">&#x27;red&#x27;</span>,<span class="string">&#x27;green&#x27;</span>,<span class="string">&#x27;blue&#x27;</span>,<span class="literal">None</span>,<span class="string">&#x27;red&#x27;</span>],<span class="string">&#x27;price&#x27;</span>:[<span class="number">10</span>,<span class="number">20</span>,<span class="number">10</span>,<span class="number">15</span>,<span class="number">20</span>,<span class="number">0</span>,np.NaN]&#125;)</span><br><span class="line">display(df)</span><br><span class="line"><span class="comment"># 1、重复数据过滤</span></span><br><span class="line">df.duplicated() <span class="comment"># 判断是否存在重复数据</span></span><br><span class="line">df.drop_duplicates() <span class="comment"># 删除重复数据</span></span><br><span class="line"><span class="comment"># 2、空数据过滤</span></span><br><span class="line">df.isnull() <span class="comment"># 判断是否存在空数据，存在返回True，否则返回False</span></span><br><span class="line">df.dropna(how = <span class="string">&#x27;any&#x27;</span>) <span class="comment"># 删除空数据</span></span><br><span class="line">df.fillna(value=<span class="number">1111</span>) <span class="comment"># 填充空数据</span></span><br><span class="line"><span class="comment"># 3、指定⾏或者列过滤</span></span><br><span class="line"><span class="keyword">del</span> df[<span class="string">&#x27;color&#x27;</span>] <span class="comment"># 直接删除某列</span></span><br><span class="line">df.drop(labels = [<span class="string">&#x27;price&#x27;</span>],axis = <span class="number">1</span>)<span class="comment"># 删除指定列</span></span><br><span class="line">df.drop(labels = [<span class="number">0</span>,<span class="number">1</span>,<span class="number">5</span>],axis = <span class="number">0</span>) <span class="comment"># 删除指定⾏</span></span><br><span class="line"><span class="comment"># 4、函数filter使⽤</span></span><br><span class="line">df = pd.DataFrame(np.array(([<span class="number">3</span>,<span class="number">7</span>,<span class="number">1</span>], [<span class="number">2</span>, <span class="number">8</span>, <span class="number">256</span>])),</span><br><span class="line">    index=[<span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>],</span><br><span class="line">    columns=[<span class="string">&#x27;China&#x27;</span>, <span class="string">&#x27;America&#x27;</span>, <span class="string">&#x27;France&#x27;</span>])</span><br><span class="line">df.<span class="built_in">filter</span>(items=[<span class="string">&#x27;China&#x27;</span>, <span class="string">&#x27;France&#x27;</span>])</span><br><span class="line"><span class="comment"># 根据正则表达式删选列标签</span></span><br><span class="line">df.<span class="built_in">filter</span>(regex=<span class="string">&#x27;a$&#x27;</span>, axis=<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 选择⾏中包含og</span></span><br><span class="line">df.<span class="built_in">filter</span>(like=<span class="string">&#x27;og&#x27;</span>, axis=<span class="number">0</span>)</span><br><span class="line"><span class="comment"># 5、异常值过滤</span></span><br><span class="line">df2 = pd.DataFrame(data = np.random.randn(<span class="number">10000</span>,<span class="number">3</span>)) <span class="comment"># 正态分布数据</span></span><br><span class="line"><span class="comment"># 3σ过滤异常值， σ即是标准差</span></span><br><span class="line">cond = (df2 &gt; <span class="number">3</span>*df2.std()).<span class="built_in">any</span>(axis = <span class="number">1</span>)</span><br><span class="line">index = df2[cond].index <span class="comment"># 不满⾜条件的⾏索引</span></span><br><span class="line">df2.drop(labels=index,axis = <span class="number">0</span>) <span class="comment"># 根据⾏索引，进⾏数据删除</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="数据转化"><a href="#数据转化" class="headerlink" title="数据转化"></a>数据转化</h1><h2 id="轴-和-元素替换"><a href="#轴-和-元素替换" class="headerlink" title="轴 和 元素替换"></a>轴 和 元素替换</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">10</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFHIJK&#x27;</span>),</span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line">df.iloc[<span class="number">4</span>,<span class="number">2</span>] = <span class="literal">None</span> <span class="comment"># 空数据</span></span><br><span class="line">display(df)</span><br><span class="line"><span class="comment">#1、重命名轴索引 注意结果是返回值</span></span><br><span class="line">r1 = df.rename(index = &#123;<span class="string">&#x27;A&#x27;</span>:<span class="string">&#x27;AA&#x27;</span>,<span class="string">&#x27;B&#x27;</span>:<span class="string">&#x27;BB&#x27;</span>&#125;,columns = &#123;<span class="string">&#x27;Python&#x27;</span>:<span class="string">&#x27;⼈⼯智能&#x27;</span>&#125;)</span><br><span class="line">display(r1)</span><br><span class="line"><span class="comment"># 2、替换值  注意结果是返回值</span></span><br><span class="line">display(df.replace(<span class="number">3</span>,<span class="number">1024</span>)) <span class="comment">#将3替换为1024  </span></span><br><span class="line">df.replace([<span class="number">0</span>,<span class="number">7</span>],<span class="number">2048</span>) <span class="comment"># 将0和7替换为2048</span></span><br><span class="line">df.replace(&#123;<span class="number">0</span>:<span class="number">512</span>,np.nan:<span class="number">998</span>&#125;) <span class="comment"># 根据字典键值对进⾏替换</span></span><br><span class="line">df.replace(&#123;<span class="string">&#x27;Python&#x27;</span>:<span class="number">2</span>&#125;,-<span class="number">1024</span>) <span class="comment"># 将Python这⼀列中等于2的，替换为-1024</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="map-Series-元素操作"><a href="#map-Series-元素操作" class="headerlink" title="map Series 元素操作"></a>map Series 元素操作</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">10</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFHIJK&#x27;</span>),</span><br><span class="line">columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line">df.iloc[<span class="number">4</span>,<span class="number">2</span>] = <span class="literal">None</span> <span class="comment"># 空数据</span></span><br><span class="line">display(df)</span><br><span class="line"><span class="comment"># 1、 map批量元素改变， Series专有</span></span><br><span class="line">r1 = df[<span class="string">&#x27;Keras&#x27;</span>].<span class="built_in">map</span>(&#123;<span class="number">1</span>:<span class="string">&#x27;Hello&#x27;</span>,<span class="number">5</span>:<span class="string">&#x27;World&#x27;</span>,<span class="number">7</span>:<span class="string">&#x27;AI&#x27;</span>&#125;) <span class="comment"># 字典映射</span></span><br><span class="line"><span class="built_in">print</span>(r1)</span><br><span class="line">df[<span class="string">&#x27;Python&#x27;</span>].<span class="built_in">map</span>(<span class="keyword">lambda</span> x:<span class="literal">True</span> <span class="keyword">if</span> x &gt;=<span class="number">5</span> <span class="keyword">else</span> <span class="literal">False</span>) <span class="comment"># 隐式函数映射</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert</span>(<span class="params">x</span>): <span class="comment"># 显示函数映射</span></span><br><span class="line">    <span class="keyword">if</span> x%<span class="number">3</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">elif</span> x%<span class="number">3</span> == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">df[<span class="string">&#x27;Tensorflow&#x27;</span>].<span class="built_in">map</span>(convert)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="apply、map-对数据的操作"><a href="#apply、map-对数据的操作" class="headerlink" title="apply、map 对数据的操作"></a>apply、map 对数据的操作</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">10</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">    index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFHIJK&#x27;</span>),</span><br><span class="line">    columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line"></span><br><span class="line">df.iloc[<span class="number">4</span>,<span class="number">2</span>] = <span class="literal">None</span> <span class="comment"># 空数据</span></span><br><span class="line"></span><br><span class="line">display(df)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、 apply 应⽤⽅法数据转换，通⽤</span></span><br><span class="line"><span class="comment"># Series，其中x是Series中元素</span></span><br><span class="line"><span class="built_in">print</span>(df[<span class="string">&#x27;Keras&#x27;</span>].apply(<span class="keyword">lambda</span> x:<span class="literal">True</span> <span class="keyword">if</span> x &gt;<span class="number">5</span> <span class="keyword">else</span> <span class="literal">False</span>))</span><br><span class="line"><span class="comment"># DataFrame，其中的x是DataFrame中列或者⾏，是Series</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(df.apply(<span class="keyword">lambda</span> x : x.median(),axis = <span class="number">0</span>)) <span class="comment"># 列的中位数</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert</span>(<span class="params">x</span>): <span class="comment"># ⾃定义⽅法</span></span><br><span class="line">    <span class="keyword">return</span> (x.mean().<span class="built_in">round</span>(<span class="number">1</span>),x.count())</span><br><span class="line">    </span><br><span class="line"><span class="built_in">print</span>(df.apply(convert,axis = <span class="number">1</span>)) <span class="comment"># ⾏平均值，计数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2、 applymap DataFrame专有</span></span><br><span class="line"><span class="built_in">print</span>(df.<span class="built_in">map</span>(<span class="keyword">lambda</span> x : x + <span class="number">100</span>)) <span class="comment"># 计算DataFrame中每个元素</span></span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="right">Python</th>
+<th align="right">Tensorflow</th>
+<th align="right">Keras</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">9</td>
+<td align="right">0</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">8</td>
+<td align="right">5</td>
+<td>4.0</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">9</td>
+<td align="right">6</td>
+<td>6.0</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td>NaN</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td>6.0</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">6</td>
+<td align="right">1</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td>7.0</td>
+</tr>
+</tbody></table>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">A    False</span><br><span class="line">B    False</span><br><span class="line">C    False</span><br><span class="line">D     True</span><br><span class="line">E    False</span><br><span class="line">F     True</span><br><span class="line">H     True</span><br><span class="line">I    False</span><br><span class="line">J     True</span><br><span class="line">K     True</span><br><span class="line">Name<span class="punctuation">:</span> Keras<span class="punctuation">,</span> dtype<span class="punctuation">:</span> bool</span><br><span class="line">Python        <span class="number">4.5</span></span><br><span class="line">Tensorflow    <span class="number">2.5</span></span><br><span class="line">Keras         <span class="number">6.0</span></span><br><span class="line">dtype<span class="punctuation">:</span> float64</span><br><span class="line">A    (<span class="number">4.0</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">B    (<span class="number">5.7</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">C    (<span class="number">5.3</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">D    (<span class="number">7.0</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">E    (<span class="number">4.0</span><span class="punctuation">,</span> <span class="number">2</span>)</span><br><span class="line">F    (<span class="number">4.7</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">H    (<span class="number">2.3</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">I    (<span class="number">4.0</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">J    (<span class="number">3.7</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">K    (<span class="number">3.0</span><span class="punctuation">,</span> <span class="number">3</span>)</span><br><span class="line">dtype<span class="punctuation">:</span> object</span><br><span class="line">   Python  Tensorflow  Keras</span><br><span class="line">A     <span class="number">109</span>         <span class="number">100</span>  <span class="number">103.0</span></span><br><span class="line">B     <span class="number">108</span>         <span class="number">105</span>  <span class="number">104.0</span></span><br><span class="line">C     <span class="number">106</span>         <span class="number">105</span>  <span class="number">105.0</span></span><br><span class="line">D     <span class="number">109</span>         <span class="number">106</span>  <span class="number">106.0</span></span><br><span class="line">E     <span class="number">101</span>         <span class="number">107</span>    NaN</span><br><span class="line">F     <span class="number">103</span>         <span class="number">103</span>  <span class="number">108.0</span></span><br><span class="line">H     <span class="number">101</span>         <span class="number">100</span>  <span class="number">106.0</span></span><br><span class="line">I     <span class="number">106</span>         <span class="number">101</span>  <span class="number">105.0</span></span><br><span class="line">J     <span class="number">100</span>         <span class="number">102</span>  <span class="number">109.0</span></span><br><span class="line">K     <span class="number">100</span>         <span class="number">102</span>  <span class="number">107.0</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="transform"><a href="#transform" class="headerlink" title="transform"></a>transform</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">df = pd.DataFrame(data = np.random.randint(<span class="number">0</span>,<span class="number">10</span>,size = (<span class="number">10</span>,<span class="number">3</span>)),</span><br><span class="line">    index = <span class="built_in">list</span>(<span class="string">&#x27;ABCDEFHIJK&#x27;</span>),</span><br><span class="line">    columns=[<span class="string">&#x27;Python&#x27;</span>,<span class="string">&#x27;Tensorflow&#x27;</span>,<span class="string">&#x27;Keras&#x27;</span>])</span><br><span class="line"></span><br><span class="line">df.iloc[<span class="number">4</span>,<span class="number">2</span>] = <span class="literal">None</span> <span class="comment"># 空数据</span></span><br><span class="line">display(df)</span><br><span class="line"><span class="comment"># 1、⼀列执⾏多项计算</span></span><br><span class="line">display(df[<span class="string">&#x27;Python&#x27;</span>].transform([np.sqrt,np.exp])) <span class="comment"># Series处理</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> x.mean() &gt; <span class="number">5</span>:</span><br><span class="line">        x *= <span class="number">10</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        x *= -<span class="number">10</span></span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 2、多列执行不同计算，使用适当的转换函数</span></span><br><span class="line">display(df.transform(&#123;</span><br><span class="line">    <span class="string">&#x27;Python&#x27;</span>: convert,</span><br><span class="line">    <span class="string">&#x27;Tensorflow&#x27;</span>: <span class="keyword">lambda</span> x: x*<span class="number">10</span>,  <span class="comment"># 保持原值</span></span><br><span class="line">    <span class="string">&#x27;Keras&#x27;</span>: <span class="keyword">lambda</span> x: x.fillna(x.mean())  <span class="comment"># 填充空值后返回</span></span><br><span class="line">&#125;))</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="right">Python</th>
+<th align="right">Tensorflow</th>
+<th align="right">Keras</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">4</td>
+<td align="right">7</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">4</td>
+<td align="right">7</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">6</td>
+<td align="right">8</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td>NaN</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">8</td>
+<td align="right">7</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">9</td>
+<td align="right">4</td>
+<td>7.0</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">6</td>
+<td align="right">1</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td>3.0</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="right"></th>
+<th align="right">sqrt</th>
+<th align="right">exp</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">2.000000</td>
+<td align="right">54.598150</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">2.000000</td>
+<td align="right">54.598150</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">2.449490</td>
+<td align="right">403.428793</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">2.449490</td>
+<td align="right">403.428793</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">2.645751</td>
+<td align="right">1096.633158</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">2.828427</td>
+<td align="right">2980.957987</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">3.000000</td>
+<td align="right">8103.083928</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">2.449490</td>
+<td align="right">403.428793</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">1.732051</td>
+<td align="right">20.085537</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">2.000000</td>
+<td align="right">54.598150</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="right"></th>
+<th align="right">Python</th>
+<th align="right">Tensorflow</th>
+<th align="right">Keras</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">40</td>
+<td align="right">70</td>
+<td align="right">1.000000</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">40</td>
+<td align="right">70</td>
+<td align="right">8.000000</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">60</td>
+<td align="right">80</td>
+<td align="right">5.000000</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">60</td>
+<td align="right">0</td>
+<td align="right">0.000000</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">70</td>
+<td align="right">40</td>
+<td align="right">4.333333</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">80</td>
+<td align="right">70</td>
+<td align="right">5.000000</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">90</td>
+<td align="right">40</td>
+<td align="right">7.000000</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">60</td>
+<td align="right">10</td>
+<td align="right">2.000000</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">30</td>
+<td align="right">60</td>
+<td align="right">8.000000</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">40</td>
+<td align="right">10</td>
+<td align="right">3.000000</td>
+</tr>
+</tbody></table>
+<h2 id="随机、重拍、抽样、独热编码"><a href="#随机、重拍、抽样、独热编码" class="headerlink" title="随机、重拍、抽样、独热编码"></a>随机、重拍、抽样、独热编码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建一个更复杂的数据框</span></span><br><span class="line">df_complex = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;color&#x27;</span>: [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>, <span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>],</span><br><span class="line">    <span class="string">&#x27;size&#x27;</span>: [<span class="string">&#x27;S&#x27;</span>, <span class="string">&#x27;M&#x27;</span>, <span class="string">&#x27;L&#x27;</span>, <span class="string">&#x27;M&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对所有列进行独热编码</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;原始数据：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(df_complex)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n独热编码后：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(pd.get_dummies(df_complex))</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="right">Python</th>
+<th align="right">Tensorflow</th>
+<th align="right">Keras</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">8</td>
+<td align="right">6</td>
+<td>7.0</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">8</td>
+<td align="right">8</td>
+<td>6.0</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td>NaN</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">6</td>
+<td align="right">9</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td>7.0</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td>4.0</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="right"></th>
+<th align="right">sqrt</th>
+<th align="right">exp</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">2.828427</td>
+<td align="right">2980.957987</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">0.000000</td>
+<td align="right">1.000000</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">2.236068</td>
+<td align="right">148.413159</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">2.828427</td>
+<td align="right">2980.957987</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">2.236068</td>
+<td align="right">148.413159</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">2.449490</td>
+<td align="right">403.428793</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">2.236068</td>
+<td align="right">148.413159</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">2.000000</td>
+<td align="right">54.598150</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">1.414214</td>
+<td align="right">7.389056</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">0.000000</td>
+<td align="right">1.000000</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="right"></th>
+<th align="right">Python</th>
+<th align="right">Tensorflow</th>
+<th align="right">Keras</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">A</td>
+<td align="right">-80</td>
+<td align="right">60</td>
+<td align="right">7.000000</td>
+</tr>
+<tr>
+<td align="right">B</td>
+<td align="right">0</td>
+<td align="right">10</td>
+<td align="right">1.000000</td>
+</tr>
+<tr>
+<td align="right">C</td>
+<td align="right">-50</td>
+<td align="right">60</td>
+<td align="right">9.000000</td>
+</tr>
+<tr>
+<td align="right">D</td>
+<td align="right">-80</td>
+<td align="right">80</td>
+<td align="right">6.000000</td>
+</tr>
+<tr>
+<td align="right">E</td>
+<td align="right">-50</td>
+<td align="right">60</td>
+<td align="right">4.111111</td>
+</tr>
+<tr>
+<td align="right">F</td>
+<td align="right">-60</td>
+<td align="right">90</td>
+<td align="right">2.000000</td>
+</tr>
+<tr>
+<td align="right">H</td>
+<td align="right">-50</td>
+<td align="right">30</td>
+<td align="right">0.000000</td>
+</tr>
+<tr>
+<td align="right">I</td>
+<td align="right">-40</td>
+<td align="right">30</td>
+<td align="right">7.000000</td>
+</tr>
+<tr>
+<td align="right">J</td>
+<td align="right">-20</td>
+<td align="right">20</td>
+<td align="right">1.000000</td>
+</tr>
+<tr>
+<td align="right">K</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">4.000000</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建一个更复杂的数据框</span></span><br><span class="line">df_complex = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;color&#x27;</span>: [<span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;blue&#x27;</span>, <span class="string">&#x27;red&#x27;</span>, <span class="string">&#x27;green&#x27;</span>],</span><br><span class="line">    <span class="string">&#x27;size&#x27;</span>: [<span class="string">&#x27;S&#x27;</span>, <span class="string">&#x27;M&#x27;</span>, <span class="string">&#x27;L&#x27;</span>, <span class="string">&#x27;M&#x27;</span>]</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对所有列进行独热编码</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;原始数据：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(df_complex)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n独热编码后：&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(pd.get_dummies(df_complex))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">原始数据：</span><br><span class="line">   color size</span><br><span class="line"><span class="number">0</span>    red    S</span><br><span class="line"><span class="number">1</span>   blue    M</span><br><span class="line"><span class="number">2</span>    red    L</span><br><span class="line"><span class="number">3</span>  green    M</span><br><span class="line"></span><br><span class="line">独热编码后：</span><br><span class="line">   color_blue  color_green  color_red  size_L  size_M  size_S</span><br><span class="line"><span class="number">0</span>       False        False       True   False   False    True</span><br><span class="line"><span class="number">1</span>        True        False      False   False    True   False</span><br><span class="line"><span class="number">2</span>       False        False       True    True   False   False</span><br><span class="line"><span class="number">3</span>       False         True      False   False    True   False</span><br></pre></td></tr></table></figure>
+
+
+
+<p>sffdsdsf</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2024/09/09/ai-pandas1/">http://xeons.cn/2024/09/09/ai-pandas1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2024/09/09/ai-pandas1/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a></div><div class="post_share"><div class="social-share" data-image="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">AI之 python 基础</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-09</div><div class="title">AI之 python 基础</div></div></a></div><div><a href="/2023/06/03/python-base-questions/" title="python 基础题"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/06/03/python-base-questions/python_icon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-03</div><div class="title">python 基础题</div></div></a></div><div><a href="/2023/05/18/python-crawer/" title="使用 Python 做数据采集(爬虫)"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-18</div><div class="title">使用 Python 做数据采集(爬虫)</div></div></a></div><div><a href="/2023/05/22/python-data-analysis-1p/" title="python 生态下的数据分析学习"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-22</div><div class="title">python 生态下的数据分析学习</div></div></a></div><div><a href="/2023/06/03/python-project-deploy/" title="python 项目的部署"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/06/03/python-project-deploy/python_icon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-03</div><div class="title">python 项目的部署</div></div></a></div><div><a href="/2023/09/09/shijianfuzadu/" title="python 高级特性"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/09/shijianfuzadu/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-09</div><div class="title">python 高级特性</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#series"><span class="toc-number">1.1.</span> <span class="toc-text">series</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DataFrame"><span class="toc-number">1.2.</span> <span class="toc-text">DataFrame</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%8A%A0%E8%BD%BD%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%87%BA"><span class="toc-number">2.</span> <span class="toc-text">数据加载与数据导出</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#csv"><span class="toc-number">2.0.1.</span> <span class="toc-text">csv</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#excel"><span class="toc-number">2.0.2.</span> <span class="toc-text">excel</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="toc-number">3.</span> <span class="toc-text">数据获取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E6%A0%87%E7%AD%BE%E8%8E%B7%E5%8F%96"><span class="toc-number">3.0.1.</span> <span class="toc-text">按标签获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E7%BD%AE%E9%80%89%E6%8B%A9"><span class="toc-number">3.0.2.</span> <span class="toc-text">位置选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%AD%9B%E9%80%89"><span class="toc-number">3.0.3.</span> <span class="toc-text">条件筛选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B5%8B%E5%80%BC%E6%93%8D%E4%BD%9C"><span class="toc-number">3.0.4.</span> <span class="toc-text">赋值操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90"><span class="toc-number">4.</span> <span class="toc-text">数据集成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%AA%9C%E8%BF%9E"><span class="toc-number">4.0.1.</span> <span class="toc-text">数据窜连</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5"><span class="toc-number">4.0.2.</span> <span class="toc-text">数据插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql-%E5%BC%8F%E7%9A%84%E6%8B%BC%E6%8E%A5"><span class="toc-number">4.0.3.</span> <span class="toc-text">sql 式的拼接</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97"><span class="toc-number">5.</span> <span class="toc-text">数据清洗</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%8C%96"><span class="toc-number">6.</span> <span class="toc-text">数据转化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%B4-%E5%92%8C-%E5%85%83%E7%B4%A0%E6%9B%BF%E6%8D%A2"><span class="toc-number">6.1.</span> <span class="toc-text">轴 和 元素替换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#map-Series-%E5%85%83%E7%B4%A0%E6%93%8D%E4%BD%9C"><span class="toc-number">6.2.</span> <span class="toc-text">map Series 元素操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apply%E3%80%81map-%E5%AF%B9%E6%95%B0%E6%8D%AE%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-number">6.3.</span> <span class="toc-text">apply、map 对数据的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#transform"><span class="toc-number">6.4.</span> <span class="toc-text">transform</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E3%80%81%E9%87%8D%E6%8B%8D%E3%80%81%E6%8A%BD%E6%A0%B7%E3%80%81%E7%8B%AC%E7%83%AD%E7%BC%96%E7%A0%81"><span class="toc-number">6.5.</span> <span class="toc-text">随机、重拍、抽样、独热编码</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

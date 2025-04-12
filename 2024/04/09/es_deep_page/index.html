@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ES 深度分页问题 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="ES 深度分页问题及其解决方案详解1. 什么是深度分页深度分页是指在处理大数据集查询时，用户尝试访问多页数据中较后面的页面时遇到的问题。当尝试访问排序后的数据列表的第1000页或更后面的页面时，数据库需要先跳过前面数十万条记录，这一过程通常涉及大量的数据扫描和排序，极大地增加了数据库的查询负载，从而成为性能瓶颈。 ES分页查询流程大致如下：  数据存储在各个分片中，协调节点将查询请求转发给各个节点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES 深度分页问题">
+<meta property="og:url" content="http://xeons.cn/2024/04/09/es_deep_page/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="ES 深度分页问题及其解决方案详解1. 什么是深度分页深度分页是指在处理大数据集查询时，用户尝试访问多页数据中较后面的页面时遇到的问题。当尝试访问排序后的数据列表的第1000页或更后面的页面时，数据库需要先跳过前面数十万条记录，这一过程通常涉及大量的数据扫描和排序，极大地增加了数据库的查询负载，从而成为性能瓶颈。 ES分页查询流程大致如下：  数据存储在各个分片中，协调节点将查询请求转发给各个节点">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2024/04/09/es_deep_page/640.png">
+<meta property="article:published_time" content="2024-04-09T06:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2024/04/09/es_deep_page/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2024/04/09/es_deep_page/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'ES 深度分页问题',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">ES 深度分页问题</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/">程序优化</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>11分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ES 深度分页问题"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h1 id="ES-深度分页问题及其解决方案详解"><a href="#ES-深度分页问题及其解决方案详解" class="headerlink" title="ES 深度分页问题及其解决方案详解"></a>ES 深度分页问题及其解决方案详解</h1><h2 id="1-什么是深度分页"><a href="#1-什么是深度分页" class="headerlink" title="1. 什么是深度分页"></a><strong>1. 什么是深度分页</strong></h2><p>深度分页是指在处理大数据集查询时，用户尝试访问多页数据中较后面的页面时遇到的问题。当尝试访问排序后的数据列表的第1000页或更后面的页面时，数据库需要先跳过前面数十万条记录，这一过程通常涉及大量的数据扫描和排序，极大地增加了数据库的查询负载，从而成为性能瓶颈。</p>
+<p>ES分页查询流程大致如下：</p>
+<ol>
+<li>数据存储在各个分片中，协调节点将查询请求转发给各个节点，当各个节点执行搜索后，将排序后的前N条数据返回给协调节点。</li>
+<li>协调节点汇总各个分片返回的数据，再次排序，最终返回前N条数据给客户端。</li>
+<li>这个流程会导致一个深度分页的问题，也就是翻页越多，性能越差，甚至导致ES出现OOM。</li>
+</ol>
+<p>在分布式系统中，对结果排序的成本随分页的深度成指数上升。</p>
+<p>从10万名高考生中查询成绩为的10001-10100位的100名考生的信息。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640.png" alt="img"></p>
+<p>从上面案例中不难看出，每次有序的查询都会在每个分片中执行单独的查询，然后进行数据的二次排序，而这个二次排序的过程是发生在heap中的，也就是说当你单次查询的数量越大，那么堆内存中汇总的数据也就越多，对内存的压力也就越大。这里的单次查询的数据量取决于你查询的是第几条数据而不是查询了几条数据，比如你希望查询的是第10001-10100这一百条数据，但是ES必须将前10100全部取出进行二次查询。因此，如果查询的数据排序越靠后，就越容易导致OOM（Out Of Memory）情况的发生，频繁的深分页查询会导致频繁的FullGC。</p>
+<p>ES为了避免用户在不了解其内部原理的情况下而做出错误的操作，设置了一个阈值，即max_result_window，其默认值为10000，其作用是为了保护堆内存不被错误操作导致溢出。</p>
+<h2 id="2-深度分页不推荐使用from-size"><a href="#2-深度分页不推荐使用from-size" class="headerlink" title="2. 深度分页不推荐使用from+size"></a><strong>2. 深度分页不推荐使用from+size</strong></h2><p>在Elasticsearch中，分页查询的实现主要通过两个参数from和size来实现。from参数指定了从结果集中的第几条数据开始返回，而size参数指定了返回数据的数量。正常情况下分页代码如实下面这样的：</p>
+<p>- </p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查询第一页5条数据GET </span><br><span class="line">/employee/_search&#123;  &quot;query&quot;: &#123;    &quot;match_all&quot;: &#123;&#125;  &#125;,  &quot;from&quot;: 0,  &quot;size&quot;: 5  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下图：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977963-1.png" alt="img"></p>
+<p>但是如果我们查询的数据页数特别大，当from + size大于10000的时候，就会出现问题，如下图报错信息所示：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-2.png" alt="img"></p>
+<p>分析可知，查询结果的窗口大小超过了最大窗口的限制，而index. max_result_window默认值为10000。</p>
+<p>Elasticsearch会限制最大分页数，避免因大数据量的召回导致系统性能低下。Elasticsearch的max_result_window默认值是10000，意味着每页有10条数据，会最大翻页至1000页。主流搜索引擎实际都翻不了那么多页。</p>
+<p>对此，有两个可行的解决方案，如下所示：</p>
+<ul>
+<li>方案一：对于大型数据集，我们可采用scroll API来召回数据。这个策略我们将在后续的内容中进行详细分析。</li>
+<li>方案二：调大index.max_result_window默认值</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /employee/_settings&#123;  &quot;index.max_result_window&quot;: 20000&#125;</span><br></pre></td></tr></table></figure>
+
+<p>官方建议避免使用from+size来过度分页或一次请求太多结果。</p>
+<p>不推荐使用from+size来深度分页的核心原因如下：</p>
+<ul>
+<li>搜索请求通常会跨多个分片，每个分片必须将其请求的命中内容以及先前页面的命中内容加载到内存中。</li>
+<li>对于分页较多的页面或大量结果，这样操作会显著增加内存和CPU使用率，导致性能下降，甚至导致节点故障。</li>
+</ul>
+<h3 id="from-size查询的优缺点及适用场景"><a href="#from-size查询的优缺点及适用场景" class="headerlink" title="from+size查询的优缺点及适用场景"></a><strong>from+size查询的优缺点及适用场景</strong></h3><p>from+size分页查询的优缺点如下：</p>
+<ul>
+<li>from+size查询优点：支持随机翻页。</li>
+<li>from+size查询缺点：</li>
+</ul>
+<p>from+size查询适用场景如下：</p>
+<ul>
+<li>非常适合小型数据集或者从大数据集中返回Top N(N≤10000)结果集的业务场景。</li>
+<li>主流PC搜索引擎中支持随机跳转分页的业务场景，如下图所示：</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-3.png" alt="img"></p>
+<h2 id="3-深度分页问题的常见解决方案"><a href="#3-深度分页问题的常见解决方案" class="headerlink" title="3**.**深度分页问题的常见解决方案"></a><strong>3</strong>**.**<strong>深度分页问题的常见解决方案</strong></h2><h3 id="尝试避免使用深度分页"><a href="#尝试避免使用深度分页" class="headerlink" title="尝试避免使用深度分页"></a><strong>尝试避免使用深度分页</strong></h3><p>解决深度分页问题最好的办法就是避免使用深度分页。谷歌、百度目前作为全球和国内做大的搜索引擎不约而同的在分页条中删除了“跳页”功能，其目的就是为了避免用户使用深度分页检索。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-3.png" alt="img"></p>
+<p>在百度中搜索“Elasticsearch”，在搜索结果中翻到第20页，就无法再往下翻页了，提示信息如下图：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-4.png" alt="img"></p>
+<p>淘宝虽然没有删除“跳页”功能，但不管我们搜索什么内容，只要商品结果足够多，返回的商品列表都是仅展示前100页的数据，其本质和ES中的max_result_window作用是一样的，都是限制你去搜索更深页数的数据。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-5.png" alt="img"></p>
+<p>手机端APP就更不用说了，直接是下拉加载更多，连分页条都没有，相当于你只能点击“下一页”。</p>
+<h3 id="Scroll-Search-滚动查询"><a href="#Scroll-Search-滚动查询" class="headerlink" title="Scroll Search****滚动查询"></a><strong>Scroll Search****滚动查询</strong></h3><p>scroll API可从单个搜索请求中检索大量结果（甚至所有结果），这种方式与传统数据库中的游标(cursor)类似。scroll滚动遍历查询是非实时的，数据量大的时候，响应时间可能会比较长。</p>
+<blockquote>
+<p>官方文档：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/8.14/paginate-search-results.html#scroll-search-results">https://www.elastic.co/guide/en/elasticsearch/reference/8.14/paginate-search-results.html#scroll-search-results</a></p>
+</blockquote>
+<p>ES7之后，官方已经不再建议使用scroll API进行深度分页。如果要分页检索超过 Top 10,000+ 结果时，推荐使用：search_after。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-6.png" alt="img"></p>
+<p><strong>适合场景</strong></p>
+<p>单个滚动搜索请求中检索大量结果，即非“C端业务”场景</p>
+<h4 id="实现步骤"><a href="#实现步骤" class="headerlink" title="实现步骤"></a><strong>实现步骤</strong></h4><p>scroll查询的核心执行步骤如下。</p>
+<p><strong>1) 第一次进行scroll查询，指定检索语句的同时设置scroll上下文保留时间。</strong></p>
+<p>scroll请求返回的结果反映了发出初始搜索请求时索引的状态，就像在那一个时刻做了快照，随后对文档的更改（写入、更新或删除）只会影响以后的搜索请求。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 使用kibana提供的航班测试数据集#查询命令中新增scroll=5m,说明采用游标查询，保持游标查询窗口5分钟，也就是本次快照的结果缓存起来的有效时间是5分钟。</span><br><span class="line">GET /kibana_sample_data_flights/_search?scroll=5m </span><br><span class="line">&#123;  &quot;query&quot;: </span><br><span class="line">&#123;    &quot;term&quot;: &#123;      &quot;OriginWeather&quot;: &quot;Sunny&quot;    &#125;  &#125;,  </span><br><span class="line">&quot;size&quot;: 100</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>返回结果：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-7.png" alt="img"></p>
+<p><strong>2) 向后翻页，继续获取数据，直到没有要返回的结果为止</strong></p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># scroll_id 的值就是上一个请求中返回的 _scroll_id 的值GET /_search/scroll&#123;    &quot;scroll&quot;: &quot;5m&quot;,     &quot;scroll_id&quot; : &quot;FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnQ5MUF6M3dYUkhPQW81czY3RXBDckEAAAAAABkMUBZPOVotS1A1MlI1dU43QXFsdkRGUEhB&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>多次根据scroll_id游标查询，直到没有数据返回则结束查询。采用游标查询索引全量数据，更安全高效，限制了单次对内存的消耗。</p>
+<p><strong>删除游标scroll</strong></p>
+<p>scroll超过超时后，搜索上下文会自动删除。然而，保持scroll打开是有代价的，因此一旦不再使用，就应明确清除scroll上下文</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /_search/scroll&#123;    &quot;scroll_id&quot; : &quot;FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFmNwcVdjblRxUzVhZXlicG9HeU02bWcAAAAAAABmzRY2YlV3Z0o5VVNTdWJobkE5Z3MtXzJB&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="scroll查询的优缺点及适用场景"><a href="#scroll查询的优缺点及适用场景" class="headerlink" title="scroll查询的优缺点及适用场景"></a><strong>scroll查询的优缺点及适用场景</strong></h4><p><strong>scroll查询的优缺点如下：</strong></p>
+<ul>
+<li><p>scroll查询优点：</p>
+<p>支持全量遍历，是检索大量文档的重要方法，但单次遍历的size值不能超过max_result_window的大小。</p>
+</li>
+<li><p><strong>scroll查询缺点：</strong></p>
+</li>
+</ul>
+<p>scroll查询的适用场景如下：</p>
+<ul>
+<li>大量文档检索：当要检索的文档数量很大，甚至需要全量召回数据时，scroll查询是一个很好的选择。</li>
+<li>大量文档的数据处理：滚动API适合对大量文档进行数据处理，例如索引迁移或将数据导入其他技术栈。</li>
+</ul>
+<p>注意：</p>
+<ol>
+<li>ES7.x之后不建议使用scroll API进行深度分页。</li>
+<li>如果要分页检索并获得超过10000条结果时，则推荐使用search_after。</li>
+</ol>
+<h3 id="search-after查询"><a href="#search-after查询" class="headerlink" title="search_after查询"></a><strong>search_after查询</strong></h3><p>search_after查询的基本工作原理是以前一页结果的排序值作为参照点，进而检索与这个参照点相邻的下一页的匹配数据。</p>
+<p>这种方法在处理大规模数据分页时更为高效且实用。使用该查询的前置条件是要求后续的多个请求返回与第一次查询相同的排序结果序列。也就是说，在后续翻页的过程中，即便有新数据写入等操作，也不会对原有结果集构成影响。</p>
+<p>scroll API适用于高效的深度滚动，但滚动上下文成本高昂，不建议将其用于实时用户请求。而search_after参数通过提供一个活动光标来规避这个问题。这样可以使用上一页的结果来帮助检索下一页。</p>
+<blockquote>
+<p>官方文档：<a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/8.14/paginate-search-results.html#search-after">https://www.elastic.co/guide/en/elasticsearch/reference/8.14/paginate-search-results.html#search-after</a></p>
+</blockquote>
+<p>那么，如何实现呢？</p>
+<p>可以创建一个时间点PIT(Point In Time)来保障在搜索过程中能保留特定事件点的索引状态。search_after的后续查询都是基于PIT视图进行的，能有效保障数据的一致性。</p>
+<p>PIT是Elasticsearch 7.10版本之后才有的新特性，实际上是存储索引数据状态的轻量级视图。</p>
+<h4 id="实现步骤-1"><a href="#实现步骤-1" class="headerlink" title="实现步骤"></a><strong>实现步骤</strong></h4><p>search_after 分页查询可以简单概括为如下几个步骤：</p>
+<p><strong>1）获取索引的pit</strong></p>
+<p>使用 search_after 需要具有相同查询和排序值的多个搜索请求。 如果在这些请求之间发生刷新，结果的顺序可能会发生变化，从而导致跨页面的结果不一致。 为防止出现这种情况，可以创建一个时间点 (PIT) 以保留搜索中的当前索引状态。Point In Time（PIT）是 Elasticsearch 7.10 版本之后才有的新特性。</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 使用kibana提供的航班测试数据集# 创建一个时间点(PIT)来保存搜索期间的当前索引状态POST /kibana_sample_data_flights/_pit?keep_alive=5m#返回结果如下，会返回一个PID的值&#123;  &quot;id&quot;: &quot;4YyPBAEaa2liYW5hX3NhbXBsZV9kYXRhX2ZsaWdodHMWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAWTzlaLUtQNTJSNXVON0FxbHZERlBIQQAAAAAAABkI4hZ0OTFBejN3WFJIT0FvNXM2N0VwQ3JBAAEWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAA&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>keep_alive&#x3D;5m是一个类似于scroll的参数，表示滚动视图的保留时间是5min，超过5min Elasticsearch会清除这个滚动视图并报错，如下图所示</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977964-8.png" alt="img"></p>
+<p><strong>2） 根据pit首次查询</strong></p>
+<p>创建基础查询语句，主要是设置分页的条件</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_search&#123;  &quot;query&quot;: &#123;    &quot;term&quot;: &#123;      &quot;OriginWeather&quot;: &quot;Sunny&quot;    &#125;  &#125;,  &quot;pit&quot;: &#123;    &quot;id&quot;: &quot;4YyPBAEaa2liYW5hX3NhbXBsZV9kYXRhX2ZsaWdodHMWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAWTzlaLUtQNTJSNXVON0FxbHZERlBIQQAAAAAAABkI4hZ0OTFBejN3WFJIT0FvNXM2N0VwQ3JBAAEWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAA&quot;,    &quot;keep_alive&quot;: &quot;1m&quot;  &#125;,  &quot;size&quot;: 10,  &quot;sort&quot;: [    &#123;      &quot;timestamp&quot;: &quot;asc&quot;    &#125;  ]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码中设置了PIT，因此检索时候就不需要再指定索引。id是基于第一步返回的id值。排序sort指的是按照哪个关键字排序。</p>
+<p>在每个返回文档的最后会有两个结果值，如下所示:</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./es_deep_page.assets/640-1742618977965-9.png" alt="img"></p>
+<p>在每个返回文档的最后会有两个结果值，如下所示。</p>
+<p>其中，1723434063000就是我们指定的排序方式，所以上述示例是基于{“timestamp”: “asc”}升序排列的。130代表隐含的排序值，官方文档把这种隐含的字段叫作tiebreaker（决胜字段），tiebreaker代表了每个文档的唯一值，确保分页不会丢失或者分页结果数据出现重复（包括相同页重复和跨页重复）。</p>
+<p><strong>3）****根据search_after和pit实现后续翻页。</strong></p>
+<p>要获得下一页结果，请使用最后一次命中的排序值（包括 tiebreaker）作为 search_after 参数重新运行先前的搜索。 如果使用 PIT，请在 pit.id 参数中使用最新的 PIT ID。 搜索的查询和排序参数必须保持不变。</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#后续翻页都需要借助search_after来指定前一页中最后一个文档的sort字段值GET /_search&#123;  &quot;query&quot;: &#123;    &quot;term&quot;: &#123;      &quot;OriginWeather&quot;: &quot;Sunny&quot;    &#125;  &#125;,  &quot;pit&quot;: &#123;    &quot;id&quot;: &quot;4YyPBAEaa2liYW5hX3NhbXBsZV9kYXRhX2ZsaWdodHMWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAWTzlaLUtQNTJSNXVON0FxbHZERlBIQQAAAAAAABkI4hZ0OTFBejN3WFJIT0FvNXM2N0VwQ3JBAAEWZENSdWh0NWNSai1EdUhpcnBCZXgyZwAA&quot;,    &quot;keep_alive&quot;: &quot;5m&quot;  &#125;,  &quot;size&quot;: 10,  &quot;sort&quot;: [    &#123;      &quot;timestamp&quot;: &quot;asc&quot;    &#125;  ],  &quot;search_after&quot;: [    1723434063000,    130  ]&#125;</span><br></pre></td></tr></table></figure>
+
+<p>显然，search_after查询仅支持向后翻页。</p>
+<h4 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a><strong>优缺点</strong></h4><p><strong>search_after优点：</strong></p>
+<ul>
+<li>不严格受制于max_result_window，可以无限地往后翻页。此处的“不严格”是指单次请求值不能超过max_result_window，但总翻页结果集可以超过。</li>
+</ul>
+<p><strong>search_after缺点：</strong></p>
+<ul>
+<li>只支持向后翻页，不支持随机翻页。search_after不支持随机翻页，更适合在手机端应用的场景中使用，类似今日头条等产品的分页搜索。</li>
+</ul>
+<h2 id="4-ES三种分页方式总结"><a href="#4-ES三种分页方式总结" class="headerlink" title="4. ES三种分页方式总结"></a><strong>4. ES三种分页方式总结</strong></h2><table>
+<thead>
+<tr>
+<th>分页方式</th>
+<th>性能</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>from + size</td>
+<td>低</td>
+<td>支持随机翻页</td>
+<td>受制于max_result_window设置，不能无限制翻页；存在深度翻译问题，越往后翻译越慢。</td>
+<td>需要随机跳转不同页（PC端主流搜索引擎）； 在10000条数据之内分页显示</td>
+</tr>
+<tr>
+<td>scroll</td>
+<td>中</td>
+<td>支持全量遍历，但单次遍历的size值不能超过max_result_window的大小</td>
+<td>响应是非实时的；保留上下文需要具有足够的堆内存空间；需要通过更多的网络请求才能获取所有结果。</td>
+<td>需要遍历全量数据</td>
+</tr>
+<tr>
+<td>search_after</td>
+<td>高</td>
+<td>不严格受制于max_result_window，可以无限地往后翻页。</td>
+<td>只支持向后翻页，不支持随机翻页。</td>
+<td>仅需要向后翻页;超过10000条数据，需要分页</td>
+</tr>
+</tbody></table>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2024/04/09/es_deep_page/">http://xeons.cn/2024/04/09/es_deep_page/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2024/04/09/es_deep_page/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post_share"><div class="social-share" data-image="/2024/04/09/es_deep_page/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/04/09/cas/" title="java中CAS"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cas/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">java中CAS</div></div></a></div><div class="next-post pull-right"><a href="/2024/04/09/java_async/" title="Java异步编程Future&amp;CompletableFuture实战"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/java_async/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Java异步编程Future&amp;CompletableFuture实战</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">1g内存如何存储1亿数据</div></div></a></div><div><a href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">上亿号码去重方案</div></div></a></div><div><a href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">seate中的tcc</div></div></a></div><div><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">cpu打到100的分析</div></div></a></div><div><a href="/2024/04/09/24locks/" title="java中的各种锁"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/24locks/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中的各种锁</div></div></a></div><div><a href="/2024/04/09/cas/" title="java中CAS"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cas/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中CAS</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ES-%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">ES 深度分页问题及其解决方案详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AF%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5"><span class="toc-number">1.1.</span> <span class="toc-text">1. 什么是深度分页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E4%B8%8D%E6%8E%A8%E8%8D%90%E4%BD%BF%E7%94%A8from-size"><span class="toc-number">1.2.</span> <span class="toc-text">2. 深度分页不推荐使用from+size</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#from-size%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.2.1.</span> <span class="toc-text">from+size查询的优缺点及适用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E9%97%AE%E9%A2%98%E7%9A%84%E5%B8%B8%E8%A7%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.3.</span> <span class="toc-text">3**.**深度分页问题的常见解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%9D%E8%AF%95%E9%81%BF%E5%85%8D%E4%BD%BF%E7%94%A8%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5"><span class="toc-number">1.3.1.</span> <span class="toc-text">尝试避免使用深度分页</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Scroll-Search-%E6%BB%9A%E5%8A%A8%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.3.2.</span> <span class="toc-text">Scroll Search****滚动查询</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">实现步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scroll%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">scroll查询的优缺点及适用场景</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#search-after%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.3.3.</span> <span class="toc-text">search_after查询</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4-1"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">实现步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">优缺点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-ES%E4%B8%89%E7%A7%8D%E5%88%86%E9%A1%B5%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">4. ES三种分页方式总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text"></span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

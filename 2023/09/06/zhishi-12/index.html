@@ -1,0 +1,598 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Zookeeper 结点特性详解 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;  ZooKeepe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zookeeper 结点特性详解">
+<meta property="og:url" content="http://xeons.cn/2023/09/06/zhishi-12/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;  ZooKeepe">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/09/06/zhishi-12/640.png">
+<meta property="article:published_time" content="2023-09-06T10:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="Zookeeper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/09/06/zhishi-12/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2023/09/06/zhishi-12/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Zookeeper 结点特性详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Zookeeper 结点特性详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-06T10:45:07.000Z" title="发表于 2023-09-06 18:45:07">2023-09-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Zookeeper 结点特性详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p><strong>1. Zookeeper介绍</strong></p>
+<p>ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。</p>
+<p>官方：<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/">https://zookeeper.apache.org/</a></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640.png" alt="图片"></p>
+<p>ZooKeeper本质上是一个分布式的小文件存储系统（Zookeeper&#x3D;文件系统+监听机制）。提供基于类似于文件系统的目录树方式的数据存储，并且可以对树中的节点进行有效管理，从而用来维护和监控存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理、统一命名服务、分布式配置管理、分布式消息队列、分布式锁、分布式协调等功能。</p>
+<p>Zookeeper从设计模式角度来理解：是一个基于观察者模式设计的分布式服务管理框架，它负责存储和管理大家都关心的数据，然后接受观察者的注册，一旦这些数据的状态发生变化，Zookeeper 就将负责通知已经在Zookeeper上注册的那些观察者做出相应的反应。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-1.png" alt="图片"></p>
+<p><strong>2. Zookeeper快速开始</strong></p>
+<p><strong>2.1 Zookeeper安装</strong></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/releases.html">https://zookeeper.apache.org/releases.html</a></p>
+<p>运行环境：jdk8</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-2.png" alt="图片"></p>
+<p><strong>1）修改配置文件</strong></p>
+<p>解压安装包后进入conf目录，复制zoo_sample.cfg，修改为zoo.cfg</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp zoo_sample.cfg  zoo.cfg</span><br></pre></td></tr></table></figure>
+
+<p>修改 zoo.cfg 配置文件，将 dataDir&#x3D;&#x2F;tmp&#x2F;zookeeper 修改为指定的data目录</p>
+<p><strong>zoo.cfg中参数含义：</strong> </p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-3.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>2）启动zookeeper server</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 可以通过 bin/zkServer.sh  来查看都支持哪些参数 # 默认加载配置路径conf/zoo.cfgbin/zkServer.sh startbin/zkServer.sh start conf/my_zoo.cfg# 查看zookeeper状态bin/zkServer.sh status</span><br></pre></td></tr></table></figure>
+
+<p><strong>3）启动zookeeper client连接Zookeeper server</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bin/zkCli.sh# 连接远程的zookeeper serverbin/zkCli.sh -server ip:port</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.2 客户端命令行操作</strong></p>
+<p>输入命令 help 查看zookeeper支持的所有命令：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-4.png" alt="图片"></p>
+<p><strong>常见cli命令</strong></p>
+<p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/r3.8.0/zookeeperCLI.html">https://zookeeper.apache.org/doc/r3.8.0/zookeeperCLI.html</a></p>
+<table>
+<thead>
+<tr>
+<th>命令基本语法</th>
+<th>功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>help</td>
+<td>显示所有操作命令</td>
+</tr>
+<tr>
+<td>ls [-s] [-w] [-R] path</td>
+<td>使用 ls 命令来查看当前 znode 的子节点 [可监听] -w: 监听子节点变化 -s: 节点状态信息（时间戳、版本号、数据大小等）-R: 表示递归的获取</td>
+</tr>
+<tr>
+<td>create [-s] [-e] [-c] [-t ttl] path [data] [acl]</td>
+<td>创建节点-s : 创建有序节点。-e : 创建临时节点。-c : 创建一个容器节点。t ttl] : 创建一个TTL节点， -t 时间（单位毫秒）。data：节点的数据，可选，如果不使用时，节点数据就为null。acl：访问控制</td>
+</tr>
+<tr>
+<td>get [-s] [-w] path</td>
+<td>获取节点数据信息 -s: 节点状态信息（时间戳、版本号、数据大小等） -w: 监听节点变化</td>
+</tr>
+<tr>
+<td>set [-s] [-v version] path data</td>
+<td>设置节点数据-s:表示节点为顺序节点-v: 指定版本号</td>
+</tr>
+<tr>
+<td>getAcl [-s] path</td>
+<td>获取节点的访问控制信息-s: 节点状态信息（时间戳、版本号、数据大小等）</td>
+</tr>
+<tr>
+<td>setAcl [-s] [-v version] [-R] path acl</td>
+<td>设置节点的访问控制列表-s:节点状态信息（时间戳、版本号、数据大小等）-v:指定版本号-R:递归的设置</td>
+</tr>
+<tr>
+<td>stat [-w] path</td>
+<td>查看节点状态信息</td>
+</tr>
+<tr>
+<td>delete [-v version] path</td>
+<td>删除某一节点，只能删除无子节点的节点。-v： 表示节点版本号</td>
+</tr>
+<tr>
+<td>deleteall path</td>
+<td>递归的删除某一节点及其子节点</td>
+</tr>
+<tr>
+<td>setquota -n|-b val path</td>
+<td>对节点增加限制n:表示子节点的最大个数b:数据值的最大长度，-1表示无限制</td>
+</tr>
+</tbody></table>
+<p><strong>2.3 GUI工具</strong></p>
+<ul>
+<li><p>Zookeeper图形化工具：ZooInspector</p>
+</li>
+<li><p>Zookeeper图形化工具：开源的prettyZoo</p>
+</li>
+<li><p>Zookeeper图形化工具：收费的ZooKeeperAssistant</p>
+</li>
+</ul>
+<p><strong>3. ZooKeeper数据结构</strong> </p>
+<p>ZooKeeper 数据模型的结构与 Unix 文件系统很类似，整体上可以看作是一棵树，每个节点称做一个 ZNode。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-5.png" alt="图片"></p>
+<p>ZooKeeper的数据模型是层次模型，层次模型常见于文件系统。层次模型和key-value模型是两种主流的数据模型。ZooKeeper使用文件系统模型主要基于以下两点考虑:</p>
+<ol>
+<li>文件系统的树形结构便于表达数据之间的层次关系</li>
+<li>文件系统的树形结构便于为不同的应用分配独立的命名空间( namespace )</li>
+</ol>
+<p>ZooKeeper的层次模型称作Data Tree，Data Tree的每个节点叫作Znode。不同于文件系统，每个节点都可以保存数据，每一个 ZNode 默认能够存储 1MB 的数据，每个 ZNode 都可以通过其路径唯一标识，每个节点都有一个版本(version)，版本从0开始计数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataTree</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, DataNode&gt; nodes =        <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;String, DataNode&gt;();                    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">WatchManager</span> <span class="variable">dataWatches</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WatchManager</span>();    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">WatchManager</span> <span class="variable">childWatches</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WatchManager</span>();    &#125;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataNode</span> <span class="keyword">implements</span> <span class="title class_">Record</span> &#123;    <span class="type">byte</span> data[];    Long acl;    <span class="keyword">public</span> StatPersisted stat;    <span class="keyword">private</span> Set&lt;String&gt; children = <span class="literal">null</span>; &#125;       </span><br></pre></td></tr></table></figure>
+
+<p><strong>3.1 节点分类</strong></p>
+<p>zookeeper存在几种不同的节点类型，他们具有不同的生命周期：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>生命周期</th>
+<th>创建示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>持久节点 （persistent node)</td>
+<td>一直存在，一直存储在ZooKeeper 服务器上，即使创建该节点的客户端与服务端的会话关闭了，该节点依然不会被删除</td>
+<td>create &#x2F;locks</td>
+</tr>
+<tr>
+<td>临时节点 (ephemeral node)</td>
+<td>当创建该临时节点的客户端会话因超时或发生异常而关闭时，该节点也相应在 ZooKeeper 服务器上被删除。</td>
+<td>create -e &#x2F;locks&#x2F;DBLock</td>
+</tr>
+<tr>
+<td>有序节点 (sequential node)</td>
+<td>并不算是一种单独种类的节点，而是在之前提到的持久节点和临时节点特性的基础上，增加了一个节点有序的性质。在我们创建有序节点的时候会自动使用一个单调递增的数字作为后缀</td>
+<td>create -e -s &#x2F;jobs&#x2F;job (临时有序节点)</td>
+</tr>
+<tr>
+<td>容器节点 (container node)</td>
+<td>当一个容器节点的最后一个子节点被删除后，容器节点也会被删除</td>
+<td>create -c &#x2F;work</td>
+</tr>
+<tr>
+<td>TTL节点 (ttl node)</td>
+<td>当一个TTL节点在 TTL 内没有被修改并且没有子节点，会被删除。注意：默认此功能不开启，需要修改配置文件extendedTypesEnabled&#x3D;true</td>
+<td>create -t 3000 &#x2F;ttl_node</td>
+</tr>
+</tbody></table>
+<p>一个znode可以使持久性的，也可以是临时性的:</p>
+<ol>
+<li>持久节点(PERSISTENT): 这样的znode在创建之后即使发生ZooKeeper集群宕机或者client宕机也不会丢失。</li>
+<li>临时节点(EPHEMERAL ): client宕机或者client在指定的timeout时间内没有给ZooKeeper集群发消息，这样的znode就会消失。</li>
+</ol>
+<p>如果上面两种znode具备顺序性，又有以下两种znode :</p>
+<ol start="3">
+<li>持久顺序节点(PERSISTENT_SEQUENTIAL): znode除了具备持久性znode的特点之外，znode的名字具备顺序性。</li>
+<li>临时顺序节点(EPHEMERAL_SEQUENTIAL): znode除了具备临时性znode的特点之外，zorde的名字具备顺序性。</li>
+</ol>
+<p>zookeeper主要用到的是以上4种节点。</p>
+<ol start="5">
+<li>Container节点 (3.5.3版本新增)：Container容器节点，当容器中没有任何子节点，该容器节点会被zk定期删除（定时任务默认60s 检查一次)。 和持久节点的区别是 ZK 服务端启动后，会有一个单独的线程去扫描，所有的容器节点，当发现容器节点的子节点数量为 0 时，会自动删除该节点。可以用于 leader 或者锁的场景中。</li>
+</ol>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-6.png" alt="图片"></p>
+<ol start="6">
+<li>TTL节点:  带过期时间节点，默认禁用，需要在zoo.cfg中添加 extendedTypesEnabled&#x3D;true 开启。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#创建持久节点create /servers  xxx#创建临时节点create -e /servers/host  xxx#创建临时有序节点create -e -s /servers/host  xxx#创建容器节点create -c /container xxx# 创建ttl节点create -t 10 /ttl</span><br></pre></td></tr></table></figure>
+
+<p><strong>示例：实现分布式锁</strong></p>
+<p>分布式锁要求如果锁的持有者宕了，锁可以被释放。ZooKeeper 的 ephemeral 节点恰好具备这样的特性。</p>
+<p><strong>终端1:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zkCli.shcreate –e /lockquit</span><br></pre></td></tr></table></figure>
+
+<p><strong>终端2：</strong></p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zkCli.shcreate –e /lockstat –w /lockcreate –e /lock</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>节点状态信息</strong></p>
+<p>类似于树状结构，节点下面是可以存储一些信息和属性的。可以通过stat命令来进行查看。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-7.png" alt="图片"></p>
+<ul>
+<li>cZxid ：Znode创建的事务id。</li>
+<li>ctime：节点创建时的时间戳。</li>
+<li>mZxid ：Znode被修改的事务id，即每次对znode的修改都会更新mZxid。</li>
+</ul>
+<p>对于zk来说，每次的变化都会产生一个唯一的事务id，zxid（ZooKeeper Transaction Id），通过zxid，可以确定更新操作的先后顺序。例如，如果zxid1小于zxid2，说明zxid1操作先于zxid2发生，zxid对于整个zk都是唯一的，即使操作的是不同的znode。</p>
+<ul>
+<li><p>pZxid: </p>
+<p>表示该节点的子节点列表最后一次修改的事务ID，添加子节点或删除子节点就会影响子节点列表，但是修改子节点的数据内容则不影响该ID（注意: 只有子节点列表变更了才会变更pzxid，子节点内容变更不会影响pzxid）</p>
+</li>
+<li><p>mtime：节点最新一次更新发生时的时间戳.</p>
+</li>
+<li><p>cversion ：子节点的版本号。当znode的子节点有变化时，cversion 的值就会增加1。</p>
+</li>
+<li><p>dataVersion：数据版本号，每次对节点进行set操作，dataVersion的值都会增加1（即使设置的是相同的数据），可有效避免了数据更新时出现的先后顺序问题。</p>
+</li>
+<li><p>ephemeralOwner:如果该节点为临时节点, ephemeralOwner值表示与该节点绑定的session id。如果不是, ephemeralOwner值为0(持久节点)。</p>
+</li>
+</ul>
+<p>在client和server通信之前,首先需要建立连接,该连接称为session。连接建立后,如果发生连接超时、授权失败,或者显式关闭连接,连接便处于closed状态, 此时session结束。</p>
+<ul>
+<li><p>dataLength ： 数据的长度</p>
+</li>
+<li><p>numChildren ：子节点的数量</p>
+<p>（只统计直接子节点的数量）</p>
+</li>
+</ul>
+<p><strong>示例：zookeeper乐观锁删除</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-8.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>3.2 监听机制详解</strong></p>
+<p>watch机制，顾名思义是一个监听机制。Zookeeper中的watch机制，必须客户端先去服务端注册监听，这样事件发送才会触发监听，通知给客户端。</p>
+<p>监听的对象是事件，支持的事件类型如下：</p>
+<ul>
+<li>None: 连接建立事件</li>
+<li>NodeCreated： 节点创建</li>
+<li>NodeDeleted： 节点删除</li>
+<li>NodeDataChanged：节点数据变化</li>
+<li>NodeChildrenChanged：子节点列表变化</li>
+<li>DataWatchRemoved：节点监听被移除</li>
+<li>ChildWatchRemoved：子节点监听被移除</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#监听节点数据的变化get -w path stat -w path#监听子节点增减的变化 ls -w path </span><br></pre></td></tr></table></figure>
+
+
+
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>一次性触发</td>
+<td>watch是一次性的，一旦被触发就会移除，再次使用时需要重新注册</td>
+</tr>
+<tr>
+<td>客户端顺序回调</td>
+<td>watch回调是顺序串行执行的，只有回调后客户端才能看到最新的数据状态。一个watcher回调逻辑不应该太多，以免影响别的watch执行</td>
+</tr>
+<tr>
+<td>轻量级</td>
+<td>WatchEvent是最小的通信单位，结构上只包含通知状态、事件类型和节点路径，并不会告诉数据节点变化前后的具体内容</td>
+</tr>
+<tr>
+<td>时效性</td>
+<td>watcher只有在当前session彻底失效时才会无效，若在session有效期内快速重连成功，则watcher依然存在，仍可接收到通知；</td>
+</tr>
+</tbody></table>
+<p>**<br>**</p>
+<p><strong>永久性Watch</strong> </p>
+<p>在被触发之后，仍然保留，可以继续监听ZNode上的变更，是Zookeeper 3.6.0版本新增的功能</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addWatch [-m mode] path</span><br></pre></td></tr></table></figure>
+
+<p>addWatch的作用是针对指定节点添加事件监听，支持两种模式</p>
+<ul>
+<li><p>PERSISTENT，持久化订阅，针对当前节点的修改和删除事件，以及当前节点的子节点的删除和新增事件。</p>
+</li>
+<li><p>PERSISTENT_RECURSIVE，持久化递归订阅(默认)，在PERSISTENT的基础上，增加了子节点修改的事件触发，以及子节点的子节点的数据变化都会触发相关事件（满足递归订阅特性）</p>
+</li>
+</ul>
+<p><strong>示例: 协同服务</strong></p>
+<p>设计一个master-worker的组成员管理系统，要求系统中只能有一个master , master能实时获取系统中worker的情况。</p>
+<p>保证组里面只有一个master的设计思路</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">master1create -e /master <span class="string">&quot;m1:2223&quot;</span>  <span class="comment">#master2create -e /master &quot;m2:2223&quot;   # /master已经存在，创建失败Node already exists: /master#监听/master节点stat -w /master#当master2收到/master节点删除通知后可以再次发起创建节点操作create -e /master &quot;m2:2223&quot;</span></span> </span><br></pre></td></tr></table></figure>
+
+<p>master-slave选举也可以用这种方式</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-9.png" alt="图片"></p>
+<p>master监控worker状态的设计思路</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">master服务create /workers<span class="comment">#让master服务监控/workers下的子节点ls -w /workers#worker1create -e /workers/w1 &quot;w1:2224&quot; #创建子节点，master服务会收到子节点变化通知#master服务ls -w /workers#worker2create -e /workers/w2 &quot;w2:2224&quot;  #创建子节点，master服务会收到子节点变化通知#master服务ls -w /workers#worker2quit  #worker2退出，master服务会收到子节点变化通知</span></span></span><br></pre></td></tr></table></figure>
+
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-10.png" alt="图片"></p>
+<p><strong>示例：条件更新</strong></p>
+<p>设想用znode &#x2F;c实现一个counter，使用set命令来实现自增1操作。条件更新场景∶</p>
+<ol>
+<li>客户端1把&#x2F;c更新到版本1，实现&#x2F;c的自增1。</li>
+<li>客户端2把&#x2F;c更新到版本2，实现&#x2F;c的自增1。</li>
+<li>客户端1不知道&#x2F;c已经被客户端⒉更新过了，还用过时的版本1是去更新&#x2F;c，更新失败。如果客户端1使用的是无条件更新，&#x2F;c就会更新为2，没有实现自增1。</li>
+</ol>
+<p>使用条件更新可以避免出现客户端基于过期的数据进行数据更新的操作。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-11.png" alt="图片"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-12.png" alt="图片"></p>
+<p><strong>3.3 节点特性总结</strong></p>
+<p><strong>1. 同一级节点 key 名称是唯一的</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-13.png" alt="图片"></p>
+<p>已存在&#x2F;lock节点，再次创建会提示已经存在</p>
+<p><strong>2.创建节点时，必须要带上全路径</strong></p>
+<p><strong>3.session 关闭，临时节点清除</strong></p>
+<p><strong>4.自动创建顺序节点</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-14.png" alt="图片"></p>
+<p><strong>5.watch 机制，监听节点变化</strong></p>
+<p>事件监听机制类似于观察者模式，watch 流程是客户端向服务端某个节点路径上注册一个 watcher，同时客户端也会存储特定的 watcher，当节点数据或子节点发生变化时，服务端通知客户端，客户端进行回调处理。特别注意：监听事件被单次触发后，事件就失效了。</p>
+<p><strong>6.delete 命令只能一层一层删除。</strong>提示：新版本可以通过 deleteall 命令递归删除。</p>
+<p>**<br>**</p>
+<p><strong>3.4 应用场景详解</strong></p>
+<p>ZooKeeper适用于存储和协同相关的关键数据，不适合用于大数据量存储。</p>
+<p>有了上述众多节点特性，使得 zookeeper 能开发不出不同的经典应用场景，比如：</p>
+<ul>
+<li><p>注册中心</p>
+</li>
+<li><p>数据发布&#x2F;订阅（常用于实现配置中心）</p>
+</li>
+<li><p>负载均衡</p>
+</li>
+<li><p>命名服务</p>
+</li>
+<li><p>分布式协调&#x2F;通知</p>
+</li>
+<li><p>集群管理</p>
+</li>
+<li><p>Master选举</p>
+</li>
+<li><p>分布式锁</p>
+</li>
+<li><p>分布式队列</p>
+</li>
+</ul>
+<p><strong>统一命名服务</strong></p>
+<p>在分布式环境下，经常需要对应用&#x2F;服务进行统一命名，便于识别。</p>
+<p>例如：IP不容易记住，而域名容易记住。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-15.png" alt="图片"></p>
+<p>利用 ZooKeeper 顺序节点的特性，制作分布式的序列号生成器，或者叫 id 生成器。（分布式环境下使用作为数据库 id，另外一种是 UUID（缺点：没有规律）），ZooKeeper 可以生成有顺序的容易理解的同时支持分布式环境的编号。</p>
+<p>- </p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/</span><br><span class="line">└── /order    </span><br><span class="line">├── /order-date1-000000000000001    </span><br><span class="line">├── /order-date2-000000000000002    </span><br><span class="line">├── /order-date3-000000000000003    </span><br><span class="line">├── /order-date4-000000000000004    </span><br><span class="line">└── /order-date5-000000000000005</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>数据发布&#x2F;订阅</strong></p>
+<p>数据发布&#x2F;订阅的一个常见的场景是配置中心，发布者把数据发布到 ZooKeeper 的一个或一系列的节点上，供订阅者进行数据订阅，达到动态获取数据的目的。</p>
+<p>配置信息一般有几个特点:</p>
+<ol>
+<li>数据量小的KV</li>
+<li>数据内容在运行时会发生动态变化</li>
+<li>集群机器共享，配置一致</li>
+</ol>
+<p>ZooKeeper 采用的是推拉结合的方式。</p>
+<ol>
+<li>推: 服务端会推给注册了监控节点的客户端 Watcher 事件通知</li>
+<li>拉: 客户端获得通知后，然后主动到服务端拉取最新的数据</li>
+</ol>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-16.png" alt="图片"></p>
+<p><strong>统一集群管理</strong></p>
+<p>分布式环境中，实时掌握每个节点的状态是必要的，可根据节点实时状态做出一些调整。</p>
+<p>ZooKeeper可以实现实时监控节点状态变化：</p>
+<ul>
+<li>可将节点信息写入ZooKeeper上的一个ZNode。</li>
+<li>监听这个ZNode可获取它的实时状态变化。</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-17.png" alt="图片"></p>
+<p><strong>负载均衡</strong></p>
+<p>在Zookeeper中记录每台服务器的访问数，让访问数最少的服务器去处理最新的客户端请求</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-18.png" alt="图片"></p>
+<p><strong>Master-Worker架构</strong></p>
+<p>master-worker是一个广泛使用的分布式架构。 master-work架构中有一个master负责监控worker的状态，并为</p>
+<p>worker分配任务。</p>
+<ul>
+<li>在任何时刻，系统中最多只能有一个master，不可以出现两个master的情况，多个master共存会导致脑裂。</li>
+<li>系统中除了处于active状态的master还有一个backup master，如果active master失败了，backup master可以很快的进入active状态。</li>
+<li>master实时监控worker的状态，能够及时收到worker成员变化的通知。master在收到worker成员变化的时候，通常重新进行任务的重新分配。</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-19.png" alt="图片"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/06/zhishi-12/">http://xeons.cn/2023/09/06/zhishi-12/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/09/06/zhishi-12/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Zookeeper/">Zookeeper</a></div><div class="post_share"><div class="social-share" data-image="/2023/09/06/zhishi-12/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/09/shijianfuzadu/" title="python 高级特性"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/09/shijianfuzadu/algorithm_complexity_1.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">python 高级特性</div></div></a></div><div class="next-post pull-right"><a href="/2023/09/05/zhishi-11/" title="CopyOnWriteArrayList 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-11/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CopyOnWriteArrayList 详解</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

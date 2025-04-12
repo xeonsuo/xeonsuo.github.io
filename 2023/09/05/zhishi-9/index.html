@@ -1,0 +1,434 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Fork/Join框架介绍 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 由一道算法题引发的思考 算法题：如何充分利用多核CPU的性能，快速对一个2千万大小的数组进行排序？ 算法题分享：如何高效的实现归并排序 2. Fork&#x2F;Join框架介绍 2.1 什么是Fork&#x2F;Join Fork&#x2F;Join是一个是一个并行计算的框架，主要就是用来支持分治任务模型的，这个计算框架里的 Fork 对应的是分治任务模型里的任务分解，Join 对应的是结">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fork&#x2F;Join框架介绍">
+<meta property="og:url" content="http://xeons.cn/2023/09/05/zhishi-9/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="1. 由一道算法题引发的思考 算法题：如何充分利用多核CPU的性能，快速对一个2千万大小的数组进行排序？ 算法题分享：如何高效的实现归并排序 2. Fork&#x2F;Join框架介绍 2.1 什么是Fork&#x2F;Join Fork&#x2F;Join是一个是一个并行计算的框架，主要就是用来支持分治任务模型的，这个计算框架里的 Fork 对应的是分治任务模型里的任务分解，Join 对应的是结">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2023/09/05/zhishi-9/640.png">
+<meta property="article:published_time" content="2023-09-05T05:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="并行计算">
+<meta property="article:tag" content="高并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2023/09/05/zhishi-9/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2023/09/05/zhishi-9/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Fork/Join框架介绍',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Fork/Join框架介绍</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-05T05:45:07.000Z" title="发表于 2023-09-05 13:45:07">2023-09-05</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Fork/Join框架介绍"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p><strong>1. 由一道算法题引发的思考</strong></p>
+<p>算法题：如何充分利用多核CPU的性能，快速对一个2千万大小的数组进行排序？</p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247483852&idx=1&sn=2bb8754392731c05d95a56e5a77c68e4&scene=21#wechat_redirect">算法题分享：如何高效的实现归并排序</a></p>
+<p><strong>2. Fork&#x2F;Join框架介绍</strong></p>
+<p><strong>2.1 什么是Fork&#x2F;Join</strong></p>
+<p>Fork&#x2F;Join是一个是一个并行计算的框架，主要就是用来支持分治任务模型的，这个计算框架里的 Fork 对应的是分治任务模型里的任务分解，Join 对应的是结果合并。它的核心思想是将一个大任务分成许多小任务，然后并行执行这些小任务，最终将它们的结果合并成一个大的结果。它适用于可以采用分治策略的计算密集型任务，例如大规模数组的排序、图形的渲染、复杂算法的求解等。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640.png" alt="图片"></p>
+<p><strong>2.2 应用场景</strong></p>
+<ol>
+<li><strong>并行计算：</strong></li>
+</ol>
+<p>ForkJoinPool 提供了一种方便的方式来执行大规模的计算任务，并充分利用多核处理器的性能优势。通过将大任务分解成小任务，并通过工作窃取算法实现任务的并行执行，可以提高计算效率。</p>
+<ol>
+<li><strong>递归任务处理：</strong></li>
+</ol>
+<p>ForkJoinPool 特别适用于递归式的任务分解和执行。它可以将一个大任务递归地分解成许多小任务，并通过工作窃取算法动态地将这些小任务分配给工作线程执行。</p>
+<ol>
+<li><strong>并行流操作：</strong></li>
+</ol>
+<p>Java 8 引入了 Stream API，用于对集合进行函数式编程风格的操作。ForkJoinPool 通常用于执行并行流操作中的并行计算部分，例如对流中的元素进行过滤、映射、聚合等操作。</p>
+<ol>
+<li><strong>高性能任务执行：</strong></li>
+</ol>
+<p>ForkJoinPool 提供了一种高性能的任务执行机制，通过对任务进行动态调度和线程池管理，可以有效地利用系统资源，并在多核处理器上实现任务的并行执行。</p>
+<p>总的来说，ForkJoinPool 类在 Java 中具有广泛的应用场景，特别适用于大规模的并行计算任务和递归式的任务处理。它通过工作窃取算法和任务分割合并机制，提供了一种高效的并行计算方式，可以显著提高计算效率和性能。</p>
+<p><strong>2.3 Fork&#x2F;Join使用</strong></p>
+<p>Fork&#x2F;Join框架的主要组成部分是ForkJoinPool、ForkJoinTask。ForkJoinPool是一个线程池，它用于管理ForkJoin任务的执行。ForkJoinTask是一个抽象类，用于表示可以被分割成更小部分的任务。</p>
+<p><strong>ForkJoinPool</strong></p>
+<p>ForkJoinPool是Fork&#x2F;Join框架中的线程池类，它用于管理Fork&#x2F;Join任务的线程。ForkJoinPool类包括一些重要的方法，例如submit()、invoke()、shutdown()、awaitTermination()等，用于提交任务、执行任务、关闭线程池和等待任务的执行结果。ForkJoinPool类中还包括一些参数，例如线程池的大小、工作线程的优先级、任务队列的容量等，可以根据具体的应用场景进行设置。</p>
+<p><strong>构造器</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649667-1.png" alt="图片"></p>
+<p>ForkJoinPool中有四个核心参数，用于控制线程池的并行数、工作线程的创建、异常处理和模式指定等。各参数解释如下：</p>
+<ul>
+<li><p>int parallelism</p>
+<p>：指定并行级别（parallelism level）。ForkJoinPool将根据这个设定，决定工作线程的数量。如果未设置的话，将使用Runtime.getRuntime().availableProcessors()来设置并行级别；</p>
+</li>
+<li><p>ForkJoinWorkerThreadFactory factory：ForkJoinPool在创建线程时，会通过factory来创建。注意，这里需要实现的是ForkJoinWorkerThreadFactory，而不是ThreadFactory。如果你不指定factory，那么将由默认的DefaultForkJoinWorkerThreadFactory负责线程的创建工作；</p>
+</li>
+<li><p>UncaughtExceptionHandler handler：指定异常处理器，当任务在运行中出错时，将由设定的处理器处理；</p>
+</li>
+<li><p>boolean asyncMode：设置队列的工作模式。当asyncMode为true时，将使用先进先出队列，而为false时则使用后进先出的模式。</p>
+</li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//获取处理器数量int processors = Runtime.getRuntime().availableProcessors();//构建forkjoin线程池ForkJoinPool forkJoinPool = new ForkJoinPool(processors);</span><br></pre></td></tr></table></figure>
+
+<p><strong>任务提交方式</strong></p>
+<p>任务提交是ForkJoinPool的核心能力之一，提交任务有三种方式：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>返回值</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提交异步执行</td>
+<td>void</td>
+<td>execute(ForkJoinTask task)execute(Runnable task)</td>
+</tr>
+<tr>
+<td>等待并获取结果</td>
+<td>T</td>
+<td>invoke(ForkJoinTask task)</td>
+</tr>
+<tr>
+<td>提交执行获取Future结果</td>
+<td>ForkJoinTask</td>
+<td>submit(ForkJoinTask task)submit(Callable task)submit(Runnable task)submit(Runnable task, T result)</td>
+</tr>
+</tbody></table>
+<p><strong>ForkJoinTask</strong></p>
+<p>ForkJoinTask是Fork&#x2F;Join框架中的抽象类，它定义了执行任务的基本接口。用户可以通过继承ForkJoinTask类来实现自己的任务类，并重写其中的compute()方法来定义任务的执行逻辑。通常情况下我们不需要直接继承ForkJoinTask类，而只需要继承它的子类，Fork&#x2F;Join框架提供了以下三个子类：</p>
+<ul>
+<li><p>RecursiveAction</p>
+<p>：用于递归执行但不需要返回结果的任务。</p>
+</li>
+<li><p>RecursiveTask</p>
+<p> ：用于递归执行需要返回结果的任务。</p>
+</li>
+<li><p>CountedCompleter：在任务完成执行后会触发执行一个自定义的钩子函数</p>
+</li>
+</ul>
+<p><strong>调用方法</strong></p>
+<p>ForkJoinTask 最核心的是 fork() 方法和 join() 方法，承载着主要的任务协调作用，一个用于任务提交，一个用于结果获取。</p>
+<ul>
+<li><strong>fork()——提交任务</strong></li>
+</ul>
+<p>fork()方法用于向当前任务所运行的线程池中提交任务。如果当前线程是ForkJoinWorkerThread类型，将会放入该线程的工作队列，否则放入common线程池的工作队列中。</p>
+<ul>
+<li><strong>join()——获取任务执行结果</strong></li>
+</ul>
+<p>join()方法用于获取任务的执行结果。调用join()时，将阻塞当前线程直到对应的子任务完成运行并返回结果。</p>
+<p>**<br>**</p>
+<p><strong>处理递归任务</strong></p>
+<p><strong>计算斐波那契数列</strong></p>
+<p>斐波那契数列指的是这样一个数列：1，1，2，3，5，8，13，21，34，55，89… 这个数列从第3项开始，每一项都等于前两项之和。</p>
+<h2 id=""><a href="#" class="headerlink" title="- "></a>- </h2><h2 id="-1"><a href="#-1" class="headerlink" title="- "></a>- </h2><h2 id="-2"><a href="#-2" class="headerlink" title="- "></a>- </h2><h2 id="-3"><a href="#-3" class="headerlink" title="- "></a>- </h2><h2 id="-4"><a href="#-4" class="headerlink" title="- "></a>- </h2><h2 id="-5"><a href="#-5" class="headerlink" title="- "></a>- </h2><h2 id="-6"><a href="#-6" class="headerlink" title="- "></a>- </h2><h2 id="-7"><a href="#-7" class="headerlink" title="- "></a>- </h2><h2 id="-8"><a href="#-8" class="headerlink" title="- "></a>- </h2><h2 id="-9"><a href="#-9" class="headerlink" title="- "></a>- </h2><h2 id="-10"><a href="#-10" class="headerlink" title="- "></a>- </h2><h2 id="-11"><a href="#-11" class="headerlink" title="- "></a>- </h2><h2 id="-12"><a href="#-12" class="headerlink" title="- "></a>- </h2><h2 id="-13"><a href="#-13" class="headerlink" title="- "></a>- </h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class Fibonacci extends RecursiveTask&lt;Integer&gt; &#123;    final int n;    Fibonacci(int n) &#123;        this.n = n;    &#125;    /**     * 重写RecursiveTask的compute()方法     * @return     */    protected Integer compute() &#123;        if (n &lt;= 1)            return n;        Fibonacci f1 = new Fibonacci(n - 1);        //提交任务        f1.fork();        Fibonacci f2 = new Fibonacci(n - 2);        //合并结果        return f2.compute() + f1.join();    &#125;    public static void main(String[] args) &#123;        //构建forkjoin线程池        ForkJoinPool pool = new ForkJoinPool();        Fibonacci task = new Fibonacci(10);        //提交任务并一直阻塞直到任务 执行完成返回合并结果。        int result = pool.invoke(task);        System.out.println(result);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>思考：如果n为100000，执行上面的代码会发生什么问题？</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649667-2.png" alt="图片"></p>
+<p>在上面的例子中，由于递归计算Fibonacci数列的任务数量呈指数级增长，当n较大时，就容易出现StackOverflowError错误。这个错误通常发生在递归过程中，由于递归过程中每次调用函数都会在栈中创建一个新的栈帧，当递归深度过大时，栈空间就会被耗尽，导致StackOverflowError错误。</p>
+<p>**<br>**</p>
+<p><strong>栈溢出如何解决</strong></p>
+<p>我们可以使用迭代的方式计算Fibonacci数列，以避免递归过程中占用大量的栈空间。下面是一个使用迭代方式计算Fibonacci数列的例子：</p>
+<h2 id="-14"><a href="#-14" class="headerlink" title="- "></a>- </h2><h2 id="-15"><a href="#-15" class="headerlink" title="- "></a>- </h2><h2 id="-16"><a href="#-16" class="headerlink" title="- "></a>- </h2><h2 id="-17"><a href="#-17" class="headerlink" title="- "></a>- </h2><h2 id="-18"><a href="#-18" class="headerlink" title="- "></a>- </h2><h2 id="-19"><a href="#-19" class="headerlink" title="- "></a>- </h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class Fibonacci &#123;    public static void main(String[] args) &#123;        int n = 100000;        long[] fib = new long[n + 1];        fib[0] = 0;        fib[1] = 1;        for (int i = 2; i &lt;= n; i++) &#123;            fib[i] = fib[i - 1] + fib[i - 2];        &#125;        System.out.println(fib[n]);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>处理递归任务注意事项</strong></p>
+<p>对于一些递归深度较大的任务，使用Fork&#x2F;Join框架可能会出现任务调度和内存消耗的问题。</p>
+<p>当递归深度较大时，会产生大量的子任务，这些子任务可能被调度到不同的线程中执行，而线程的创建和销毁以及任务调度的开销都会占用大量的资源，从而导致性能下降。</p>
+<p>此外，对于递归深度较大的任务，由于每个子任务所占用的栈空间较大，可能会导致内存消耗过大，从而引起内存溢出的问题。</p>
+<p>因此，在使用Fork&#x2F;Join框架处理递归任务时，需要根据实际情况来评估递归深度和任务粒度，以避免任务调度和内存消耗的问题。如果递归深度较大，可以尝试采用其他方法来优化算法，如使用迭代方式替代递归，或者限制递归深度来减少任务数量，以避免Fork&#x2F;Join框架的缺点。</p>
+<p>**<br>**</p>
+<p><strong>处理阻塞任务</strong></p>
+<p>在ForkJoinPool中使用阻塞型任务时需要注意以下几点：</p>
+<ol>
+<li><p>防止线程饥饿</p>
+<p>：当一个线程在执行一个阻塞型任务时，它将会一直等待任务完成，这时如果没有其他线程可以窃取任务，那么该线程将一直被阻塞，直到任务完成为止。为了避免这种情况，应该避免在ForkJoinPool中提交大量的阻塞型任务。</p>
+</li>
+<li><p>使用特定的线程池</p>
+<p>：为了最大程度地利用ForkJoinPool的性能，可以使用专门的线程池来处理阻塞型任务，这些线程不会被ForkJoinPool的窃取机制所影响。例如，可以使用ThreadPoolExecutor来创建一个线程池，然后将这个线程池作为ForkJoinPool的执行器，这样就可以使用ThreadPoolExecutor来处理阻塞型任务，而使用ForkJoinPool来处理非阻塞型任务。</p>
+</li>
+<li><p>不要阻塞工作线程</p>
+<p>：如果在ForkJoinPool中使用阻塞型任务，那么需要确保这些任务不会阻塞工作线程，否则会导致整个线程池的性能下降。为了避免这种情况，可以将阻塞型任务提交到一个专门的线程池中，或者使用CompletableFuture等异步编程工具来处理阻塞型任务。</p>
+</li>
+</ol>
+<p>下面是一个使用阻塞型任务的例子，这个例子展示了如何使用CompletableFuture来处理阻塞型任务：</p>
+<h2 id="-20"><a href="#-20" class="headerlink" title="- "></a>- </h2><h2 id="-21"><a href="#-21" class="headerlink" title="- "></a>- </h2><h2 id="-22"><a href="#-22" class="headerlink" title="- "></a>- </h2><h2 id="-23"><a href="#-23" class="headerlink" title="- "></a>- </h2><h2 id="-24"><a href="#-24" class="headerlink" title="- "></a>- </h2><h2 id="-25"><a href="#-25" class="headerlink" title="- "></a>- </h2><h2 id="-26"><a href="#-26" class="headerlink" title="- "></a>- </h2><h2 id="-27"><a href="#-27" class="headerlink" title="- "></a>- </h2><h2 id="-28"><a href="#-28" class="headerlink" title="- "></a>- </h2><h2 id="-29"><a href="#-29" class="headerlink" title="- "></a>- </h2><h2 id="-30"><a href="#-30" class="headerlink" title="- "></a>- </h2><h2 id="-31"><a href="#-31" class="headerlink" title="- "></a>- </h2><h2 id="-32"><a href="#-32" class="headerlink" title="- "></a>- </h2><h2 id="-33"><a href="#-33" class="headerlink" title="- "></a>- </h2><p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class BlockingTaskDemo &#123;    public static void main(String[] args) &#123;        //构建一个forkjoin线程池        ForkJoinPool pool = new ForkJoinPool();        //创建一个异步任务，并将其提交到ForkJoinPool中执行        CompletableFuture&lt;String&gt; future = CompletableFuture.supplyAsync(() -&gt; &#123;            try &#123;                // 模拟一个耗时的任务                TimeUnit.SECONDS.sleep(5);                return &quot;Hello, world!&quot;;            &#125; catch (InterruptedException e) &#123;                e.printStackTrace();                return null;            &#125;        &#125;, pool);        try &#123;            // 等待任务完成，并获取结果            String result = future.get();            System.out.println(result);        &#125; catch (InterruptedException e) &#123;            e.printStackTrace();        &#125; catch (ExecutionException e) &#123;            e.printStackTrace();        &#125; finally &#123;            //关闭ForkJoinPool，释放资源            pool.shutdown();        &#125;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，我们使用了CompletableFuture来处理阻塞型任务，因为它可以避免阻塞ForkJoinPool中的工作线程。另外，我们也可以使用专门的线程池来处理阻塞型任务，例如ThreadPoolExecutor等。不管是哪种方式，都需要避免在ForkJoinPool中提交大量的阻塞型任务，以免影响整个线程池的性能。</p>
+<p>**<br>**</p>
+<p><strong>2.4</strong>  <strong>ForkJoinPool****工作原理</strong></p>
+<p>ForkJoinPool 内部有多个任务队列，当我们通过 ForkJoinPool 的 invoke() 或者 submit() 方法提交任务时，ForkJoinPool 根据一定的路由规则把任务提交到一个任务队列中，如果任务在执行过程中会创建出子任务，那么子任务会提交到工作线程对应的任务队列中。</p>
+<p>如果工作线程对应的任务队列空了，是不是就没活儿干了呢？不是的，ForkJoinPool 支持一种叫做“任务窃取”的机制，如果工作线程空闲了，那它可以“窃取”其他工作任务队列里的任务。如此一来，所有的工作线程都不会闲下来了。</p>
+<p><strong>核心设计：</strong></p>
+<ul>
+<li>ForkJoinPool的任务会被内部存储了一个WorkQueue数组，提交给ForkJoinPool的任务会被分配到指定的WorkQueue上执行</li>
+<li>每个WorkQueue内部维护了一个ForkJoinTask数组用来存储待执行的任务，以及一个独立的ForkJoinWorkerThread用来真正执行任务</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649667-3.png" alt="图片"></p>
+<p><strong>工作线程ForkJoinWorkerThread</strong></p>
+<p>ForkJoinWorkerThread是ForkJoinPool中的一个专门用于执行任务的线程。当一个ForkJoinWorkerThread被创建时，它会自动注册一个WorkQueue到ForkJoinPool中。这个WorkQueue是该线程专门用于存储自己的任务的队列，只能出现在WorkQueues[]的奇数位。</p>
+<p>ForkJoinWorkerThread工作线程启动后就会扫描偷取任务执行，另外当其在 ForkJoinTask#join() 等待返回结果时如果被 ForkJoinPool 线程池发现其任务队列为空或者已经将当前任务执行完毕，也会通过工作窃取算法从其他任务队列中获取任务分配到其任务队列中并执行。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649668-4.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>工作队列****WorkQueue</strong></p>
+<p>WorkQueue是一个双端队列，用于存储工作线程自己的任务。每个工作线程都会维护一个本地的WorkQueue，并且优先执行本地队列中的任务。当本地队列中的任务执行完毕后，工作线程会尝试从其他线程的WorkQueue中窃取任务。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649668-5.png" alt="图片"></p>
+<p>WorkQueue 任务队列其实也分为了两种类型，一种是外部提交进来的任务所占用的队列，其在任务队列数组中的数组下标为偶数；另一种是属于工作线程私有的任务队列，保存大任务 fork 分解出来的任务，其在任务队列数组中的数组下标为奇数。</p>
+<p><strong>工作窃取</strong></p>
+<p>ForkJoinPool与ThreadPoolExecutor有个很大的不同之处在于，ForkJoinPool引入了工作窃取设计，它是其性能保证的关键之一。工作窃取，就是允许空闲线程从繁忙线程的双端队列中窃取任务。默认情况下，工作线程从它自己的双端队列的头部获取任务。但是，当自己的任务为空时，线程会从其他繁忙线程双端队列的尾部中获取任务。这种方法，最大限度地减少了线程竞争任务的可能性。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649668-6.png" alt="图片"></p>
+<p>通过工作窃取，Fork&#x2F;Join框架可以实现任务的自动负载均衡，以充分利用多核CPU的计算能力，同时也可以避免线程的饥饿和延迟问题</p>
+<p>如果你对 ForkJoinPool 详细的实现细节感兴趣，也可以参考Doug Lea 的论文</p>
+<p><strong>2.5 ForkJoinPool执行流程</strong></p>
+<p><a target="_blank" rel="noopener" href="https://www.processon.com/view/link/5db81f97e4b0c55537456e9a">https://www.processon.com/view/link/5db81f97e4b0c55537456e9a</a></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-9/640-1742216649668-7.png" alt="图片"></p>
+<p>**<br>**</p>
+<p><strong>2.6 总结</strong></p>
+<p>Fork&#x2F;Join是一种基于分治思想的模型，在并发处理计算型任务时有着显著的优势。其效率的提升主要得益于两个方面：</p>
+<ul>
+<li><p>任务切分</p>
+<p>：将大的任务分割成更小粒度的小任务，让更多的线程参与执行；</p>
+</li>
+<li><p>任务窃取</p>
+<p>：通过任务窃取，充分地利用空闲线程，并减少竞争。</p>
+</li>
+</ul>
+<p>在使用ForkJoinPool时，需要特别注意任务的类型是否为纯函数计算类型，也就是这些任务不应该关心状态或者外界的变化，这样才是最安全的做法。如果是阻塞类型任务，那么你需要谨慎评估技术方案。虽然ForkJoinPool也能处理阻塞类型任务，但可能会带来复杂的管理成本。</p>
+<p>**<br>**</p>
+<p><strong>和普通线程池之间的区别</strong></p>
+<ul>
+<li><strong>工作窃取算法</strong></li>
+</ul>
+<p>ForkJoinPool采用工作窃取算法来提高线程的利用率，而普通线程池则采用任务队列来管理任务。在工作窃取算法中，当一个线程完成自己的任务后，它可以从其它线程的队列中获取一个任务来执行，以此来提高线程的利用率。</p>
+<ul>
+<li><strong>任务的分解和合并</strong></li>
+</ul>
+<p>ForkJoinPool可以将一个大任务分解为多个小任务，并行地执行这些小任务，最终将它们的结果合并起来得到最终结果。而普通线程池只能按照提交的任务顺序一个一个地执行任务。</p>
+<ul>
+<li><strong>工作线程的数量</strong></li>
+</ul>
+<p>ForkJoinPool会根据当前系统的CPU核心数来自动设置工作线程的数量，以最大限度地发挥CPU的性能优势。而普通线程池需要手动设置线程池的大小，如果设置不合理，可能会导致线程过多或过少，从而影响程序的性能。</p>
+<ul>
+<li><strong>任务类型</strong></li>
+</ul>
+<p>ForkJoinPool适用于执行大规模任务并行化，而普通线程池适用于执行一些短小的任务，如处理请求等。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/05/zhishi-9/">http://xeons.cn/2023/09/05/zhishi-9/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2023/09/05/zhishi-9/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/">并行计算</a><a class="post-meta__tags" href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/">高并发</a></div><div class="post_share"><div class="social-share" data-image="/2023/09/05/zhishi-9/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/09/05/zhishi-10/" title="ConcurrentHashMap 和ConcurrentSkipListMap 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-10/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">ConcurrentHashMap 和ConcurrentSkipListMap 详解</div></div></a></div><div class="next-post pull-right"><a href="/2023/09/05/zhishi-8/" title="两千万数据，20万热点数据如何存储"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-8/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">两千万数据，20万热点数据如何存储</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/09/05/zhishi-11/" title="CopyOnWriteArrayList 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-11/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">CopyOnWriteArrayList 详解</div></div></a></div><div><a href="/2023/09/05/zhishi-10/" title="ConcurrentHashMap 和ConcurrentSkipListMap 详解"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-10/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">ConcurrentHashMap 和ConcurrentSkipListMap 详解</div></div></a></div><div><a href="/2023/09/05/zhishi-7/" title="分布式系统幂等性设计"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-7/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">分布式系统幂等性设计</div></div></a></div><div><a href="/2023/09/04/zhishi-6/" title="微博点赞宕机分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-6/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-04</div><div class="title">微博点赞宕机分析</div></div></a></div><div><a href="/2023/09/05/zhishi-8/" title="两千万数据，20万热点数据如何存储"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/05/zhishi-8/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-05</div><div class="title">两千万数据，20万热点数据如何存储</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-1"><span class="toc-number">2.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-2"><span class="toc-number">3.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-3"><span class="toc-number">4.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-4"><span class="toc-number">5.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-5"><span class="toc-number">6.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-6"><span class="toc-number">7.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-7"><span class="toc-number">8.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-8"><span class="toc-number">9.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-9"><span class="toc-number">10.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-10"><span class="toc-number">11.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-11"><span class="toc-number">12.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-12"><span class="toc-number">13.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-13"><span class="toc-number">14.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-14"><span class="toc-number">15.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-15"><span class="toc-number">16.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-16"><span class="toc-number">17.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-17"><span class="toc-number">18.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-18"><span class="toc-number">19.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-19"><span class="toc-number">20.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-20"><span class="toc-number">21.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-21"><span class="toc-number">22.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-22"><span class="toc-number">23.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-23"><span class="toc-number">24.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-24"><span class="toc-number">25.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-25"><span class="toc-number">26.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-26"><span class="toc-number">27.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-27"><span class="toc-number">28.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-28"><span class="toc-number">29.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-29"><span class="toc-number">30.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-30"><span class="toc-number">31.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-31"><span class="toc-number">32.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-32"><span class="toc-number">33.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-33"><span class="toc-number">34.</span> <span class="toc-text">- </span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

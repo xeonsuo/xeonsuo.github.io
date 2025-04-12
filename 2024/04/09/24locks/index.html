@@ -1,0 +1,686 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>java中的各种锁 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1、锁选择维度选择适合的锁通常依赖于特定的应用场景和并发需求。以下是一个表格，概述了不同锁类型的关键特性和选择它们的考量维度：    锁类型 适用场景 锁模式 性能特点 公平性 锁的粗细 条件支持 阻塞策略 用途举例    synchronized 简单的同步需求，无需复杂控制 独占式 适中，偏向锁、轻量级锁优化 无公平策略 粗粒度锁 不支持 阻塞等待 单例模式、简单的计数器   Reentran">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java中的各种锁">
+<meta property="og:url" content="http://xeons.cn/2024/04/09/24locks/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="1、锁选择维度选择适合的锁通常依赖于特定的应用场景和并发需求。以下是一个表格，概述了不同锁类型的关键特性和选择它们的考量维度：    锁类型 适用场景 锁模式 性能特点 公平性 锁的粗细 条件支持 阻塞策略 用途举例    synchronized 简单的同步需求，无需复杂控制 独占式 适中，偏向锁、轻量级锁优化 无公平策略 粗粒度锁 不支持 阻塞等待 单例模式、简单的计数器   Reentran">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2024/04/09/24locks/640.png">
+<meta property="article:published_time" content="2024-04-09T06:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2024/04/09/24locks/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2024/04/09/24locks/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'java中的各种锁',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">java中的各种锁</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/">程序优化</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">11.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>40分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="java中的各种锁"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h3 id="1、锁选择维度"><a href="#1、锁选择维度" class="headerlink" title="1、锁选择维度"></a>1、锁选择维度</h3><p>选择适合的锁通常依赖于特定的应用场景和并发需求。以下是一个表格，概述了不同锁类型的关键特性和选择它们的考量维度：</p>
+<table>
+<thead>
+<tr>
+<th align="left">锁类型</th>
+<th align="left">适用场景</th>
+<th align="left">锁模式</th>
+<th align="left">性能特点</th>
+<th align="left">公平性</th>
+<th align="left">锁的粗细</th>
+<th align="left">条件支持</th>
+<th align="left">阻塞策略</th>
+<th align="left">用途举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>synchronized</code></td>
+<td align="left">简单的同步需求，无需复杂控制</td>
+<td align="left">独占式</td>
+<td align="left">适中，偏向锁、轻量级锁优化</td>
+<td align="left">无公平策略</td>
+<td align="left">粗粒度锁</td>
+<td align="left">不支持</td>
+<td align="left">阻塞等待</td>
+<td align="left">单例模式、简单的计数器</td>
+</tr>
+<tr>
+<td align="left"><code>ReentrantLock</code></td>
+<td align="left">需要灵活的锁控制，如可中断、超时、尝试锁定等</td>
+<td align="left">独占式</td>
+<td align="left">高，支持多种锁定方式</td>
+<td align="left">可配置公平性</td>
+<td align="left">细粒度锁</td>
+<td align="left">支持</td>
+<td align="left">可中断、超时、尝试</td>
+<td align="left">同步代码块或方法、复杂同步控制</td>
+</tr>
+<tr>
+<td align="left"><code>ReadWriteLock</code></td>
+<td align="left">读多写少的场景</td>
+<td align="left">共享-独占式</td>
+<td align="left">高，提高读操作并发性</td>
+<td align="left">不支持公平性</td>
+<td align="left">细粒度锁</td>
+<td align="left">不支持</td>
+<td align="left">阻塞等待</td>
+<td align="left">缓存系统、文件系统</td>
+</tr>
+<tr>
+<td align="left"><code>StampedLock</code></td>
+<td align="left">读多写多，需要乐观读和悲观写的场景</td>
+<td align="left">乐观读-悲观写</td>
+<td align="left">高，提供读写锁的扩展</td>
+<td align="left">可配置公平性</td>
+<td align="left">细粒度锁</td>
+<td align="left">支持</td>
+<td align="left">可中断、超时、尝试</td>
+<td align="left">高性能计数器、数据缓存</td>
+</tr>
+<tr>
+<td align="left"><code>CountDownLatch</code></td>
+<td align="left">需要等待一组操作完成的场景</td>
+<td align="left">无</td>
+<td align="left">低，一次性</td>
+<td align="left">不支持公平性</td>
+<td align="left">粗粒度锁</td>
+<td align="left">不支持</td>
+<td align="left">阻塞等待</td>
+<td align="left">任务协调、初始化操作</td>
+</tr>
+<tr>
+<td align="left"><code>Semaphore</code></td>
+<td align="left">需要控制资源访问数量的场景</td>
+<td align="left">信号量</td>
+<td align="left">高，控制并发数量</td>
+<td align="left">不支持公平性</td>
+<td align="left">细粒度锁</td>
+<td align="left">支持</td>
+<td align="left">阻塞等待</td>
+<td align="left">限流、资源池管理</td>
+</tr>
+<tr>
+<td align="left"><code>CyclicBarrier</code></td>
+<td align="left">需要周期性执行一组操作的场景</td>
+<td align="left">无</td>
+<td align="left">低，重用性</td>
+<td align="left">支持公平性</td>
+<td align="left">粗粒度锁</td>
+<td align="left">支持</td>
+<td align="left">阻塞等待</td>
+<td align="left">并行计算、批处理</td>
+</tr>
+</tbody></table>
+<h3 id="2、锁详细分析"><a href="#2、锁详细分析" class="headerlink" title="2、锁详细分析"></a>2、锁详细分析</h3><h3 id="2-7-CyclicBarrier"><a href="#2-7-CyclicBarrier" class="headerlink" title="2.7. CyclicBarrier"></a>2.7. CyclicBarrier</h3><p><code>CyclicBarrier</code> 是 Java 中用于线程间同步的一种工具，它允许一组线程互相等待，直到所有线程都到达一个公共屏障点。 </p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640.png" alt="img"></p>
+<h5 id="图解说明："><a href="#图解说明：" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要在某个点同步。</li>
+<li><strong>CyclicBarrier 实例</strong>：是 <code>CyclicBarrier</code> 类的实例，用于协调一组线程在屏障点同步。</li>
+<li><strong>屏障</strong>：表示线程需要到达的同步点，所有线程必须到达这个点才能继续执行。</li>
+<li><strong>共享资源或任务</strong>：表示线程需要访问的共享资源或执行的任务，它们在屏障点同步后可以安全地执行。</li>
+<li><strong>等待区</strong>：表示等待其他线程到达屏障点的线程集合。</li>
+<li><strong>计数器</strong>： <code>CyclicBarrier</code> 内部维护一个计数器，用于跟踪尚未到达屏障点的线程数量。</li>
+<li><strong>屏障动作(Runnable)</strong> ：可选的，当所有线程到达屏障点时，可以执行一个特定的动作或任务。</li>
+</ul>
+<h5 id="综合说明"><a href="#综合说明" class="headerlink" title="综合说明:"></a>综合说明:</h5><ul>
+<li><p><strong>作用</strong>： <code>CyclicBarrier</code> 是一种同步帮助工具，允许一组线程相互等待，直到所有线程都到达某个公共屏障点。</p>
+</li>
+<li><p><strong>背景</strong>：在需要多个线程协作完成任务时， <code>CyclicBarrier</code> 提供了一种机制，使得所有线程可以在屏障点同步，然后继续执行。</p>
+</li>
+<li><p><strong>优点</strong>：</p>
+</li>
+<li><ul>
+<li>可重复使用：与 <code>CountDownLatch</code> 不同， <code>CyclicBarrier</code> 可以重复使用，适用于周期性的任务同步。</li>
+<li>支持屏障动作：可以设置一个在所有线程到达屏障点后执行的回调。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+</li>
+<li><ul>
+<li>可能导致死锁：如果一个或多个线程未到达屏障点，其他线程将一直等待。</li>
+<li>复杂性：需要合理设计以避免线程永久等待。</li>
+</ul>
+</li>
+<li><p><strong>场景</strong>：适用于需要周期性同步多个线程的场景。</p>
+</li>
+<li><p><strong>业务举例</strong>：在多阶段数据处理流程中，每个阶段需要所有数据都准备好后才能开始处理。使用 <code>CyclicBarrier</code>可以确保所有数据加载线程在每个阶段开始前都已准备好。</p>
+</li>
+</ul>
+<h5 id="使用方式："><a href="#使用方式：" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.BrokenBarrierException;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CyclicBarrier;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Race</span> &#123;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CyclicBarrier barrier;    </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Race</span><span class="params">(<span class="type">int</span> numberOfRunners)</span> &#123;        </span><br><span class="line">        barrier = <span class="keyword">new</span> <span class="title class_">CyclicBarrier</span>(numberOfRunners, () -&gt; &#123;            </span><br><span class="line">            System.out.println(<span class="string">&quot;比赛开始！&quot;</span>);            </span><br><span class="line">            <span class="comment">// 这里可以放置所有参与者到达屏障后要执行的操作        </span></span><br><span class="line">        &#125;);    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;       </span><br><span class="line">        System.out.println(<span class="string">&quot;等待其他参赛者...&quot;</span>);        </span><br><span class="line">        <span class="keyword">try</span> &#123;            </span><br><span class="line">            barrier.await(); </span><br><span class="line">            <span class="comment">// 等待其他线程            </span></span><br><span class="line">            System.out.println(<span class="string">&quot;开始跑步！&quot;</span>);            </span><br><span class="line">            <span class="comment">// 跑步时间            </span></span><br><span class="line">            Thread.sleep((<span class="type">long</span>) (Math.random() * <span class="number">10000</span>));        </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException | BrokenBarrierException e) &#123;            </span><br><span class="line">            e.printStackTrace();        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        </span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">numberOfRunners</span> <span class="operator">=</span> <span class="number">5</span>;        </span><br><span class="line">        <span class="type">Race</span> <span class="variable">race</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Race</span>(numberOfRunners);        </span><br><span class="line">        <span class="comment">// 创建参赛者线程        </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; numberOfRunners; i++) &#123;            </span><br><span class="line">            <span class="keyword">final</span> <span class="type">int</span> <span class="variable">runnerNumber</span> <span class="operator">=</span> i + <span class="number">1</span>;            </span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;                </span><br><span class="line">                System.out.println(<span class="string">&quot;参赛者 &quot;</span> + runnerNumber + <span class="string">&quot; 已准备就绪&quot;</span>);                race.run();            &#125;).start();        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例："><a href="#业务代码案例：" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 在大数据处理系统中，经常需要对大量数据进行多阶段处理，例如，数据清洗、转换、聚合和加载。这些处理阶段通常需要按顺序执行，且每个阶段开始前必须确保所有数据都已准备好。</p>
+<p><strong>为什么需要 <code>CyclicBarrier</code> 技术</strong>： 在多阶段数据处理的场景中，不同的处理任务可能由不同的线程执行，而这些线程的执行时间可能不同。 <code>CyclicBarrier</code> 允许每个阶段的处理在开始前等待所有相关线程完成上一阶段的任务，确保数据的一致性和完整性。</p>
+<p><strong>没有 <code>CyclicBarrier</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>CyclicBarrier</code> 或其他同步协调机制可能会导致以下问题：</p>
+<ol>
+<li><strong>数据不一致</strong>：如果后续阶段的处理在前一阶段的数据未完全准备好时开始，可能会导致处理结果不准确。</li>
+<li><strong>资源浪费</strong>：在等待数据准备的过程中，系统资源可能被无效占用，导致资源利用效率低下。</li>
+<li><strong>错误和异常</strong>：由于阶段间的依赖关系没有得到妥善处理，可能会引发程序错误或运行时异常。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.Callable;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.CyclicBarrier;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DataProcessingPipeline</span> &#123;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ExecutorService</span> <span class="variable">executor</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">4</span>);    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CyclicBarrier barrier;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> numberOfPhases;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> numberOfTasks;    </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DataProcessingPipeline</span><span class="params">(<span class="type">int</span> numberOfTasks, <span class="type">int</span> numberOfPhases)</span> &#123;        </span><br><span class="line">        <span class="built_in">this</span>.numberOfTasks = numberOfTasks;        </span><br><span class="line">        <span class="built_in">this</span>.numberOfPhases = numberOfPhases;        </span><br><span class="line">        <span class="built_in">this</span>.barrier = <span class="keyword">new</span> <span class="title class_">CyclicBarrier</span>(numberOfTasks, () -&gt; &#123;            </span><br><span class="line">            System.out.println(<span class="string">&quot;一个阶段完成，准备进入下一阶段&quot;</span>);        </span><br><span class="line">        &#125;);    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">processData</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;        </span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">phase</span> <span class="operator">=</span> <span class="number">1</span>; phase &lt;= numberOfPhases; phase++) &#123;            </span><br><span class="line">            System.out.println(<span class="string">&quot;阶段 &quot;</span> + phase + <span class="string">&quot; 开始&quot;</span>);            </span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">task</span> <span class="operator">=</span> <span class="number">0</span>; task &lt; numberOfTasks; task++) &#123;                </span><br><span class="line">                <span class="keyword">final</span> <span class="type">int</span> <span class="variable">currentTask</span> <span class="operator">=</span> task;                </span><br><span class="line">                executor.submit(() -&gt; &#123;                    </span><br><span class="line">                    <span class="keyword">try</span> &#123;                        </span><br><span class="line">                        <span class="comment">// 数据处理任务                        </span></span><br><span class="line">                        System.out.println(<span class="string">&quot;任务 &quot;</span> + currentTask + <span class="string">&quot; 在阶段 &quot;</span> + phase + <span class="string">&quot; 执行&quot;</span>);                        Thread.sleep((<span class="type">long</span>) (Math.random() * <span class="number">5000</span>));                    </span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;                        e.printStackTrace();                    &#125; <span class="keyword">finally</span> &#123;                        </span><br><span class="line">                        <span class="keyword">try</span> &#123;                            </span><br><span class="line">                            barrier.await();                        </span><br><span class="line">                        &#125; <span class="keyword">catch</span> (Exception e) &#123;                            </span><br><span class="line">                            e.printStackTrace();                        </span><br><span class="line">                        &#125;                    </span><br><span class="line">                    &#125;                </span><br><span class="line">                &#125;);            </span><br><span class="line">            &#125;            </span><br><span class="line">            barrier.await(); <span class="comment">// 等待所有任务完成        </span></span><br><span class="line">        &#125;        </span><br><span class="line">        executor.shutdown();    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        </span><br><span class="line">        <span class="type">DataProcessingPipeline</span> <span class="variable">pipeline</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataProcessingPipeline</span>(<span class="number">4</span>, <span class="number">3</span>);        </span><br><span class="line">        <span class="keyword">try</span> &#123;            </span><br><span class="line">            pipeline.processData();        </span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;            </span><br><span class="line">            e.printStackTrace();        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-8-Atomic-Variables"><a href="#2-8-Atomic-Variables" class="headerlink" title="2.8. Atomic Variables"></a>2.8. Atomic Variables</h3><p>原子变量是 Java 中 <code>java.util.concurrent.atomic</code> 包提供的一些类，它们利用底层硬件的原子性指令来保证操作的原子性，无需使用锁。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454362-1.png" alt="img"></p>
+<h5 id="图解说明：-1"><a href="#图解说明：-1" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要对共享资源进行原子操作。</li>
+<li><strong>Atomic Variables</strong>：表示原子变量的集合，包括 <code>AtomicInteger</code>、 <code>AtomicLong</code>、 <code>AtomicReference</code> 等。</li>
+<li><strong>AtomicInteger</strong>、<strong>AtomicLong</strong>、<strong>AtomicReference</strong>：分别表示整型、长整型和引用类型的原子变量。</li>
+<li><strong>硬件支持的原子指令</strong>：底层硬件提供的原子性指令，如 compare-and-swap (CAS)、load-linked、store-conditional 等。</li>
+<li><strong>共享资源</strong>：表示被多个线程共享的数据，如计数器、累加器等。</li>
+<li><strong>内存</strong>：表示 Java 程序使用的内存空间，包括堆和栈等。</li>
+<li><strong>变量状态</strong>：表示原子变量在内存中的当前状态。</li>
+</ul>
+<h5 id="综合说明-1"><a href="#综合说明-1" class="headerlink" title="综合说明:"></a>综合说明:</h5><ul>
+<li><p><strong>作用</strong>：原子变量类（如 <code>AtomicInteger</code>, <code>AtomicLong</code>, <code>AtomicReference</code> 等）提供了一种机制，使得对变量的某些操作（如自增、自减、读取和写入）是原子性的，无需使用传统的锁。</p>
+</li>
+<li><p><strong>背景</strong>：在多线程环境中，对共享变量的并发访问需要同步措施以防止数据竞争。原子变量利用底层硬件的原子指令来保证操作的原子性，从而简化了线程同步。</p>
+</li>
+<li><p><strong>优点</strong>：</p>
+</li>
+<li><ul>
+<li>无锁设计：避免使用传统锁，减少了线程切换的开销。</li>
+<li>性能优化：对于高竞争的简单变量访问，原子变量通常比锁有更好的性能。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+</li>
+<li><ul>
+<li>功能限制：仅适用于简单的操作，复杂的操作无法通过原子变量实现。</li>
+<li>可组合性问题：复杂的原子操作需要仔细设计，否则可能引入竞态条件。</li>
+</ul>
+</li>
+<li><p><strong>场景</strong>：适用于对简单变量进行原子操作的场景，如计数器、累加器等。</p>
+</li>
+<li><p><strong>业务举例</strong>：在电商平台的库存管理中， <code>AtomicInteger</code> 可以用来原子地更新商品的库存数量，确保在高并发环境下库存数据的一致性。</p>
+</li>
+</ul>
+<h5 id="使用方式：-1"><a href="#使用方式：-1" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;<span class="keyword">import</span> java.util.concurrent.atomic.AtomicLong;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Counter</span> &#123;    <span class="comment">// 使用 AtomicInteger 来确保计数器的线程安全    private final AtomicInteger count = new AtomicInteger(0);    // 提供一个方法来增加计数器的值    public void increment() &#123;        // 原子地增加计数器的值        count.incrementAndGet();    &#125;    // 提供一个方法来获取当前计数器的值    public int getCount() &#123;        // 原子地获取计数器的值        return count.get();    &#125;&#125;public class DataStore &#123;    // 使用 AtomicLong 来统计数据总量    private final AtomicLong dataCount = new AtomicLong(0);    public void addData(long size) &#123;        // 原子地将数据大小累加到总量        dataCount.addAndGet(size);    &#125;    public long getDataCount() &#123;        // 原子地获取当前数据总量        return dataCount.get();    &#125;&#125;// 测试类public class AtomicVariablesDemo &#123;    public static void main(String[] args) &#123;        Counter counter = new Counter();        DataStore dataStore = new DataStore();        // 多线程环境中对计数器和数据总量的更新        for (int i = 0; i &lt; 10; i++) &#123;            new Thread(() -&gt; &#123;                counter.increment();                dataStore.addData(100);  // 假设每次操作增加100单位数据            &#125;).start();        &#125;        // 等待所有线程完成        while (Thread.activeCount() &gt; 1) &#123;            Thread.yield();        &#125;        // 输出计数器的值和数据总量        System.out.println(&quot;Counter value: &quot; + counter.getCount());        System.out.println(&quot;Data store size: &quot; + dataStore.getDataCount());    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-1"><a href="#业务代码案例：-1" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><h3 id="场景描述：社交网络的实时消息计数"><a href="#场景描述：社交网络的实时消息计数" class="headerlink" title="场景描述：社交网络的实时消息计数"></a>场景描述：社交网络的实时消息计数</h3><p><strong>业务说明</strong>： 社交网络平台需要显示每个用户的实时消息通知数。每当用户收到新消息时，消息计数需要增加；用户阅读消息时，计数可能会减少或被重置。此计数需要对所有用户可见，且在高并发环境下保持准确。</p>
+<p><strong>为什么需要 <code>AtomicVariables</code> 技术</strong>： 在社交网络中，多个用户可能同时发送消息给同一个接收者，或者一个用户可能同时在多个设备上接收消息。这导致对消息计数的读取和更新操作非常频繁。使用 <code>AtomicInteger</code> 可以确保消息计数更新的原子性，并且在多线程环境下保持数据的一致性。</p>
+<p><strong>没有 <code>AtomicVariables</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>AtomicVariables</code> 或其他并发控制机制可能会导致以下问题：</p>
+<ol>
+<li><strong>数据不一致</strong>：消息计数可能会出错，导致用户看到不正确的消息数量。</li>
+<li><strong>用户体验下降</strong>：如果消息通知不准确，用户可能会错过重要通知，或者对应用的可靠性产生怀疑。</li>
+<li><strong>系统复杂度增加</strong>：在没有有效同步机制的情况下，维护数据一致性将变得复杂且容易出错。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MessageNotificationCounter</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">messageCount</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);    <span class="comment">// 接收新消息时调用此方法    public void receiveMessage() &#123;        // 原子地增加消息计数        messageCount.incrementAndGet();        System.out.println(&quot;New message received. Total messages: &quot; + messageCount.get());    &#125;    // 用户阅读消息时调用此方法    public void messagesRead() &#123;        // 原子地减少消息计数        messageCount.decrementAndGet();        System.out.println(&quot;Messages read. Remaining messages: &quot; + messageCount.get());    &#125;    // 获取当前消息计数    public int getMessageCount() &#123;        return messageCount.get();    &#125;&#125;// 测试类public class AtomicVariablesDemo &#123;    public static void main(String[] args) &#123;        MessageNotificationCounter counter = new MessageNotificationCounter();        // 多个用户同时发送消息        Thread sender1 = new Thread(() -&gt; &#123;            counter.receiveMessage();        &#125;);        Thread sender2 = new Thread(() -&gt; &#123;            counter.receiveMessage();        &#125;);        // 用户阅读消息        Thread reader = new Thread(() -&gt; &#123;            counter.messagesRead();        &#125;);        sender1.start();        sender2.start();        reader.start();        sender1.join();        sender2.join();        reader.join();        System.out.println(&quot;Final message count: &quot; + counter.getMessageCount());    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-9-ConcurrentHashMap"><a href="#2-9-ConcurrentHashMap" class="headerlink" title="2.9. ConcurrentHashMap"></a>2.9. ConcurrentHashMap</h3><p><code>ConcurrentHashMap</code> 是 Java 中一个线程安全的哈希表，它通过分段锁（Segmentation）和 CAS 操作来支持高并发的读写操作。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454362-2.png" alt="img"></p>
+<h5 id="图解说明：-2"><a href="#图解说明：-2" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要对 <code>ConcurrentHashMap</code> 进行读写操作。</li>
+<li><strong>ConcurrentHashMap 实例</strong>：是 <code>ConcurrentHashMap</code> 类的实例，用于存储键值对并提供线程安全的访问。</li>
+<li><strong>Segment 数组</strong>： <code>ConcurrentHashMap</code> 将哈希表分为多个段（Segment），每个段维护一部分哈希桶，通过分段锁减少锁的竞争。</li>
+<li><strong>Hash 桶</strong>：存储哈希桶数组，每个桶可以包含一个或多个键值对。</li>
+<li><strong>链表或红黑树</strong>：在哈希桶中，键值对最初以链表形式存储，当链表长度超过阈值时，链表可能会被转换为红黑树以提高搜索效率。</li>
+<li><strong>共享资源</strong>：表示存储在 <code>ConcurrentHashMap</code> 中的键值对数据。</li>
+<li><strong>读操作</strong>：线程可以并发地读取 <code>ConcurrentHashMap</code> 中的数据，在读多写少的场景下，读操作不会阻塞其他读操作。</li>
+<li><strong>写操作</strong>：线程对 <code>ConcurrentHashMap</code> 的写入操作，写操作需要获取相应段的锁。</li>
+<li><strong>锁</strong>：每个段拥有自己的锁，写操作需要获取锁，而读操作通常不需要。</li>
+</ul>
+<h5 id="升级设计说明"><a href="#升级设计说明" class="headerlink" title="升级设计说明:"></a>升级设计说明:</h5><h6 id="Java-1-7-ConcurrentHashMap-锁机制"><a href="#Java-1-7-ConcurrentHashMap-锁机制" class="headerlink" title="Java 1.7 ConcurrentHashMap 锁机制"></a><strong>Java 1.7 ConcurrentHashMap 锁机制</strong></h6><p>在 Java 1.7 中， <code>ConcurrentHashMap</code> 使用分段锁机制，其中每个段相当于一个小的哈希表，拥有自己的锁。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454362-3.png" alt="img"></p>
+<h6 id="Java-1-8-ConcurrentHashMap-锁机制"><a href="#Java-1-8-ConcurrentHashMap-锁机制" class="headerlink" title="Java 1.8 ConcurrentHashMap 锁机制"></a><strong>Java 1.8 ConcurrentHashMap 锁机制</strong></h6><p>在 Java 1.8 中， <code>ConcurrentHashMap</code> 摒弃了分段锁机制，采用了 CAS 和 <code>synchronized</code> 来确保线程安全。</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454362-4.png" alt="img"></p>
+<h5 id="综合说明-2"><a href="#综合说明-2" class="headerlink" title="综合说明:"></a>综合说明:</h5><ul>
+<li><p><strong>作用</strong>： <code>ConcurrentHashMap</code> 是 Java 中提供的一个线程安全的哈希表，它通过分段锁的概念来允许并发的读写操作，从而提高并发访问的性能。</p>
+</li>
+<li><p><strong>背景</strong>：传统的 <code>HashMap</code> 在多线程环境下需要外部同步，而 <code>ConcurrentHashMap</code> 通过锁分离技术减少了锁的竞争，提供了更好的并发性能。</p>
+</li>
+<li><p><strong>优点</strong>：</p>
+</li>
+<li><ul>
+<li>高并发：通过细分锁到段，允许多个线程同时操作不同段的数据。</li>
+<li>动态扩容：内部采用动态数组和链表结构，提高了空间和时间效率。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+</li>
+<li><ul>
+<li>复杂度高：实现复杂，需要维护多个锁和复杂的数据结构。</li>
+<li>性能调优：在极端高并发场景下，可能需要调整默认的并发级别。</li>
+</ul>
+</li>
+<li><p><strong>场景</strong>：适用于需要高并发访问的缓存或数据存储。</p>
+</li>
+<li><p><strong>业务举例</strong>：在大数据处理系统中， <code>ConcurrentHashMap</code> 可以用来存储实时计算结果，支持大量并发的读写操作而不会导致性能瓶颈。</p>
+</li>
+</ul>
+<h5 id="使用方式：-2"><a href="#使用方式：-2" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;<span class="keyword">import</span> java.util.Map;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrentHashMapDemo</span> &#123;    <span class="comment">// 创建一个 ConcurrentHashMap 实例    private final ConcurrentHashMap&lt;String, Integer&gt; map = new ConcurrentHashMap&lt;&gt;();    // 将一个键值对插入到 Map 中    public void put(String key, Integer value) &#123;        // put 方法是线程安全的        map.put(key, value);    &#125;    // 从 Map 中获取与指定键关联的值    public Integer get(String key) &#123;        // get 方法是线程安全的        return map.get(key);    &#125;    // 计算 Map 中的元素数量    public int size() &#123;        // size 方法是线程安全的        return map.size();    &#125;    // 演示删除操作    public void remove(String key) &#123;        // remove 方法是线程安全的        map.remove(key);    &#125;    // 演示如何批量添加数据    public void addAll(Map&lt;String, Integer&gt; newData) &#123;        // putAll 方法是线程安全的        map.putAll(newData);    &#125;    public static void main(String[] args) &#123;        ConcurrentHashMapDemo demo = new ConcurrentHashMapDemo();        // 批量添加数据        demo.addAll(Map.of(&quot;key1&quot;, 1, &quot;key2&quot;, 2, &quot;key3&quot;, 3));        // 单独添加一条数据        demo.put(&quot;key4&quot;, 4);        // 获取并打印一条数据        System.out.println(&quot;Value for &#x27;key1&#x27;: &quot; + demo.get(&quot;key1&quot;));        // 获取 Map 的大小        System.out.println(&quot;Map size: &quot; + demo.size());        // 删除一条数据        demo.remove(&quot;key2&quot;);        // 再次获取 Map 的大小        System.out.println(&quot;Map size after removal: &quot; + demo.size());    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-2"><a href="#业务代码案例：-2" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 在分布式缓存系统中，经常需要存储和检索用户会话信息、应用配置、热点数据等。这些数据需要被多个应用实例共享，并且要求在高并发环境下依然保持高性能。缓存数据通常有过期时间，需要定期清理。</p>
+<p><strong>为什么需要 <code>ConcurrentHashMap</code> 技术</strong>： <code>ConcurrentHashMap</code> 提供了一种高效的方式来处理并发的读取和更新操作，并且它的分段锁机制允许多个线程同时对不同段进行操作，从而提高并发处理能力。此外， <code>ConcurrentHashMap</code> 在 Java 8 中引入的红黑树结构使得即使在高并发更新导致哈希冲突时，也能保持高效的性能。</p>
+<p><strong>没有 <code>ConcurrentHashMap</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>ConcurrentHashMap</code> 可能会导致以下问题：</p>
+<ol>
+<li><strong>性能瓶颈</strong>：在高并发环境下，如果使用 <code>HashMap</code> 加 <code>synchronized</code>，可能导致严重的性能瓶颈，因为所有线程必须等待一个锁。</li>
+<li><strong>数据不一致</strong>：在没有适当同步的情况下，多个线程同时更新数据可能导致缓存数据不一致。</li>
+<li><strong>扩展性差</strong>：随着系统负载的增加，基于 <code>HashMap</code> 的缓存解决方案可能难以扩展，因为锁竞争和线程安全问题。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;<span class="keyword">import</span> java.util.concurrent.TimeUnit;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DistributedCache</span>&lt;K, V&gt; &#123;    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;K, V&gt; cacheMap = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;K, Long&gt; expirationMap = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">put</span><span class="params">(K key, V value, <span class="type">long</span> ttl)</span> &#123;        cacheMap.put(key, value);        expirationMap.put(key, System.currentTimeMillis() + ttl);        scheduleEviction(key, ttl);    &#125;    <span class="keyword">public</span> V <span class="title function_">get</span><span class="params">(K key)</span> &#123;        <span class="type">Long</span> <span class="variable">expirationTime</span> <span class="operator">=</span> expirationMap.get(key);        <span class="keyword">if</span> (expirationTime == <span class="literal">null</span> || expirationTime &lt; System.currentTimeMillis()) &#123;            cacheMap.remove(key);            expirationMap.remove(key);            <span class="keyword">return</span> <span class="literal">null</span>;        &#125;        <span class="keyword">return</span> cacheMap.get(key);    &#125;    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">scheduleEviction</span><span class="params">(<span class="keyword">final</span> K key, <span class="keyword">final</span> <span class="type">long</span> ttl)</span> &#123;        <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;            <span class="keyword">try</span> &#123;                TimeUnit.MILLISECONDS.sleep(ttl);                cacheMap.computeIfPresent(key, (k, v) -&gt; <span class="literal">null</span>);                expirationMap.remove(key);            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;                Thread.currentThread().interrupt();            &#125;        &#125;).start();    &#125;    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        DistributedCache&lt;String, String&gt; cache = <span class="keyword">new</span> <span class="title class_">DistributedCache</span>&lt;&gt;();        cache.put(<span class="string">&quot;userSession&quot;</span>, <span class="string">&quot;sessionData&quot;</span>, <span class="number">5000</span>); <span class="comment">// 缓存设置5秒过期        // 多个线程并发访问缓存        for (int i = 0; i &lt; 100; i++) &#123;            int finalI = i;            new Thread(() -&gt; &#123;                String result = cache.get(&quot;userSession&quot;);                System.out.println(&quot;Thread &quot; + finalI + &quot; retrieved: &quot; + result);            &#125;).start();        &#125;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-10-ConcurrentSkipListMap"><a href="#2-10-ConcurrentSkipListMap" class="headerlink" title="2.10.ConcurrentSkipListMap"></a>2.10.ConcurrentSkipListMap</h3><p><code>ConcurrentSkipListMap</code> 是 Java 中实现的一个高性能并发的有序映射，它使用跳表（Skip List）作为其底层数据结构。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454363-5.png" alt="img"></p>
+<h5 id="图解说明：-3"><a href="#图解说明：-3" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要对 <code>ConcurrentSkipListMap</code> 进行读写操作。</li>
+<li><strong>ConcurrentSkipListMap 实例</strong>：是 <code>ConcurrentSkipListMap</code> 类的实例，用于存储键值对并提供线程安全的访问。</li>
+<li><strong>Skip List 层级结构</strong>：跳表由多层索引构成，每一层都是一个有序的链表。</li>
+<li><strong>索引层</strong>：跳表中的索引层，用于加速搜索操作。</li>
+<li><strong>数据层</strong>：跳表中的底层数据结构，存储实际的键值对。</li>
+<li><strong>Node 节点</strong>：跳表中的节点，包含键值对和指向其他节点的链接。</li>
+<li><strong>共享资源</strong>：表示存储在 <code>ConcurrentSkipListMap</code> 中的键值对数据。</li>
+<li><strong>读操作</strong>：线程可以并发地读取 <code>ConcurrentSkipListMap</code> 中的数据。</li>
+<li><strong>写操作</strong>：线程可以并发地修改 <code>ConcurrentSkipListMap</code> 中的数据。</li>
+<li><strong>CAS 操作</strong>：在更新节点链接或修改数据时，使用 CAS 操作来保证线程安全。</li>
+<li><strong>自旋锁&#x2F;同步块</strong>：在某些情况下，如果 CAS 操作失败，可能会使用自旋锁或同步块来确保操作的原子性。</li>
+</ul>
+<p><strong>操作流程：</strong></p>
+<ol>
+<li><p><strong>读操作</strong>：</p>
+</li>
+<li><ul>
+<li>线程通过索引层快速定位到数据层的节点。</li>
+<li>线程使用 <code>volatile</code> 读取节点的值，确保内存可见性。</li>
+</ul>
+</li>
+<li><p><strong>写操作</strong>：</p>
+</li>
+<li><ul>
+<li>线程在更新或添加节点时，首先尝试使用 CAS 操作。</li>
+<li>如果 CAS 操作失败，线程可能会使用自旋锁或同步块来确保原子性。</li>
+</ul>
+</li>
+</ol>
+<h5 id="综合说明-3"><a href="#综合说明-3" class="headerlink" title="综合说明:"></a>综合说明:</h5><p><strong>作用</strong>： <code>ConcurrentSkipListMap</code> 是一种线程安全的有序映射，它通过使用跳表（Skip List）数据结构来支持高效的并发访问和排序操作。 <strong>背景</strong>：在需要高效并发访问和保持元素有序的场景中，传统的 <code>TreeMap</code> 由于其加锁策略在高并发环境下性能受限， <code>ConcurrentSkipListMap</code> 提供了一种替代方案。 <strong>优点</strong>：</p>
+<ul>
+<li><strong>高性能并发访问</strong>：通过跳表结构和细粒度锁定，实现了高效的并发读取和更新。</li>
+<li><strong>有序性</strong>：保持元素的有序性，支持范围查询等操作。</li>
+<li><strong>动态调整</strong>：可以根据访问模式动态调整结构，优化性能。 <strong>缺点</strong>：</li>
+<li><strong>内存占用</strong>：相比无序的 <code>ConcurrentHashMap</code>，由于维护了有序性，内存占用可能更高。</li>
+<li><strong>复杂性</strong>：实现相对复杂，涉及多级索引和节点的管理。 <strong>场景</strong>：适用于需要有序数据且高并发访问的场景，如实时数据索引、范围查询等。 <strong>业务举例</strong>：在一个金融市场分析系统中，需要维护一个实时更新的价格索引， <code>ConcurrentSkipListMap</code> 可以用来存储和快速检索各种金融工具的当前价格。</li>
+</ul>
+<h5 id="使用方式：-3"><a href="#使用方式：-3" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentSkipListMap;<span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrentSkipListMapDemo</span> &#123;    <span class="comment">// 创建一个 ConcurrentSkipListMap 实例    private final ConcurrentSkipListMap&lt;Integer, String&gt; map = new ConcurrentSkipListMap&lt;&gt;();    // 将一个键值对插入到 Map 中    public void put(Integer key, String value) &#123;        // put 方法是线程安全的        map.put(key, value);    &#125;    // 从 Map 中获取与指定键关联的值    public String get(Integer key) &#123;        // get 方法是线程安全的        return map.get(key);    &#125;    // 获取 Map 的键集合    public java.util.NavigableSet&lt;Integer&gt; keySet() &#123;        // keySet 方法返回 Map 的键集合视图        return map.keySet();    &#125;    // 获取 Map 的值集合    public java.util.Collection&lt;String&gt; values() &#123;        // values 方法返回 Map 的值集合视图        return map.values();    &#125;    // 获取 Map 的大小    public int size() &#123;        // size 方法是线程安全的        return map.size();    &#125;    // 演示删除操作    public void remove(Integer key) &#123;        // remove 方法是线程安全的        map.remove(key);    &#125;    public static void main(String[] args) &#123;        ConcurrentSkipListMapDemo demo = new ConcurrentSkipListMapDemo();        // 插入一些数据        demo.put(1, &quot;One&quot;);        demo.put(2, &quot;Two&quot;);        demo.put(3, &quot;Three&quot;);        // 获取并打印一条数据        System.out.println(&quot;Value for key 2: &quot; + demo.get(2));        // 获取 Map 的大小        System.out.println(&quot;Map size: &quot; + demo.size());        // 获取并打印所有键        System.out.println(&quot;All keys: &quot; + demo.keySet());        // 删除一条数据        demo.remove(2);        // 再次获取 Map 的大小        System.out.println(&quot;Map size after removal: &quot; + demo.size());        // 获取并打印所有值        System.out.println(&quot;All values: &quot; + demo.values());    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-3"><a href="#业务代码案例：-3" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 实时股票交易系统需要维护一个动态变化的股票价格索引，该索引需要根据实时的市场数据进行更新，并且允许多个交易线程并发地读取和更新股票价格。此外，系统还需要定期根据价格波动进行调整，如计算价格的平均值、执行价格范围查询等。</p>
+<p><strong>为什么需要 <code>ConcurrentSkipListMap</code> 技术</strong>： <code>ConcurrentSkipListMap</code> 是一个线程安全的有序映射，它允许高效的范围查询和有序访问，这对于股票价格索引来说至关重要。由于股票价格会频繁更新，且需要快速响应市场变化，使用 <code>ConcurrentSkipListMap</code> 可以提供高效的插入、删除和查找操作，同时保持数据的有序性。</p>
+<p><strong>没有 <code>ConcurrentSkipListMap</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>ConcurrentSkipListMap</code> 或其他适合有序并发操作的数据结构可能会导致以下问题：</p>
+<ol>
+<li><strong>性能瓶颈</strong>：如果使用 <code>HashMap</code> 或 <code>ConcurrentHashMap</code>，虽然可以实现并发更新，但无法高效执行有序操作和范围查询，可能导致查询性能不佳。</li>
+<li><strong>数据不一致</strong>：在高并发更新的情况下，如果没有适当的同步机制，可能会导致价格信息的不一致。</li>
+<li><strong>复杂性增加</strong>：如果使用 <code>synchronized</code> 列表或数组来维护价格索引，可能需要手动管理复杂的同步和排序逻辑，增加系统复杂性和出错的风险。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentSkipListMap;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StockPriceIndex</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentSkipListMap&lt;String, Double&gt; priceIndex = <span class="keyword">new</span> <span class="title class_">ConcurrentSkipListMap</span>&lt;&gt;();    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updatePrice</span><span class="params">(String stockSymbol, Double newPrice)</span> &#123;        <span class="comment">// 更新股票价格        priceIndex.put(stockSymbol, newPrice);    &#125;    public Double getPrice(String stockSymbol) &#123;        // 获取股票价格        return priceIndex.get(stockSymbol);    &#125;    public void removeStock(String stockSymbol) &#123;        // 移除股票信息        priceIndex.remove(stockSymbol);    &#125;    public ConcurrentSkipListMap&lt;String, Double&gt; headMap(String toKey) &#123;        // 获取指定范围内的股票价格索引        return priceIndex.headMap(toKey);    &#125;    public static void main(String[] args) &#123;        StockPriceIndex index = new StockPriceIndex();        index.updatePrice(&quot;AAPL&quot;, 150.00);        index.updatePrice(&quot;GOOGL&quot;, 2750.50);        index.updatePrice(&quot;MSFT&quot;, 250.00);        System.out.println(&quot;Price of AAPL: &quot; + index.getPrice(&quot;AAPL&quot;));        System.out.println(&quot;Price of GOOGL: &quot; + index.getPrice(&quot;GOOGL&quot;));        // 获取所有小于 &quot;MSFT&quot; 的股票价格索引        ConcurrentSkipListMap&lt;String, Double&gt; subMap = index.headMap(&quot;MSFT&quot;);        subMap.forEach((k, v) -&gt; System.out.println(&quot;Stock: &quot; + k + &quot;, Price: &quot; + v));    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-11-ConcurrentLinkedQueue"><a href="#2-11-ConcurrentLinkedQueue" class="headerlink" title="2.11. ConcurrentLinkedQueue"></a>2.11. ConcurrentLinkedQueue</h3><p><code>ConcurrentLinkedQueue</code> 是 Java 中一个线程安全的无锁队列，它使用 CAS (Compare-And-Swap) 操作来保证线程安全。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454363-6.png" alt="img"></p>
+<h5 id="图解说明：-4"><a href="#图解说明：-4" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要对 <code>ConcurrentLinkedQueue</code> 进行入队或出队操作。</li>
+<li><strong>ConcurrentLinkedQueue 实例</strong>：是 <code>ConcurrentLinkedQueue</code> 类的实例，用于存储队列中的元素并提供线程安全的访问。</li>
+<li><strong>Node 节点结构</strong>： <code>ConcurrentLinkedQueue</code> 使用内部的 <code>Node</code> 类来存储队列中的每个元素。每个节点包含队列中的一个元素和指向下一个节点的链接。</li>
+<li><strong>虚拟头节点</strong>：队列使用一个虚拟头节点来简化出队操作。虚拟头节点不存储实际的队列元素。</li>
+<li><strong>虚拟尾节点</strong>：队列使用一个虚拟尾节点来简化入队操作。虚拟尾节点指向队列中的最后一个节点。</li>
+<li><strong>队列元素</strong>：表示存储在队列中的实际数据。</li>
+<li><strong>入队操作</strong>：线程将新元素添加到队列尾部的过程，通过 CAS 更新虚拟尾节点的链接。</li>
+<li><strong>出队操作</strong>：线程从队列头部移除元素的过程，通过 CAS 更新虚拟头节点的链接。</li>
+<li><strong>CAS 操作</strong>： <code>ConcurrentLinkedQueue</code> 使用 CAS 操作来更新节点之间的链接，从而实现无锁的线程安全队列。</li>
+<li><strong>自旋等待</strong>：在 CAS 操作失败时，线程可能会自旋等待直到操作成功。</li>
+</ul>
+<p><strong>操作流程：</strong></p>
+<ol>
+<li><strong>入队操作</strong>：线程通过 CAS 操作将新节点插入到队列尾部，并更新尾节点指针。</li>
+<li><strong>出队操作</strong>：线程通过 CAS 操作移除队列头部的节点，并更新头节点指针。</li>
+<li><strong>CAS 操作</strong>：在入队和出队过程中，线程使用 CAS 来保证节点链接的原子性更新。</li>
+</ol>
+<h5 id="综合说明-4"><a href="#综合说明-4" class="headerlink" title="综合说明:"></a>综合说明:</h5><p><strong>作用</strong>： <code>ConcurrentLinkedQueue</code> 是一种基于链接节点的无界线程安全队列，支持高并发的入队和出队操作。 <strong>背景</strong>：在多线程环境中，需要一种高效的队列来处理任务或消息传递， <code>ConcurrentLinkedQueue</code> 提供了一种无锁的解决方案。 <strong>优点</strong>：</p>
+<ul>
+<li><strong>无锁设计</strong>：利用 CAS 操作实现无锁的线程安全队列，提高了并发性能。</li>
+<li><strong>简单高效</strong>：提供了简单的入队和出队操作，适合作为任务队列或消息传递队列。</li>
+<li><strong>无界队列</strong>：理论上队列大小无界，适用于处理大量任务。 <strong>缺点</strong>：</li>
+<li><strong>可能的内存消耗</strong>：由于是无界队列，在极端情况下可能会消耗大量内存。</li>
+<li><strong>性能限制</strong>：在某些高竞争场景下，CAS 操作可能导致性能瓶颈。 <strong>场景</strong>：适用于作为任务队列或消息传递队列，支持高并发的入队和出队操作。 <strong>业务举例</strong>：在一个分布式计算系统中， <code>ConcurrentLinkedQueue</code> 可以用于收集各个计算节点的输出结果，然后由一个或多个消费者线程进行处理。</li>
+</ul>
+<p>这两个并发集合类在 Java 中提供了强大的工具，以支持复杂的并发数据处理需求，它们各自适用于不同的应用场景，可以根据具体需求选择合适的并发集合。kedQueue</p>
+<h5 id="使用方式：-4"><a href="#使用方式：-4" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrentLinkedQueueDemo</span> &#123;    <span class="comment">// 创建一个 ConcurrentLinkedQueue 实例    private final ConcurrentLinkedQueue&lt;Integer&gt; queue = new ConcurrentLinkedQueue&lt;&gt;();    // 向队列中添加元素    public void add(int number) &#123;        // add 方法是线程安全的        queue.add(number);        System.out.println(&quot;Added &quot; + number);    &#125;    // 从队列中获取并移除元素    public Integer poll() &#123;        // poll 方法是线程安全的，返回并移除队列头部的元素        Integer result = queue.poll();        if (result != null) &#123;            System.out.println(&quot;Polled &quot; + result);        &#125; else &#123;            System.out.println(&quot;Queue is empty&quot;);        &#125;        return result;    &#125;    // 查看队列头部的元素但不移除    public Integer peek() &#123;        // peek 方法是线程安全的，返回队列头部的元素但不移除        Integer result = queue.peek();        if (result != null) &#123;            System.out.println(&quot;Peeked &quot; + result);        &#125; else &#123;            System.out.println(&quot;Queue is empty&quot;);        &#125;        return result;    &#125;    // 获取队列的大小    public int size() &#123;        // size 方法估算队列的大小        int size = queue.size();        System.out.println(&quot;Queue size: &quot; + size);        return size;    &#125;    public static void main(String[] args) &#123;        ConcurrentLinkedQueueDemo demo = new ConcurrentLinkedQueueDemo();        // 启动生产者线程        Thread producerThread = new Thread(() -&gt; &#123;            demo.add(1);            demo.add(2);            demo.add(3);        &#125;);        // 启动消费者线程        Thread consumerThread = new Thread(() -&gt; &#123;            demo.poll();            demo.poll();            demo.poll();            demo.poll(); // 这次调用应该会返回 null，因为队列已空        &#125;);        producerThread.start();        consumerThread.start();        producerThread.join();        consumerThread.join();        // 在所有线程完成后获取队列大小        demo.size();    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-4"><a href="#业务代码案例：-4" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 大规模日志处理系统需要从多个源实时收集、存储并分析日志数据。这些日志数据通常由分布在不同服务器上的应用程序生成，并且需要被快速地处理以避免数据丢失或延迟问题。</p>
+<p><strong>为什么需要 <code>ConcurrentLinkedQueue</code> 技术</strong>： 在日志处理场景中，日志数据的产生速度往往非常快，且来源众多，因此需要一个高效且线程安全的队列来缓存这些日志数据。 <code>ConcurrentLinkedQueue</code> 提供了高吞吐量和低延迟的并发访问，无需使用锁，使得它特别适合用作日志数据的缓冲区。此外，由于 <code>ConcurrentLinkedQueue</code> 是无界的，因此不会阻塞生产者线程，即使在高负载情况下也能保持高性能。</p>
+<p><strong>没有 <code>ConcurrentLinkedQueue</code> 技术会带来什么后果</strong>： 没有使用 <code>ConcurrentLinkedQueue</code> 或其他高效的并发队列可能会导致以下问题：</p>
+<ol>
+<li><strong>数据丢失</strong>：如果使用有界队列且没有适当的生产者速率控制，可能会因为队列满导致日志数据丢失。</li>
+<li><strong>性能瓶颈</strong>：如果使用锁或其他同步机制来保护共享队列，可能会导致性能瓶颈，尤其是在高并发场景下。</li>
+<li><strong>系统不稳定</strong>：在高负载情况下，如果队列处理速度跟不上数据产生速度，可能会导致系统崩溃或重启。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;<span class="keyword">import</span> java.util.concurrent.ExecutorService;<span class="keyword">import</span> java.util.concurrent.Executors;<span class="keyword">import</span> java.util.concurrent.TimeUnit;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogProcessor</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentLinkedQueue&lt;String&gt; logQueue = <span class="keyword">new</span> <span class="title class_">ConcurrentLinkedQueue</span>&lt;&gt;();    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ExecutorService</span> <span class="variable">processorPool</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">10</span>);    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">log</span><span class="params">(String message)</span> &#123;        <span class="comment">// 生产者线程调用此方法来添加日志到队列        logQueue.add(message);    &#125;    public void startLogProcessing() &#123;        // 消费者线程池，用于处理队列中的日志        processorPool.submit(() -&gt; &#123;            while (true) &#123;                try &#123;                    // 消费者线程调用此方法来处理队列中的日志                    String logEntry = logQueue.poll();                    if (logEntry != null) &#123;                        processLog(logEntry);                    &#125; else &#123;                        TimeUnit.MILLISECONDS.sleep(100); // 避免 CPU 过载                    &#125;                &#125; catch (InterruptedException e) &#123;                    Thread.currentThread().interrupt();                    break;                &#125;            &#125;        &#125;);    &#125;    private void processLog(String logEntry) &#123;        // 实际处理日志的逻辑        System.out.println(&quot;Processing log: &quot; + logEntry);    &#125;    public static void main(String[] args) &#123;        LogProcessor logProcessor = new LogProcessor();        logProcessor.startLogProcessing();        // 多个生产者线程生成日志        for (int i = 0; i &lt; 100; i++) &#123;            int finalI = i;            new Thread(() -&gt; &#123;                logProcessor.log(&quot;Log entry &quot; + finalI);            &#125;).start();        &#125;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-12-BlockingQueue"><a href="#2-12-BlockingQueue" class="headerlink" title="2.12. BlockingQueue"></a>2.12. BlockingQueue</h3><p><code>BlockingQueue</code> 是 Java 中用于线程间通信的队列，支持阻塞操作，当队列为空时，获取元素的操作会阻塞；当队列满时，插入元素的操作会阻塞。 </p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454363-7.png" alt="img"></p>
+<h5 id="图解说明：-5"><a href="#图解说明：-5" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要向队列中添加或移除元素。</li>
+<li><strong>BlockingQueue 实例</strong>：是 <code>BlockingQueue</code> 接口的具体实现，如 <code>ArrayBlockingQueue</code>、 <code>LinkedBlockingQueue</code> 等，用于线程间通信。</li>
+<li><strong>内部数据结构</strong>：表示 <code>BlockingQueue</code> 内部用于存储元素的数据结构，如数组、链表等。</li>
+<li><strong>队列容量</strong>：表示 <code>BlockingQueue</code> 的最大容量，如果队列有界，则插入操作在队列满时会阻塞。</li>
+<li><strong>等待区(元素)</strong> ：表示当队列为空时，等待获取元素的线程集合。</li>
+<li><strong>等待区(空间)</strong> ：表示当队列满时，等待空间释放的线程集合。</li>
+<li><strong>元素添加操作</strong>：表示向 <code>BlockingQueue</code> 中添加元素的操作，如果队列满，则操作会阻塞。</li>
+<li><strong>元素移除操作</strong>：表示从 <code>BlockingQueue</code> 中移除元素的操作，如果队列为空，则操作会阻塞。</li>
+</ul>
+<h5 id="综合说明-5"><a href="#综合说明-5" class="headerlink" title="综合说明:"></a>综合说明:</h5><ul>
+<li><p><strong>作用</strong>： <code>BlockingQueue</code> 是一个线程安全的队列，支持阻塞操作，当队列为空时，获取元素的操作会阻塞；当队列满时，插入元素的操作会阻塞。</p>
+</li>
+<li><p><strong>背景</strong>：在生产者-消费者模型中，需要一种机制来协调生产者和消费者之间的操作， <code>BlockingQueue</code> 提供了这种协调。</p>
+</li>
+<li><p><strong>优点</strong>：</p>
+</li>
+<li><ul>
+<li>线程协调：自然地实现了生产者-消费者之间的线程协调。</li>
+<li>阻塞操作：提供了阻塞获取和阻塞插入的方法，简化了并发编程。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+</li>
+<li><ul>
+<li>可能的死锁：不当使用可能导致死锁，例如一个线程永久阻塞等待一个不会到来的元素。</li>
+<li>性能考虑：在高并发环境下，队列的容量和锁策略需要仔细调优。</li>
+</ul>
+</li>
+<li><p><strong>场景</strong>：适用于生产者-消费者场景，如任务分配、资源池管理等。</p>
+</li>
+<li><p><strong>业务举例</strong>：在消息处理系统中， <code>BlockingQueue</code> 可以用于缓存待处理的消息，生产者线程生成消息并放入队列，消费者线程从队列中取出并处理消息，确保了消息的顺序性和系统的响应性。</p>
+</li>
+</ul>
+<h5 id="使用方式：-5"><a href="#使用方式：-5" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.BlockingQueue;<span class="keyword">import</span> java.util.concurrent.LinkedBlockingQueue;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BlockingQueueDemo</span> &#123;    <span class="comment">// 创建一个 LinkedBlockingQueue 实例，容量限制为10    private final BlockingQueue&lt;Integer&gt; blockingQueue = new LinkedBlockingQueue&lt;&gt;(10);    // 向 BlockingQueue 中添加元素    public void produce(Integer element) throws InterruptedException &#123;        // put 方法在队列满时阻塞，直到队列中有空间        blockingQueue.put(element);        System.out.println(&quot;Produced: &quot; + element);    &#125;    // 从 BlockingQueue 中获取元素    public Integer consume() throws InterruptedException &#123;        // take 方法在队列空时阻塞，直到队列中有元素        Integer element = blockingQueue.take();        System.out.println(&quot;Consumed: &quot; + element);        return element;    &#125;    // 获取 BlockingQueue 的大小    public int size() &#123;        // size 方法返回队列当前的元素数量        return blockingQueue.size();    &#125;    public static void main(String[] args) throws InterruptedException &#123;        BlockingQueueDemo demo = new BlockingQueueDemo();        // 创建生产者线程        Thread producerThread = new Thread(() -&gt; &#123;            try &#123;                for (int i = 0; i &lt; 15; i++) &#123;                    demo.produce(i);                    Thread.sleep(100); // 生产延时                &#125;            &#125; catch (InterruptedException e) &#123;                e.printStackTrace();            &#125;        &#125;);        // 创建消费者线程        Thread consumerThread = new Thread(() -&gt; &#123;            try &#123;                for (int i = 0; i &lt; 15; i++) &#123;                    int element = demo.consume();                    Thread.sleep(150); // 消费延时                &#125;            &#125; catch (InterruptedException e) &#123;                e.printStackTrace();            &#125;        &#125;);        producerThread.start();        consumerThread.start();        producerThread.join();        consumerThread.join();        // 打印最终队列的大小        System.out.println(&quot;Final queue size: &quot; + demo.size());    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-5"><a href="#业务代码案例：-5" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 消息队列系统在微服务架构中用于异步处理任务，例如发送邮件、短信通知等。这些服务通常由独立的服务实例处理，以提高系统的响应性和可扩展性。消息队列需要能够处理高并发的消息生产和消费，确保消息的可靠传递。</p>
+<p><strong>为什么需要 <code>BlockingQueue</code> 技术</strong>： <code>BlockingQueue</code> 提供了一种有效的机制来处理生产者-消费者场景，特别是在面对高并发和需要线程安全时。它能够使生产者在队列满时阻塞，消费者在队列空时阻塞，从而平衡生产和消费的速度，确保系统的稳定性和消息的不丢失。</p>
+<p><strong>没有 <code>BlockingQueue</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>BlockingQueue</code> 或其他并发队列可能会导致以下问题：</p>
+<ol>
+<li><strong>消息丢失</strong>：在高并发情况下，如果没有适当的机制来控制消息的产生和消费，可能会导致消息丢失。</li>
+<li><strong>系统过载</strong>：如果没有流控机制，生产者可能会过快地生成消息，导致系统资源耗尽，甚至崩溃。</li>
+<li><strong>数据不一致</strong>：在多线程环境下，如果不正确地管理消息的访问，可能会导致数据处理的不一致性。</li>
+</ol>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.BlockingQueue;<span class="keyword">import</span> java.util.concurrent.LinkedBlockingQueue;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MessageQueueSystem</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> BlockingQueue&lt;Message&gt; messageQueue = <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;();    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">produceMessage</span><span class="params">(String content)</span> <span class="keyword">throws</span> InterruptedException &#123;        <span class="comment">// 将消息添加到队列中，如果队列满了，生产者线程将被阻塞        messageQueue.put(new Message(content));        System.out.println(&quot;Message produced: &quot; + content);    &#125;    public Message consumeMessage() throws InterruptedException &#123;        // 从队列中取出消息，如果队列空了，消费者线程将被阻塞        Message message = messageQueue.take();        System.out.println(&quot;Message consumed: &quot; + message.getContent());        return message;    &#125;    public static void main(String[] args) throws InterruptedException &#123;        MessageQueueSystem messageQueueSystem = new MessageQueueSystem();        // 创建生产者线程        Thread producerThread = new Thread(() -&gt; &#123;            try &#123;                for (int i = 0; i &lt; 10; i++) &#123;                    messageQueueSystem.produceMessage(&quot;Message &quot; + i);                &#125;            &#125; catch (InterruptedException e) &#123;                Thread.currentThread().interrupt();            &#125;        &#125;);        // 创建消费者线程        Thread consumerThread = new Thread(() -&gt; &#123;            try &#123;                for (int i = 0; i &lt; 10; i++) &#123;                    messageQueueSystem.consumeMessage();                &#125;            &#125; catch (InterruptedException e) &#123;                Thread.currentThread().interrupt();            &#125;        &#125;);        producerThread.start();        consumerThread.start();        producerThread.join();        consumerThread.join();    &#125;&#125;class Message &#123;    private final String content;    public Message(String content) &#123;        this.content = content;    &#125;    public String getContent() &#123;        return content;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-13-Condition"><a href="#2-13-Condition" class="headerlink" title="2.13. Condition"></a>2.13. Condition</h3><p><code>Condition</code> 是 Java 中 <code>java.util.concurrent.locks</code> 包提供的一个接口，它用于实现等待&#x2F;通知机制。 <code>Condition</code> 通常与 <code>Lock</code> 接口配合使用，允许一个或多个线程在某些条件满足之前挂起，并在条件满足时被唤醒。 <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./24locks.assets/640-1742964454363-8.png" alt="img"></p>
+<h5 id="图解说明：-6"><a href="#图解说明：-6" class="headerlink" title="图解说明："></a>图解说明：</h5><ul>
+<li><strong>Java 线程</strong>：表示运行中的线程，它们可能需要在某些条件满足之前挂起。</li>
+<li><strong>Lock 实例</strong>：是 <code>Lock</code> 接口的具体实现，如 <code>ReentrantLock</code>，用于控制对共享资源的访问。</li>
+<li><strong>Condition 实例</strong>：是 <code>Condition</code> 接口的具体实现，与 <code>Lock</code> 实例配合使用，用于线程间的等待&#x2F;通知机制。</li>
+<li><strong>等待队列(线程)</strong> ：当线程调用 <code>Condition</code> 的 <code>await()</code> 方法时，如果条件不满足，线程会被放入等待队列。</li>
+<li><strong>共享资源</strong>：表示被多个线程共享的数据，需要通过 <code>Lock</code> 和 <code>Condition</code> 来保护以确保线程安全。</li>
+<li><strong>条件检查</strong>：表示线程在尝试获取资源之前需要检查的条件。</li>
+<li><strong>唤醒信号</strong>：当条件满足时，其他线程会发送唤醒信号给等待队列中的线程。</li>
+<li><strong>锁状态</strong>：表示锁的当前状态，如是否被锁定，以及锁定的线程等。</li>
+</ul>
+<p><strong>操作流程：</strong></p>
+<ol>
+<li><strong>锁定</strong>：线程通过 <code>Lock</code> 实例获取锁。</li>
+<li><strong>条件检查</strong>：线程检查条件是否满足。</li>
+<li><strong>等待</strong>：如果条件不满足，线程调用 <code>Condition</code> 的 <code>await()</code> 方法，释放锁并进入等待队列。</li>
+<li><strong>唤醒</strong>：当条件满足时，其他线程调用 <code>Condition</code> 的 <code>signal()</code> 或 <code>signalAll()</code> 方法，发送唤醒信号给等待队列中的线程。</li>
+<li><strong>重新竞争锁</strong>：被唤醒的线程重新竞争锁。</li>
+<li><strong>再次检查条件</strong>：线程在重新获得锁后，再次检查条件是否满足，如果满足则继续执行。</li>
+</ol>
+<h5 id="综合说明-6"><a href="#综合说明-6" class="headerlink" title="综合说明:"></a>综合说明:</h5><ul>
+<li><p><strong>作用</strong>： <code>Condition</code> 是与 <code>Lock</code> 接口配合使用的同步辅助工具，它允许一个或多个线程等待，直到被其他线程唤醒。</p>
+</li>
+<li><p><strong>背景</strong>：在复杂的同步场景中，需要更细粒度的控制线程的等待和唤醒， <code>Condition</code> 提供了这种能力。</p>
+</li>
+<li><p><strong>优点</strong>：</p>
+</li>
+<li><ul>
+<li>细粒度控制：提供了比 <code>Object.wait()</code>&#x2F; <code>Object.notify()</code> 更灵活的线程间协调机制。</li>
+<li>多条件支持：一个锁可以关联多个条件，每个条件可以独立唤醒等待的线程。</li>
+</ul>
+</li>
+<li><p><strong>缺点</strong>：</p>
+</li>
+<li><ul>
+<li>使用复杂：需要与 <code>Lock</code> 一起使用，增加了编程复杂度。</li>
+<li>错误使用可能导致死锁或线程饥饿。</li>
+</ul>
+</li>
+<li><p><strong>场景</strong>：适用于需要线程间复杂协调的场景，如任务调度、资源分配等。</p>
+</li>
+<li><p><strong>业务举例</strong>：在酒店预订系统中， <code>Condition</code> 可以用于实现房间状态的等待和通知机制。当房间变为空闲时，等待的顾客可以被通知并进行预订。</p>
+</li>
+</ul>
+<h5 id="使用方式：-6"><a href="#使用方式：-6" class="headerlink" title="使用方式："></a>使用方式：</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;<span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BoundedBuffer</span> &#123;    <span class="keyword">private</span> <span class="keyword">final</span> Object[] buffer;    <span class="keyword">private</span> <span class="type">int</span> putPtr, takePtr, count;    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Condition</span> <span class="variable">notFull</span> <span class="operator">=</span> lock.newCondition();    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Condition</span> <span class="variable">notEmpty</span> <span class="operator">=</span> lock.newCondition();    <span class="keyword">public</span> <span class="title function_">BoundedBuffer</span><span class="params">(<span class="type">int</span> size)</span> &#123;        buffer = <span class="keyword">new</span> <span class="title class_">Object</span>[size];    &#125;    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">put</span><span class="params">(Object x)</span> <span class="keyword">throws</span> InterruptedException &#123;        lock.lock();        <span class="keyword">try</span> &#123;            <span class="keyword">while</span> (count == buffer.length) &#123; <span class="comment">// 等待直到缓冲区非满                notFull.await();            &#125;            buffer[putPtr] = x;            putPtr = (putPtr + 1) % buffer.length;            count++;            notEmpty.signal(); // 通知可能等待的消费者        &#125; finally &#123;            lock.unlock();        &#125;    &#125;    public Object take() throws InterruptedException &#123;        lock.lock();        try &#123;            while (count == 0) &#123; // 等待直到缓冲区非空                notEmpty.await();            &#125;            Object x = buffer[takePtr];            takePtr = (takePtr + 1) % buffer.length;            count--;            notFull.signal(); // 通知可能等待的生产者            return x;        &#125; finally &#123;            lock.unlock();        &#125;    &#125;&#125;public class ProducerConsumerDemo &#123;    private final BoundedBuffer buffer;    public ProducerConsumerDemo(int size) &#123;        buffer = new BoundedBuffer(size);    &#125;    public void produce(String item) &#123;        buffer.put(item);    &#125;    public String consume() &#123;        return (String) buffer.take();    &#125;    public static void main(String[] args) throws InterruptedException &#123;        final int SIZE = 10;        final ProducerConsumerDemo demo = new ProducerConsumerDemo(SIZE);        // 生产者线程        Thread producerThread = new Thread(() -&gt; &#123;            for (int i = 0; i &lt; 20; i++) &#123;                demo.produce(&quot;Item &quot; + i);                try &#123;                    Thread.sleep(100); // 生产延时                &#125; catch (InterruptedException e) &#123;                    e.printStackTrace();                &#125;            &#125;        &#125;);        // 消费者线程        Thread consumerThread = new Thread(() -&gt; &#123;            for (int i = 0; i &lt; 20; i++) &#123;                String item = demo.consume();                System.out.println(&quot;Consumed: &quot; + item);                try &#123;                    Thread.sleep(150); // 消费延时                &#125; catch (InterruptedException e) &#123;                    e.printStackTrace();                &#125;            &#125;        &#125;);        producerThread.start();        consumerThread.start();        producerThread.join();        consumerThread.join();    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="业务代码案例：-6"><a href="#业务代码案例：-6" class="headerlink" title="业务代码案例："></a>业务代码案例：</h5><p><strong>业务说明</strong>： 任务调度系统负责管理和执行定时任务。这些任务可能包括数据备份、报告生成、系统维护等。系统需要能够按预定时间触发任务，并确保任务在执行时不会相互干扰。</p>
+<p><strong>为什么需要 <code>Condition</code> 技术</strong>： 在任务调度系统中，任务的触发通常依赖于时间，而任务的执行可能需要等待特定条件满足。 <code>Condition</code> 配合 <code>Lock</code> 使用，可以在没有任务可执行时让调度器线程等待，直到有任务准备好执行。这种机制允许系统在没有任务执行需求时保持空闲，从而节省资源。</p>
+<p><strong>没有 <code>Condition</code> 技术会带来什么后果</strong>：</p>
+<p>没有使用 <code>Condition</code> 或其他等待&#x2F;通知机制可能会导致以下问题：</p>
+<ol>
+<li><strong>资源浪费</strong>：如果调度器不断轮询检查新任务，可能会浪费大量 CPU 资源。</li>
+<li><strong>响应性差</strong>：在新任务到来时，如果没有有效的机制来唤醒调度器，可能会导致任务执行延迟。</li>
+<li><strong>代码复杂度</strong>：没有 <code>Condition</code>，可能需要使用更复杂的多线程同步机制，增加了代码的复杂性和出错的风险。</li>
+</ol>
+<p><strong>代码实现:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.Condition;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.ReentrantLock;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.LinkedList;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TaskScheduler</span> &#123;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">Condition</span> <span class="variable">taskAvailable</span> <span class="operator">=</span> lock.newCondition();    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Queue&lt;Runnable&gt; tasks = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">schedule</span><span class="params">(Runnable task, <span class="type">long</span> delay)</span> &#123;        </span><br><span class="line">        lock.lock();        </span><br><span class="line">        <span class="keyword">try</span> &#123;            </span><br><span class="line">            tasks.add(() -&gt; &#123;                </span><br><span class="line">                <span class="keyword">try</span> &#123;                    </span><br><span class="line">                    Thread.sleep(delay);                </span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;                    </span><br><span class="line">                    Thread.currentThread().interrupt();                </span><br><span class="line">                &#125;                </span><br><span class="line">                task.run();            </span><br><span class="line">            &#125;);            </span><br><span class="line">            taskAvailable.signal(); </span><br><span class="line">            <span class="comment">// 通知调度器有新任务        </span></span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;            </span><br><span class="line">            lock.unlock();        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">startScheduling</span><span class="params">()</span> &#123;        </span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="built_in">this</span>::runScheduler).start();    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">runScheduler</span><span class="params">()</span> &#123;        </span><br><span class="line">        lock.lock();        </span><br><span class="line">        <span class="keyword">try</span> &#123;            </span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>) &#123;                </span><br><span class="line">                <span class="keyword">while</span> (tasks.isEmpty()) &#123; </span><br><span class="line">                    <span class="comment">// 如果没有任务，等待                    </span></span><br><span class="line">                    taskAvailable.await();                </span><br><span class="line">                &#125;                </span><br><span class="line">                <span class="type">Runnable</span> <span class="variable">task</span> <span class="operator">=</span> tasks.poll();                </span><br><span class="line">                task.run();            </span><br><span class="line">            &#125;        </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;            </span><br><span class="line">            Thread.currentThread().interrupt();        </span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;            </span><br><span class="line">            lock.unlock();        </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        </span><br><span class="line">        <span class="type">TaskScheduler</span> <span class="variable">scheduler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TaskScheduler</span>();        </span><br><span class="line">        scheduler.schedule(() -&gt; System.out.println(<span class="string">&quot;Task 1 executed at &quot;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>()), <span class="number">2000</span>);        </span><br><span class="line">        scheduler.schedule(() -&gt; System.out.println(<span class="string">&quot;Task 2 executed at &quot;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>()), <span class="number">4000</span>);        </span><br><span class="line">        scheduler.startScheduling();    </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2024/04/09/24locks/">http://xeons.cn/2024/04/09/24locks/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2024/04/09/24locks/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post_share"><div class="social-share" data-image="/2024/04/09/24locks/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">cpu打到100的分析</div></div></a></div><div class="next-post pull-right"><a href="/2024/04/09/cas/" title="java中CAS"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cas/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">java中CAS</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">1g内存如何存储1亿数据</div></div></a></div><div><a href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">上亿号码去重方案</div></div></a></div><div><a href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">seate中的tcc</div></div></a></div><div><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">cpu打到100的分析</div></div></a></div><div><a href="/2024/04/09/cas/" title="java中CAS"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cas/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中CAS</div></div></a></div><div><a href="/2023/01/03/data-structure-and-algorithm/" title="常见数据结构和算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/01/03/data-structure-and-algorithm/logo.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-03</div><div class="title">常见数据结构和算法</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E9%94%81%E9%80%89%E6%8B%A9%E7%BB%B4%E5%BA%A6"><span class="toc-number">1.</span> <span class="toc-text">1、锁选择维度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E9%94%81%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">2、锁详细分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-CyclicBarrier"><span class="toc-number">3.</span> <span class="toc-text">2.7. CyclicBarrier</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-number">3.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E"><span class="toc-number">3.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="toc-number">3.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A"><span class="toc-number">3.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-Atomic-Variables"><span class="toc-number">4.</span> <span class="toc-text">2.8. Atomic Variables</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-1"><span class="toc-number">4.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-1"><span class="toc-number">4.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-1"><span class="toc-number">4.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%BA%E6%99%AF%E6%8F%8F%E8%BF%B0%EF%BC%9A%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%E7%9A%84%E5%AE%9E%E6%97%B6%E6%B6%88%E6%81%AF%E8%AE%A1%E6%95%B0"><span class="toc-number">5.</span> <span class="toc-text">场景描述：社交网络的实时消息计数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-9-ConcurrentHashMap"><span class="toc-number">6.</span> <span class="toc-text">2.9. ConcurrentHashMap</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-2"><span class="toc-number">6.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8D%87%E7%BA%A7%E8%AE%BE%E8%AE%A1%E8%AF%B4%E6%98%8E"><span class="toc-number">6.0.2.</span> <span class="toc-text">升级设计说明:</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#Java-1-7-ConcurrentHashMap-%E9%94%81%E6%9C%BA%E5%88%B6"><span class="toc-number">6.0.2.1.</span> <span class="toc-text">Java 1.7 ConcurrentHashMap 锁机制</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#Java-1-8-ConcurrentHashMap-%E9%94%81%E6%9C%BA%E5%88%B6"><span class="toc-number">6.0.2.2.</span> <span class="toc-text">Java 1.8 ConcurrentHashMap 锁机制</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-2"><span class="toc-number">6.0.3.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-2"><span class="toc-number">6.0.4.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-2"><span class="toc-number">6.0.5.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-10-ConcurrentSkipListMap"><span class="toc-number">7.</span> <span class="toc-text">2.10.ConcurrentSkipListMap</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-3"><span class="toc-number">7.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-3"><span class="toc-number">7.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-3"><span class="toc-number">7.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-3"><span class="toc-number">7.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-11-ConcurrentLinkedQueue"><span class="toc-number">8.</span> <span class="toc-text">2.11. ConcurrentLinkedQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-4"><span class="toc-number">8.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-4"><span class="toc-number">8.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-4"><span class="toc-number">8.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-4"><span class="toc-number">8.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-12-BlockingQueue"><span class="toc-number">9.</span> <span class="toc-text">2.12. BlockingQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-5"><span class="toc-number">9.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-5"><span class="toc-number">9.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-5"><span class="toc-number">9.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-5"><span class="toc-number">9.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-13-Condition"><span class="toc-number">10.</span> <span class="toc-text">2.13. Condition</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3%E8%AF%B4%E6%98%8E%EF%BC%9A-6"><span class="toc-number">10.0.1.</span> <span class="toc-text">图解说明：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E8%AF%B4%E6%98%8E-6"><span class="toc-number">10.0.2.</span> <span class="toc-text">综合说明:</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A-6"><span class="toc-number">10.0.3.</span> <span class="toc-text">使用方式：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B%EF%BC%9A-6"><span class="toc-number">10.0.4.</span> <span class="toc-text">业务代码案例：</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

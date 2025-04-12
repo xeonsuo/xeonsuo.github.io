@@ -1,0 +1,412 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>seate中的tcc | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Alibaba-Seata TCC1. 什么是TCC TCC 基于分布式事务中的二阶段提交协议实现，它的全称为 Try-Confirm-Cancel，即资源预留（Try）、确认操作（Confirm）、取消操作（Cancel），他们的具体含义如下：  Try：对业务资源的检查并预留； Confirm：对业务处理进行提交，即 commit 操作，只要 Try 成功，那么该步骤一定成功； Cancel：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="seate中的tcc">
+<meta property="og:url" content="http://xeons.cn/2024/04/09/alibaba_seata/index.html">
+<meta property="og:site_name" content="Calico&#39;s Space">
+<meta property="og:description" content="Alibaba-Seata TCC1. 什么是TCC TCC 基于分布式事务中的二阶段提交协议实现，它的全称为 Try-Confirm-Cancel，即资源预留（Try）、确认操作（Confirm）、取消操作（Cancel），他们的具体含义如下：  Try：对业务资源的检查并预留； Confirm：对业务处理进行提交，即 commit 操作，只要 Try 成功，那么该步骤一定成功； Cancel：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://xeons.cn/2024/04/09/alibaba_seata/640.png">
+<meta property="article:published_time" content="2024-04-09T06:45:07.000Z">
+<meta property="article:author" content="Calico">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://xeons.cn/2024/04/09/alibaba_seata/640.png"><link rel="shortcut icon" href="/images/calico-ss.png"><link rel="canonical" href="http://xeons.cn/2024/04/09/alibaba_seata/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><meta/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?6f97e3791752fae830e3db5ba194c6cb";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'seate中的tcc',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-04-12 14:43:02'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><meta name="generator" content="Hexo 7.1.1"><link rel="alternate" href="/atom.xml" title="Calico's Space" type="application/atom+xml">
+</head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">seate中的tcc</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%A8%8B%E5%BA%8F%E4%BC%98%E5%8C%96/">程序优化</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="seate中的tcc"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><h1 id="Alibaba-Seata-TCC"><a href="#Alibaba-Seata-TCC" class="headerlink" title="Alibaba-Seata TCC"></a>Alibaba-Seata TCC</h1><p><strong>1. 什么是TCC</strong></p>
+<p>TCC 基于分布式事务中的二阶段提交协议实现，它的全称为 Try-Confirm-Cancel，即资源预留（Try）、确认操作（Confirm）、取消操作（Cancel），他们的具体含义如下：</p>
+<ol>
+<li>Try：对业务资源的检查并预留；</li>
+<li>Confirm：对业务处理进行提交，即 commit 操作，只要 Try 成功，那么该步骤一定成功；</li>
+<li>Cancel：对业务处理进行取消，即回滚操作，该步骤回对 Try 预留的资源进行释放。</li>
+</ol>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640.png" alt="img"></p>
+<ul>
+<li><strong>XA是资源层面的分布式事务，强一致性，在两阶段提交的整个过程中，一直会持有资源的锁。</strong></li>
+<li><strong>TCC是业务层面的分布式事务，最终一致性，不会一直持有资源的锁。</strong></li>
+</ul>
+<p>TCC 是一种侵入式的分布式事务解决方案，以上三个操作都需要业务系统自行实现，对业务系统有着非常大的入侵性，设计相对复杂，但优点是 TCC 完全不依赖数据库，能够实现跨数据库、跨应用资源管理，对这些不同数据访问通过侵入式的编码方式实现一个原子操作，更好地解决了在各种复杂业务场景下的分布式事务问题。</p>
+<p>常见开源TCC框架:</p>
+<ul>
+<li>Seata TCC</li>
+<li>Hmily</li>
+<li>Tcc-Transaction</li>
+<li>ByteTCC</li>
+<li>EasyTransaction</li>
+</ul>
+<p><strong>2. 以用户下单为例</strong></p>
+<p><strong>try-commit</strong></p>
+<p>try 阶段首先进行预留资源，然后在 commit 阶段扣除资源。如下图：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652675-1.png" alt="img"></p>
+<p><strong>try-cancel</strong></p>
+<p>try 阶段首先进行预留资源，预留资源时扣减库存失败导致全局事务回滚，在 cancel 阶段释放资源。如下图：</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-2.png" alt="img"></p>
+<p><strong>3. Seata TCC 模式</strong></p>
+<p>一个分布式的全局事务，整体是 两阶段提交 的模型。全局事务是由若干分支事务组成的，分支事务要满足 两阶段提交 的模型要求，即需要每个分支事务都具备自己的：</p>
+<ul>
+<li>一阶段 prepare 行为</li>
+<li>二阶段 commit 或 rollback 行为</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-3.png" alt="img"></p>
+<p>在Seata中，AT模式与TCC模式事实上都是两阶段提交的具体实现，他们的区别在于：</p>
+<p>AT 模式基于 支持本地 ACID 事务的关系型数据库：</p>
+<ul>
+<li>一阶段 prepare 行为：在本地事务中，一并提交业务数据更新和相应回滚日志记录。</li>
+<li>二阶段 commit 行为：马上成功结束，自动异步批量清理回滚日志。</li>
+<li>二阶段 rollback 行为：通过回滚日志，自动生成补偿操作，完成数据回滚。</li>
+</ul>
+<p>相应的，TCC 模式不依赖于底层数据资源的事务支持：</p>
+<ul>
+<li>一阶段 prepare 行为：调用自定义的 prepare 逻辑。</li>
+<li>二阶段 commit 行为：调用自定义的 commit 逻辑。</li>
+<li>二阶段 rollback 行为：调用自定义的 rollback 逻辑。</li>
+</ul>
+<p>简单点概括，SEATA的TCC模式就是手工的AT模式，它允许你自定义两阶段的处理逻辑而不依赖AT模式的undo_log。</p>
+<p><strong>4. Seata TCC模式接口如何改造</strong></p>
+<p>假设现有一个业务需要同时使用服务 A 和服务 B 完成一个事务操作，我们在服务 A 定义该服务的一个 TCC 接口：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface TccActionOne &#123;    @TwoPhaseBusinessAction(name = &quot;prepare&quot;, commitMethod = &quot;commit&quot;, rollbackMethod = &quot;rollback&quot;)    public boolean prepare(BusinessActionContext actionContext, @BusinessActionContextParameter(paramName = &quot;a&quot;) String a);    public boolean commit(BusinessActionContext actionContext);    public boolean rollback(BusinessActionContext actionContext);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样，在服务 B 定义该服务的一个 TCC 接口：</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface TccActionTwo &#123;    @TwoPhaseBusinessAction(name = &quot;prepare&quot;, commitMethod = &quot;commit&quot;, rollbackMethod = &quot;rollback&quot;)    public void prepare(BusinessActionContext actionContext, @BusinessActionContextParameter(paramName = &quot;b&quot;) String b);    public void commit(BusinessActionContext actionContext);    public void rollback(BusinessActionContext actionContext);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在业务所在系统中开启全局事务并执行服务 A 和服务 B 的 TCC 预留资源方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@GlobalTransactionalpublic String doTransactionCommit()&#123;    //服务A事务参与者    tccActionOne.prepare(null,&quot;one&quot;);    //服务B事务参与者    tccActionTwo.prepare(null,&quot;two&quot;);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是使用 Seata TCC 模式实现一个全局事务的例子，TCC 模式同样使用 @GlobalTransactional 注解开启全局事务，而服务 A 和服务 B 的 TCC 接口为事务参与者，Seata 会把一个 TCC 接口当成一个 Resource，也叫 TCC Resource。</p>
+<p>**<br>**</p>
+<p><strong>5. TCC如何控制异常</strong></p>
+<p>在 TCC 模型执行的过程中，还可能会出现各种异常，其中最为常见的有空回滚、幂等、悬挂等。TCC 模式是分布式事务中非常重要的事务模式，但是幂等、悬挂和空回滚一直是 TCC 模式需要考虑的问题，Seata 框架在 1.5.1 版本完美解决了这些问题。</p>
+<p><strong>如何处理空回滚</strong></p>
+<p>空回滚指的是在一个分布式事务中，在没有调用参与方的 Try 方法的情况下，TM 驱动二阶段回滚调用了参与方的 Cancel 方法。</p>
+<p><strong>那么空回滚是如何产生的呢？</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-4.png" alt="img"></p>
+<p>如上图所示，全局事务开启后，参与者 A 分支注册完成之后会执行参与者一阶段 RPC 方法，如果此时参与者 A 所在的机器发生宕机，网络异常，都会造成 RPC 调用失败，即参与者 A 一阶段方法未成功执行，但是此时全局事务已经开启，Seata 必须要推进到终态，在全局事务回滚时会调用参与者 A 的 Cancel 方法，从而造成空回滚。</p>
+<p><strong>要想防止空回滚，那么必须在 Cancel 方法中识别这是一个空回滚，Seata 是如何做的呢？</strong></p>
+<p>Seata 的做法是新增一个 TCC 事务控制表，包含事务的 XID 和 BranchID 信息，在 Try 方法执行时插入一条记录，表示一阶段执行了，执行 Cancel 方法时读取这条记录，如果记录不存在，说明 Try 方法没有执行。</p>
+<p>**<br>**</p>
+<p><strong>如何处理幂等</strong></p>
+<p>幂等问题指的是 TC 重复进行二阶段提交，因此 Confirm&#x2F;Cancel 接口需要支持幂等处理，即不会产生资源重复提交或者重复释放。</p>
+<p><strong>那么幂等问题是如何产生的呢？</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-5.png" alt="img"></p>
+<p>如上图所示，参与者 A 执行完二阶段之后，由于网络抖动或者宕机问题，会造成 TC 收不到参与者 A 执行二阶段的返回结果，TC 会重复发起调用，直到二阶段执行结果成功。</p>
+<p>**<br>**</p>
+<p><strong>Seata 是如何处理幂等问题的呢？</strong></p>
+<p>同样的也是在 TCC 事务控制表中增加一个记录状态的字段 status，该字段有 3 个值，分别为：</p>
+<h2 id=""><a href="#" class="headerlink" title="- "></a>- </h2><p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tried：1committed：2rollbacked：3</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>二阶段 Confirm&#x2F;Cancel 方法执行后，将状态改为 committed 或 rollbacked 状态。当重复调用二阶段 Confirm&#x2F;Cancel 方法时，判断事务状态即可解决幂等问题。</p>
+<p><strong>如何处理悬挂</strong></p>
+<p>悬挂指的是二阶段 Cancel 方法比 一阶段 Try 方法优先执行，由于允许空回滚的原因，在执行完二阶段 Cancel 方法之后直接空回滚返回成功，此时全局事务已结束，但是由于 Try 方法随后执行，这就会造成一阶段 Try 方法预留的资源永远无法提交和释放了。</p>
+<p><strong>那么悬挂是如何产生的呢？</strong></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-6.png" alt="img"></p>
+<p>如上图所示，在执行参与者 A 的一阶段 Try 方法时，出现网路拥堵，由于 Seata 全局事务有超时限制，执行 Try 方法超时后，TM 决议全局回滚，回滚完成后如果此时 RPC 请求才到达参与者 A，执行 Try 方法进行资源预留，从而造成悬挂。</p>
+<p><strong>Seata 是怎么处理悬挂的呢？</strong></p>
+<p>在 TCC 事务控制表记录状态的字段 status 中增加一个状态：</p>
+<p>- </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">suspended：4</span><br></pre></td></tr></table></figure>
+
+
+
+<p>当执行二阶段 Cancel 方法时，如果发现 TCC 事务控制表没有相关记录，说明二阶段 Cancel 方法优先一阶段 Try 方法执行，因此插入一条 status&#x3D;4 状态的记录，当一阶段 Try 方法后面执行时，判断 status&#x3D;4 ，则说明有二阶段 Cancel 已执行，并返回 false 以阻止一阶段 Try 方法执行成功。</p>
+<p><strong>6. Spring Cloud Alibaba整合Seata TCC实战</strong></p>
+<p><strong>业务场景</strong></p>
+<p>用户下单，整个业务逻辑由三个微服务构成：</p>
+<ul>
+<li>库存服务：对给定的商品扣除库存数量。</li>
+<li>订单服务：根据采购需求创建订单。</li>
+<li>账户服务：从用户账户中扣除余额。</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652676-7.png" alt="img"></p>
+<p><strong>1) 环境准备</strong></p>
+<ul>
+<li>父pom指定微服务版本</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652677-8.png" alt="img"></p>
+<ul>
+<li>启动nacos服务</li>
+<li>启动Seata Server(TC)端，Seata Server使用nacos作为配置中心和注册中心</li>
+</ul>
+<p><strong>2)  微服务导入seata依赖</strong></p>
+<p>spring-cloud-starter-alibaba-seata内部集成了seata，并实现了xid传递</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- seata--&gt;&lt;dependency&gt;    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;    &lt;artifactId&gt;spring-cloud-starter-alibaba-seata&lt;/artifactId&gt;&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p> <strong>3）微服务application.yml中添加seata配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">seata:  application-id: $&#123;spring.application.name&#125;  # seata 服务分组，要与服务端配置service.vgroup_mapping的后缀对应  tx-service-group: default_tx_group  registry:    # 指定nacos作为注册中心    type: nacos    nacos:      application: seata-server      server-addr: 127.0.0.1:8848      namespace:      group: SEATA_GROUP  config:    # 指定nacos作为配置中心    type: nacos    nacos:      server-addr: 127.0.0.1:8848      namespace: 7e838c12-8554-4231-82d5-6d93573ddf32      group: SEATA_GROUP      data-id: seataServer.properties</span><br></pre></td></tr></table></figure>
+
+<p>注意：请确保client与server的注册中心和配置中心namespace和group一致</p>
+<p>**<br>**</p>
+<p><strong>4）定义TCC接口</strong></p>
+<p>TCC相关注解如下：</p>
+<ul>
+<li><p>@LocalTCC 适用于SpringCloud+Feign模式下的TCC，@LocalTCC一定需要注解在接口上</p>
+<p>，此接口可以是寻常的业务接口，只要实现了TCC的两阶段提交对应方法便可</p>
+</li>
+<li><p>@TwoPhaseBusinessAction 注解try方法，其中name为当前tcc方法的bean名称，写方法名便可（全局唯一），commitMethod指向提交方法，rollbackMethod指向事务回滚方法。</p>
+<p>指定好三个方法之后，seata会根据全局事务的成功或失败，去帮我们自动调用提交方法或者回滚方法。</p>
+</li>
+<li><p>@BusinessActionContextParameter 注解可以将参数传递到二阶段（commitMethod&#x2F;rollbackMethod）的方法。</p>
+</li>
+<li><p>@BusinessActionContextParameter 注解可以将参数传递到二阶段（commitMethod&#x2F;rollbackMethod）的方法。</p>
+</li>
+<li><p>BusinessActionContext 便是指TCC事务上下文</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/** * @author Fox * * 通过 @LocalTCC 这个注解，RM 初始化的时候会向 TC 注册一个分支事务。 */@LocalTCCpublic interface OrderService &#123;    /**     * TCC的try方法：保存订单信息，状态为支付中     *     * 定义两阶段提交，在try阶段通过@TwoPhaseBusinessAction注解定义了分支事务的 resourceId，commit和 cancel 方法     *  name = 该tcc的bean名称,全局唯一     *  commitMethod = commit 为二阶段确认方法     *  rollbackMethod = rollback 为二阶段取消方法     *  BusinessActionContextParameter注解 传递参数到二阶段中     *  useTCCFence seata1.5.1的新特性，用于解决TCC幂等，悬挂，空回滚问题，需增加日志表tcc_fence_log     */    @TwoPhaseBusinessAction(name = &quot;prepareSaveOrder&quot;, commitMethod = &quot;commit&quot;, rollbackMethod = &quot;rollback&quot;, useTCCFence = true)    Order prepareSaveOrder(OrderVo orderVo, @BusinessActionContextParameter(paramName = &quot;orderId&quot;) Long orderId);    /**     *     * TCC的confirm方法：订单状态改为支付成功     *     * 二阶段确认方法可以另命名，但要保证与commitMethod一致     * context可以传递try方法的参数     *     * @param actionContext     * @return     */    boolean commit(BusinessActionContext actionContext);    /**     * TCC的cancel方法：订单状态改为支付失败     * 二阶段取消方法可以另命名，但要保证与rollbackMethod一致     *     * @param actionContext     * @return     */    boolean rollback(BusinessActionContext actionContext);&#125;/** * @author Fox * * 通过 @LocalTCC 这个注解，RM 初始化的时候会向 TC 注册一个分支事务。 */@LocalTCCpublic interface StorageService &#123;    /**     * Try: 库存-扣减数量，冻结库存+扣减数量     *     * 定义两阶段提交，在try阶段通过@TwoPhaseBusinessAction注解定义了分支事务的 resourceId，commit和 cancel 方法     *  name = 该tcc的bean名称,全局唯一     *  commitMethod = commit 为二阶段确认方法     *  rollbackMethod = rollback 为二阶段取消方法     *  BusinessActionContextParameter注解 传递参数到二阶段中     *     * @param commodityCode 商品编号     * @param count 扣减数量     * @return     */    @TwoPhaseBusinessAction(name = &quot;deduct&quot;, commitMethod = &quot;commit&quot;, rollbackMethod = &quot;rollback&quot;, useTCCFence = true)    boolean deduct(@BusinessActionContextParameter(paramName = &quot;commodityCode&quot;) String commodityCode,                   @BusinessActionContextParameter(paramName = &quot;count&quot;) int count);    /**     *     * Confirm: 冻结库存-扣减数量     * 二阶段确认方法可以另命名，但要保证与commitMethod一致     * context可以传递try方法的参数     *     * @param actionContext     * @return     */    boolean commit(BusinessActionContext actionContext);    /**     * Cancel: 库存+扣减数量，冻结库存-扣减数量     * 二阶段取消方法可以另命名，但要保证与rollbackMethod一致     *     * @param actionContext     * @return     */    boolean rollback(BusinessActionContext actionContext);&#125;/** * @author Fox * * 通过 @LocalTCC 这个注解，RM 初始化的时候会向 TC 注册一个分支事务。 */@LocalTCCpublic interface AccountService &#123;    /**     * 用户账户扣款     *     * 定义两阶段提交，在try阶段通过@TwoPhaseBusinessAction注解定义了分支事务的 resourceId，commit和 cancel 方法     *  name = 该tcc的bean名称,全局唯一     *  commitMethod = commit 为二阶段确认方法     *  rollbackMethod = rollback 为二阶段取消方法     *     * @param userId     * @param money 从用户账户中扣除的金额     * @return     */    @TwoPhaseBusinessAction(name = &quot;debit&quot;, commitMethod = &quot;commit&quot;, rollbackMethod = &quot;rollback&quot;, useTCCFence = true)    boolean debit(@BusinessActionContextParameter(paramName = &quot;userId&quot;) String userId,                  @BusinessActionContextParameter(paramName = &quot;money&quot;) int money);    /**     * 提交事务，二阶段确认方法可以另命名，但要保证与commitMethod一致     * context可以传递try方法的参数     *     * @param actionContext     * @return     */    boolean commit(BusinessActionContext actionContext);    /**     * 回滚事务，二阶段取消方法可以另命名，但要保证与rollbackMethod一致     *     * @param actionContext     * @return     */    boolean rollback(BusinessActionContext actionContext);&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>TCC 幂等、悬挂和空回滚问题如何解决？</p>
+<p>TCC 模式中存在的三大问题是幂等、悬挂和空回滚。在 Seata1.5.1 版本中，增加了一张事务控制表，表名是 tcc_fence_log 来解决这个问题。而在@TwoPhaseBusinessAction 注解中提到的属性 useTCCFence 就是来指定是否开启这个机制，这个属性值默认是 false。</p>
+<p><strong>5）微服务增加tcc_fence_log日志表</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># tcc_fence_log 建表语句如下（MySQL 语法）CREATE TABLE IF NOT EXISTS `tcc_fence_log`(    `xid`           VARCHAR(128)  NOT NULL COMMENT &#x27;global id&#x27;,    `branch_id`     BIGINT        NOT NULL COMMENT &#x27;branch id&#x27;,    `action_name`   VARCHAR(64)   NOT NULL COMMENT &#x27;action name&#x27;,    `status`        TINYINT       NOT NULL COMMENT &#x27;status(tried:1;committed:2;rollbacked:3;suspended:4)&#x27;,    `gmt_create`    DATETIME(3)   NOT NULL COMMENT &#x27;create time&#x27;,    `gmt_modified`  DATETIME(3)   NOT NULL COMMENT &#x27;update time&#x27;,    PRIMARY KEY (`xid`, `branch_id`),    KEY `idx_gmt_modified` (`gmt_modified`),    KEY `idx_status` (`status`)) ENGINE = InnoDBDEFAULT CHARSET = utf8mb4;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>6）TCC接口的业务实现</strong></p>
+<p>参考课堂代码</p>
+<p><strong>7） 在全局事务发起者中添加@GlobalTransactional注解</strong></p>
+<p>核心代码</p>
+<h2 id="-1"><a href="#-1" class="headerlink" title="- "></a>- </h2><h2 id="-2"><a href="#-2" class="headerlink" title="- "></a>- </h2><h2 id="-3"><a href="#-3" class="headerlink" title="- "></a>- </h2><h2 id="-4"><a href="#-4" class="headerlink" title="- "></a>- </h2><h2 id="-5"><a href="#-5" class="headerlink" title="- "></a>- </h2><h2 id="-6"><a href="#-6" class="headerlink" title="- "></a>- </h2><h2 id="-7"><a href="#-7" class="headerlink" title="- "></a>- </h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@GlobalTransactional(name=&quot;createOrder&quot;,rollbackFor=Exception.class)public Order saveOrder(OrderVo orderVo) &#123;    log.info(&quot;=============用户下单=================&quot;);    log.info(&quot;当前 XID: &#123;&#125;&quot;, RootContext.getXID());    //获取全局唯一订单号  测试使用    Long orderId = UUIDGenerator.generateUUID();    //阶段一： 创建订单    Order order = orderService.prepareSaveOrder(orderVo,orderId);    //扣减库存    storageFeignService.deduct(orderVo.getCommodityCode(), orderVo.getCount());    //扣减余额    accountFeignService.debit(orderVo.getUserId(), orderVo.getMoney());    return order;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>8）测试分布式事务是否生效</strong></p>
+<ul>
+<li>分布式事务成功，模拟正常下单、扣库存，扣余额</li>
+<li>分布式事务失败，模拟下单扣库存成功、扣余额失败，事务是否回滚</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./alibaba_seata.assets/640-1742533652677-9.png" alt="img"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2024/04/09/alibaba_seata/">http://xeons.cn/2024/04/09/alibaba_seata/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+    let clipboardData = event.clipboardData || window.clipboardData;
+    if (!clipboardData) { return; }
+    event.preventDefault();
+    let text = window.getSelection().toString();
+    if (text) {
+        event.preventDefault();
+        var copyright = "\n\n---\n著作权归 Calico 所有 \n原文链接: http://xeons.cn/2024/04/09/alibaba_seata/";
+        clipboardData.setData('text/plain', text + copyright);
+    }
+};
+var contents = document.getElementsByClassName("post");
+contents[0].addEventListener('copy',function(e){
+    setClipboardText(e);
+});</script><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post_share"><div class="social-share" data-image="/2024/04/09/alibaba_seata/640.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wxpay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/wxpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">上亿号码去重方案</div></div></a></div><div class="next-post pull-right"><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">cpu打到100的分析</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">1g内存如何存储1亿数据</div></div></a></div><div><a href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">上亿号码去重方案</div></div></a></div><div><a href="/2024/04/09/cpu100100/" title="cpu打到100的分析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cpu100100/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">cpu打到100的分析</div></div></a></div><div><a href="/2024/04/09/24locks/" title="java中的各种锁"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/24locks/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中的各种锁</div></div></a></div><div><a href="/2024/04/09/cas/" title="java中CAS"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/cas/640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-09</div><div class="title">java中CAS</div></div></a></div><div><a href="/2023/01/03/data-structure-and-algorithm/" title="常见数据结构和算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/01/03/data-structure-and-algorithm/logo.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-03</div><div class="title">常见数据结构和算法</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81OTczMi8zNjE5NA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Calico</div><div class="author-info__description">It's my blog，Record everything！</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">62</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xeonsuo"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xeonsuo" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="https://weibo.com/xeons" target="_blank" title="微博"><i class="fab fa-weibo" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:xeon511@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">python、aiAgent 进化中...</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Alibaba-Seata-TCC"><span class="toc-number">1.</span> <span class="toc-text">Alibaba-Seata TCC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-1"><span class="toc-number">1.2.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-2"><span class="toc-number">1.3.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-3"><span class="toc-number">1.4.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-4"><span class="toc-number">1.5.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-5"><span class="toc-number">1.6.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-6"><span class="toc-number">1.7.</span> <span class="toc-text">- </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-7"><span class="toc-number">1.8.</span> <span class="toc-text">- </span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-pandas1/" title="AI之 panda"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-pandas1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 panda"/></a><div class="content"><a class="title" href="/2024/09/09/ai-pandas1/" title="AI之 panda">AI之 panda</a><time datetime="2024-09-09T06:45:07.000Z" title="发表于 2024-09-09 14:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/09/09/ai-python1/" title="AI之 python 基础"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/09/09/ai-python1/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="AI之 python 基础"/></a><div class="content"><a class="title" href="/2024/09/09/ai-python1/" title="AI之 python 基础">AI之 python 基础</a><time datetime="2024-09-09T05:45:07.000Z" title="发表于 2024-09-09 13:45:07">2024-09-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/1gneicun1yishuju/algorithm_complexity_1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="1g内存如何存储1亿数据"/></a><div class="content"><a class="title" href="/2024/04/09/1gneicun1yishuju/" title="1g内存如何存储1亿数据">1g内存如何存储1亿数据</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/40yiqqhaoquchong/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="上亿号码去重方案"/></a><div class="content"><a class="title" href="/2024/04/09/40yiqqhaoquchong/" title="上亿号码去重方案">上亿号码去重方案</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/09/alibaba_seata/" title="seate中的tcc"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2024/04/09/alibaba_seata/640.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="seate中的tcc"/></a><div class="content"><a class="title" href="/2024/04/09/alibaba_seata/" title="seate中的tcc">seate中的tcc</a><time datetime="2024-04-09T06:45:07.000Z" title="发表于 2024-04-09 14:45:07">2024-04-09</time></div></div></div></div></div></div></main><footer id="footer" style="background: none"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2025 By Calico</div><div class="footer_custom_text"><a href="icp"><span>Create By hexo,butterfly</span></a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addGlobalFn('themeChange', runMermaid, 'mermaid')
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(()=>{
+  const loadLivere = () => {
+    if (typeof LivereTower === 'object') window.LivereTower.init()
+    else {
+      (function(d, s) {
+          var j, e = d.getElementsByTagName(s)[0];
+          if (typeof LivereTower === 'function') { return; }
+          j = d.createElement(s);
+          j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+          j.async = true;
+          e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    }
+  }
+
+  if ('Livere' === 'Livere' || !false) {
+    if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+    else loadLivere()
+  } else {
+    window.loadOtherComment = loadLivere
+  }
+})()</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
