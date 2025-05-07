@@ -6,7 +6,7 @@
   <link href="http://xeons.cn/atom.xml" rel="self"/>
   
   <link href="http://xeons.cn/"/>
-  <updated>2024-09-09T06:45:07.000Z</updated>
+  <updated>2024-09-11T06:45:07.000Z</updated>
   <id>http://xeons.cn/</id>
   
   <author>
@@ -15,6 +15,48 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>AI之 应用开发</title>
+    <link href="http://xeons.cn/2024/09/11/ai-appdev1/"/>
+    <id>http://xeons.cn/2024/09/11/ai-appdev1/</id>
+    <published>2024-09-11T06:45:07.000Z</published>
+    <updated>2024-09-11T06:45:07.000Z</updated>
+    
+    
+    
+    
+    <category term="AI大教程" scheme="http://xeons.cn/categories/AI%E5%A4%A7%E6%95%99%E7%A8%8B/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>AI之 提示词</title>
+    <link href="http://xeons.cn/2024/09/11/ai-prompt/"/>
+    <id>http://xeons.cn/2024/09/11/ai-prompt/</id>
+    <published>2024-09-11T06:45:07.000Z</published>
+    <updated>2024-09-11T06:45:07.000Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;h1 id=&quot;提示词设计大原则&quot;&gt;&lt;a href=&quot;#提示词设计大原则&quot; class=&quot;headerlink&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="AI大教程" scheme="http://xeons.cn/categories/AI%E5%A4%A7%E6%95%99%E7%A8%8B/"/>
+    
+    
+    <category term="python" scheme="http://xeons.cn/tags/python/"/>
+    
+  </entry>
   
   <entry>
     <title>AI之 panda</title>
@@ -29,7 +71,7 @@
         
         
     <summary type="html">&lt;p&gt;pandas 是python中的一个 数据分析库，填补了python在数据分析中的不足，同 numpy 、matplotlib一起 为python的小规模数据分析提供强大的支持。&lt;/p&gt;
-&lt;p&gt;**</summary>
+&lt;p&gt;&lt;img</summary>
         
       
     
@@ -483,66 +525,6 @@
     <category term="并发包" scheme="http://xeons.cn/tags/%E5%B9%B6%E5%8F%91%E5%8C%85/"/>
     
     <category term="并行计算" scheme="http://xeons.cn/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Fork/Join框架介绍</title>
-    <link href="http://xeons.cn/2023/09/05/zhishi-9/"/>
-    <id>http://xeons.cn/2023/09/05/zhishi-9/</id>
-    <published>2023-09-05T05:45:07.000Z</published>
-    <updated>2023-09-05T05:45:07.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;p&gt;&lt;strong&gt;1. 由一道算法题引发的思考&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;算法题：如何充分利用多核CPU的性能，快速对一个2千万大小的数组进行排序？&lt;/p&gt;
-&lt;p&gt;&lt;a</summary>
-        
-      
-    
-    
-    
-    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
-    
-    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
-    
-    
-    <category term="并行计算" scheme="http://xeons.cn/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/"/>
-    
-    <category term="高并发" scheme="http://xeons.cn/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>两千万数据，20万热点数据如何存储</title>
-    <link href="http://xeons.cn/2023/09/05/zhishi-8/"/>
-    <id>http://xeons.cn/2023/09/05/zhishi-8/</id>
-    <published>2023-09-05T05:33:07.000Z</published>
-    <updated>2023-09-05T05:33:07.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;一、问题本质：缓存系统的“生存游戏”&quot;&gt;&lt;a href=&quot;#一、问题本质：缓存系统的“生存游戏”&quot; class=&quot;headerlink&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="dev" scheme="http://xeons.cn/categories/dev/"/>
-    
-    <category term="每日新知" scheme="http://xeons.cn/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/"/>
-    
-    
-    <category term="高并发" scheme="http://xeons.cn/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/"/>
-    
-    <category term="分布式" scheme="http://xeons.cn/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
