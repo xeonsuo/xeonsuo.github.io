@@ -62,7 +62,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-05-07 22:15:41'
+  postUpdate: '2025-05-07 23:06:16'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -175,13 +175,17 @@ document.addEventListener('pjax:send', () => {
 <h3 id=""><a href="#" class="headerlink" title="** **"></a>** **</h3><p>用户希望筛选出所有标题含“<strong>火锅</strong>”、内容提到“<strong>服务好</strong>”且标签包含“<strong>网红店</strong>”的评论。对应的SQL语句为：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> comments <span class="keyword">WHERE</span> title <span class="keyword">LIKE</span> <span class="string">&#x27;%火锅%&#x27;</span>   <span class="keyword">AND</span> content <span class="keyword">LIKE</span> <span class="string">&#x27;%服务好%&#x27;</span>   <span class="keyword">AND</span> tags <span class="keyword">LIKE</span> <span class="string">&#x27;%网红店%&#x27;</span>;</span><br></pre></td></tr></table></figure>
 
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640.png" class="">
+
 <p><strong>核心难点</strong>：</p>
 <p><strong>1.全模糊查询</strong>：<code>LIKE &#39;%xx%&#39;</code>导致索引失效，触发全表扫描</p>
 <ul>
 <li>B+树按值<strong>有序存储</strong>，<code>LIKE &#39;%火锅%&#39;</code>需要遍历所有可能的字符组合（如“<strong>重庆火锅</strong>”“<strong>火锅店</strong>”），无法通过前缀定位，相当于随机查找。</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640-1741793995895-1.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640-1741793995895-1.png" class="">
+
+
+
 <p><strong>2.多字段组合</strong>：三个字段交叉过滤，传统索引束手无策</p>
 <ul>
 <li>即使创建联合索引 <code>INDEX(title, content, tags)</code>，由于查询条件均为范围匹配，索引最多使用第一个字段，后续字段仍需回表过滤。</li>
@@ -200,7 +204,8 @@ document.addEventListener('pjax:send', () => {
 <li><strong>合并扫描灾难</strong>：三个索引合并查询需要回表30万次</li>
 <li><strong>存储浪费</strong>：三个索引占2.1GB，数据量仅5GB</li>
 </ol>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640-1741793995896-2.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640-1741793995896-2.png" class="">
+
 <h3 id="黄金方案：倒排索引-分词优化（P7级解法）"><a href="#黄金方案：倒排索引-分词优化（P7级解法）" class="headerlink" title="黄金方案：倒排索引+分词优化（P7级解法）"></a><strong>黄金方案：倒排索引+分词优化（P7级解法）</strong></h3><h4 id="第一步：使用全文搜索引擎（如Elasticsearch）"><a href="#第一步：使用全文搜索引擎（如Elasticsearch）" class="headerlink" title="第一步：使用全文搜索引擎（如Elasticsearch）"></a><strong>第一步：使用全文搜索引擎（如Elasticsearch）</strong></h4><p><strong>核心逻辑</strong>：</p>
 <ul>
 <li>将<code>title</code>、<code>content</code>、<code>tags</code>字段内容<strong>分词</strong>存储（如“网红火锅店”拆分为“网红”“火锅”“店”）</li>
@@ -252,7 +257,8 @@ document.addEventListener('pjax:send', () => {
 <li>结果集内容变化频率低（如历史数据查询）</li>
 <li>客户端（如APP&#x2F;浏览器）具备本地缓存能力</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640-1741793995896-3.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640-1741793995896-3.png" class="">
+
 <h5 id="-3"><a href="#-3" class="headerlink" title="** **"></a>** **</h5><h5 id="-4"><a href="#-4" class="headerlink" title="** **"></a>** **</h5><h5 id="（3）缓存淘汰策略"><a href="#（3）缓存淘汰策略" class="headerlink" title="（3）缓存淘汰策略"></a><strong>（3）缓存淘汰策略</strong></h5><ul>
 <li><p><strong>冷热分离</strong>：</p>
 </li>
@@ -265,7 +271,8 @@ document.addEventListener('pjax:send', () => {
 </li>
 </ul>
 <h4 id="-5"><a href="#-5" class="headerlink" title="** **"></a>** **</h4><h3 id="-6"><a href="#-6" class="headerlink" title="** **"></a>** **</h3><h4 id="2-布隆过滤器：拦截“不可能存在”的查询"><a href="#2-布隆过滤器：拦截“不可能存在”的查询" class="headerlink" title="2. 布隆过滤器：拦截“不可能存在”的查询"></a><strong>2. 布隆过滤器：拦截“不可能存在”的查询</strong></h4><p><strong>核心逻辑</strong>：通过位图快速判断某个模糊查询是否<strong>绝对不存在匹配结果</strong>，避免无效的数据库扫描。</p>
-<h5 id="（1）布隆过滤器工作流程"><a href="#（1）布隆过滤器工作流程" class="headerlink" title="（1）布隆过滤器工作流程"></a><strong>（1）布隆过滤器工作流程</strong></h5><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640-1741793995896-4.png" alt="图片"></p>
+<h5 id="（1）布隆过滤器工作流程"><a href="#（1）布隆过滤器工作流程" class="headerlink" title="（1）布隆过滤器工作流程"></a><strong>（1）布隆过滤器工作流程</strong></h5> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640-1741793995896-4.png" class="">
+
 <h5 id="（2）布隆过滤器设计要点"><a href="#（2）布隆过滤器设计要点" class="headerlink" title="（2）布隆过滤器设计要点"></a><strong>（2）布隆过滤器设计要点</strong></h5><ul>
 <li><strong>预训练阶段</strong>：<br>初始化时遍历全表数据，对所有可能的模糊查询组合（如<code>title+content</code>关键词组合）生成哈希值并存入过滤器。</li>
 </ul>
@@ -274,7 +281,10 @@ document.addEventListener('pjax:send', () => {
 <h5 id="动态更新-：-新增评论时，实时更新布隆过滤器："><a href="#动态更新-：-新增评论时，实时更新布隆过滤器：" class="headerlink" title="***动态更新*： 新增评论时，实时更新布隆过滤器："></a>**<em>*动态更新*<em>： 新增评论时，实时更新布隆过滤器：</em></em></h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addComment</span><span class="params">(Comment comment)</span> &#123;    </span><br><span class="line">    <span class="comment">// 插入数据库    </span></span><br><span class="line">    commentDao.insert(comment);    </span><br><span class="line">    <span class="comment">// 更新布隆过滤器    </span></span><br><span class="line">    <span class="type">String</span> <span class="variable">queryKey</span> <span class="operator">=</span> generateQueryKey(comment);    </span><br><span class="line">    filter.put(queryKey);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="-8"><a href="#-8" class="headerlink" title="** **"></a>** **</h4><h4 id="-9"><a href="#-9" class="headerlink" title="** **"></a>** **</h4><p><strong>性能对比（1亿数据实测）</strong></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-2/640-1741793995897-5.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-2/640-1741793995897-5.png" class="">
+
+
+
 <h3 id="避坑指南：三个模糊查询的禁忌"><a href="#避坑指南：三个模糊查询的禁忌" class="headerlink" title="避坑指南：三个模糊查询的禁忌"></a><strong>避坑指南：三个模糊查询的禁忌</strong></h3><ol>
 <li><strong>禁止全模糊LIKE</strong>：<code>LIKE &#39;%xxx%&#39;</code>必须转换为分词或前缀匹配</li>
 <li><strong>避免大字段索引</strong>：<code>TEXT</code>类型字段建索引需用前缀或分词</li>

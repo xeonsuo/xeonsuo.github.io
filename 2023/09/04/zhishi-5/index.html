@@ -62,7 +62,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-05-07 22:15:41'
+  postUpdate: '2025-05-07 23:06:16'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -237,7 +237,10 @@ document.addEventListener('pjax:send', () => {
 <li><strong>一级分片</strong>：按短码首字符分库（Base62共62种字符 → 62个库）</li>
 <li><strong>二级分片</strong>：按短码CRC32哈希值分表（单库分1024表）</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-5/640.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-5/640.png" class="">
+
+
+
 <p>拓展知识：为什么在短链系统设计中选用 <strong>Base62</strong> 而非 <strong>Base64？</strong></p>
 <table>
 <thead>
@@ -278,7 +281,8 @@ document.addEventListener('pjax:send', () => {
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-- KEYS[1]=短码, ARGV[1]=长链接  if redis.call(&#x27;SETNX&#x27;, KEYS[1], ARGV[1]) == 1 then      redis.call(&#x27;EXPIRE&#x27;, KEYS[1], 604800) -- 7天过期      return 1  else      return 0  end  </span><br></pre></td></tr></table></figure>
 
 <p><strong>三、</strong><em><strong>*高可用设计：如何做到全年无宕机？*</strong></em></p>
-<h4 id="1-多机房双活架构"><a href="#1-多机房双活架构" class="headerlink" title="1. 多机房双活架构"></a><strong>1. 多机房双活架构</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-5/640-1741876605436-1.png" alt="图片"></p>
+<h4 id="1-多机房双活架构"><a href="#1-多机房双活架构" class="headerlink" title="1. 多机房双活架构"></a><strong>1. 多机房双活架构</strong></h4> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-5/640-1741876605436-1.png" class="">
+
 <ul>
 <li><strong>流量调度</strong>：基于RTT延迟自动选择最优机房</li>
 <li><strong>数据同步</strong>：使用Binlog + Kafka实现跨机房同步</li>

@@ -63,7 +63,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-05-07 22:15:41'
+  postUpdate: '2025-05-07 23:06:16'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -179,7 +179,8 @@ document.addEventListener('pjax:send', () => {
 <li><strong>A（可用性）</strong>：请求总能获得响应</li>
 <li><strong>P（分区容忍性）</strong>：网络分区时系统仍能工作</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/03/zhishi-1/640.png" class="">
+
 <p>关于更多一致性理论，可以阅读我之前的文章：</p>
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzU1ODk1NTQ0Mg==&mid=2247484959&idx=1&sn=b7067cd9b991391523ba0c07d8372dec&scene=21#wechat_redirect">分布式事务模型详解</a></p>
 <p><strong>注册中心的抉择</strong>：</p>
@@ -205,7 +206,8 @@ document.addEventListener('pjax:send', () => {
 <li><strong>持久化服务实例</strong>就是不需要上报心跳的，不会被自动摘除，除非手动移除实例，如果实例宕机了，Nacos 只会将这个客户端标记为不健康。</li>
 </ul>
 <p>**<br>**</p>
-<h3 id="二、-Nacos的AP模式实现原理"><a href="#二、-Nacos的AP模式实现原理" class="headerlink" title="二、*Nacos的AP模式实现原理*"></a><strong>二、</strong><em><strong>*Nacos的AP模式实现原理*</strong></em></h3><h4 id="1-去中心化架构"><a href="#1-去中心化架构" class="headerlink" title="1. 去中心化架构"></a><strong>1. 去中心化架构</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640-1741793084223-1.png" alt="图片"></p>
+<h3 id="二、-Nacos的AP模式实现原理"><a href="#二、-Nacos的AP模式实现原理" class="headerlink" title="二、*Nacos的AP模式实现原理*"></a><strong>二、</strong><em><strong>*Nacos的AP模式实现原理*</strong></em></h3><h4 id="1-去中心化架构"><a href="#1-去中心化架构" class="headerlink" title="1. 去中心化架构"></a><strong>1. 去中心化架构</strong></h4> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/03/zhishi-1/640-1741793084223-1.png" class="">
+
 <ul>
 <li><strong>服务注册</strong>：客户端可连接任意节点，数据异步复制到集群</li>
 <li><strong>最终一致性</strong>：允许短暂数据不一致，但最终所有节点数据一致</li>
@@ -274,7 +276,8 @@ document.addEventListener('pjax:send', () => {
 <li><strong>99%场景选择AP模式</strong>：注册中心的核心目标是高可用，容忍秒级数据不一致</li>
 <li><strong>CP模式慎用</strong>：仅适用于强一致性要求的特殊场景</li>
 </ul>
-<h4 id="-8"><a href="#-8" class="headerlink" title="** **"></a>** **</h4><h4 id="2-高可用架构设计"><a href="#2-高可用架构设计" class="headerlink" title="2. 高可用架构设计"></a><strong>2. 高可用架构设计</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-1/640-1741793084223-2.png" alt="图片"></p>
+<h4 id="-8"><a href="#-8" class="headerlink" title="** **"></a>** **</h4><h4 id="2-高可用架构设计"><a href="#2-高可用架构设计" class="headerlink" title="2. 高可用架构设计"></a><strong>2. 高可用架构设计</strong></h4> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/03/zhishi-1/640-1741793084223-2.png" class="">
+
 <ul>
 <li><strong>多节点部署</strong>：至少3节点，跨机房容灾</li>
 <li><strong>客户端容错</strong>：配置多个Nacos地址，自动切换可用节点</li>

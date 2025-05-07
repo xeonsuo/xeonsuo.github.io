@@ -1,9 +1,9 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Zookeeper 结点特性详解 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;  ZooKeepe">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Zookeeper 结点特性详解 | Calico's Space</title><meta name="author" content="Calico"><meta name="copyright" content="Calico"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;    ZooKee">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Zookeeper 结点特性详解">
 <meta property="og:url" content="http://xeons.cn/2023/09/06/zhishi-12/index.html">
 <meta property="og:site_name" content="Calico&#39;s Space">
-<meta property="og:description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;  ZooKeepe">
+<meta property="og:description" content="1. Zookeeper介绍 ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。 官方：https:&#x2F;&#x2F;zookeeper.apache.org&#x2F;    ZooKee">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://xeons.cn/2023/09/06/zhishi-12/640.png">
 <meta property="article:published_time" content="2023-09-06T10:45:07.000Z">
@@ -62,7 +62,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: false,
-  postUpdate: '2025-05-07 22:15:41'
+  postUpdate: '2025-05-07 23:06:15'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -170,15 +170,20 @@ document.addEventListener('pjax:send', () => {
 </script><link rel="stylesheet" href="/css/loading_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/calico.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">64</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">35</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Calico's Space"><span class="site-name">Calico's Space</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list hide"></i><span> 其他</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/demopage/"><i class="fa-fw fas fa-music"></i><span> Theme测试页</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">Zookeeper 结点特性详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2023-09-06T10:45:07.000Z" title="发表于 2023-09-06 18:45:07">2023-09-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/">dev</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/dev/%E6%AF%8F%E6%97%A5%E6%96%B0%E7%9F%A5/">每日新知</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Zookeeper 结点特性详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="post-content" id="article-container"><p><strong>1. Zookeeper介绍</strong></p>
 <p>ZooKeeper 是一个开源的分布式协调框架，是Apache Hadoop 的一个子项目，主要用来解决分布式集群中应用系统的一致性问题。Zookeeper 的设计目标是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。</p>
 <p>官方：<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/">https://zookeeper.apache.org/</a></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640.png" class="">
+
 <p>ZooKeeper本质上是一个分布式的小文件存储系统（Zookeeper&#x3D;文件系统+监听机制）。提供基于类似于文件系统的目录树方式的数据存储，并且可以对树中的节点进行有效管理，从而用来维护和监控存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理、统一命名服务、分布式配置管理、分布式消息队列、分布式锁、分布式协调等功能。</p>
 <p>Zookeeper从设计模式角度来理解：是一个基于观察者模式设计的分布式服务管理框架，它负责存储和管理大家都关心的数据，然后接受观察者的注册，一旦这些数据的状态发生变化，Zookeeper 就将负责通知已经在Zookeeper上注册的那些观察者做出相应的反应。</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-1.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-1.png" class="">
+
+
+
 <p><strong>2. Zookeeper快速开始</strong></p>
 <p><strong>2.1 Zookeeper安装</strong></p>
 <p>下载地址：<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/releases.html">https://zookeeper.apache.org/releases.html</a></p>
 <p>运行环境：jdk8</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-2.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-2.png" class="">
+
 <p><strong>1）修改配置文件</strong></p>
 <p>解压安装包后进入conf目录，复制zoo_sample.cfg，修改为zoo.cfg</p>
 <p>- </p>
@@ -186,7 +191,8 @@ document.addEventListener('pjax:send', () => {
 
 <p>修改 zoo.cfg 配置文件，将 dataDir&#x3D;&#x2F;tmp&#x2F;zookeeper 修改为指定的data目录</p>
 <p><strong>zoo.cfg中参数含义：</strong> </p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-3.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-3.png" class="">
+
 <p>**<br>**</p>
 <p><strong>2）启动zookeeper server</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 可以通过 bin/zkServer.sh  来查看都支持哪些参数 # 默认加载配置路径conf/zoo.cfgbin/zkServer.sh startbin/zkServer.sh start conf/my_zoo.cfg# 查看zookeeper状态bin/zkServer.sh status</span><br></pre></td></tr></table></figure>
@@ -196,7 +202,8 @@ document.addEventListener('pjax:send', () => {
 
 <p><strong>2.2 客户端命令行操作</strong></p>
 <p>输入命令 help 查看zookeeper支持的所有命令：</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-4.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-4.png" class="">
+
 <p><strong>常见cli命令</strong></p>
 <p><a target="_blank" rel="noopener" href="https://zookeeper.apache.org/doc/r3.8.0/zookeeperCLI.html">https://zookeeper.apache.org/doc/r3.8.0/zookeeperCLI.html</a></p>
 <table>
@@ -262,7 +269,8 @@ document.addEventListener('pjax:send', () => {
 </ul>
 <p><strong>3. ZooKeeper数据结构</strong> </p>
 <p>ZooKeeper 数据模型的结构与 Unix 文件系统很类似，整体上可以看作是一棵树，每个节点称做一个 ZNode。</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-5.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-5.png" class="">
+
 <p>ZooKeeper的数据模型是层次模型，层次模型常见于文件系统。层次模型和key-value模型是两种主流的数据模型。ZooKeeper使用文件系统模型主要基于以下两点考虑:</p>
 <ol>
 <li>文件系统的树形结构便于表达数据之间的层次关系</li>
@@ -321,7 +329,8 @@ document.addEventListener('pjax:send', () => {
 <ol start="5">
 <li>Container节点 (3.5.3版本新增)：Container容器节点，当容器中没有任何子节点，该容器节点会被zk定期删除（定时任务默认60s 检查一次)。 和持久节点的区别是 ZK 服务端启动后，会有一个单独的线程去扫描，所有的容器节点，当发现容器节点的子节点数量为 0 时，会自动删除该节点。可以用于 leader 或者锁的场景中。</li>
 </ol>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-6.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-6.png" class="">
+
 <ol start="6">
 <li>TTL节点:  带过期时间节点，默认禁用，需要在zoo.cfg中添加 extendedTypesEnabled&#x3D;true 开启。</li>
 </ol>
@@ -340,7 +349,8 @@ document.addEventListener('pjax:send', () => {
 
 <p><strong>节点状态信息</strong></p>
 <p>类似于树状结构，节点下面是可以存储一些信息和属性的。可以通过stat命令来进行查看。</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714072-7.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714072-7.png" class="">
+
 <ul>
 <li>cZxid ：Znode创建的事务id。</li>
 <li>ctime：节点创建时的时间戳。</li>
@@ -369,7 +379,8 @@ document.addEventListener('pjax:send', () => {
 </li>
 </ul>
 <p><strong>示例：zookeeper乐观锁删除</strong></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-8.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-8.png" class="">
+
 <p>**<br>**</p>
 <p><strong>3.2 监听机制详解</strong></p>
 <p>watch机制，顾名思义是一个监听机制。Zookeeper中的watch机制，必须客户端先去服务端注册监听，这样事件发送才会触发监听，通知给客户端。</p>
@@ -430,11 +441,13 @@ document.addEventListener('pjax:send', () => {
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">master1create -e /master <span class="string">&quot;m1:2223&quot;</span>  <span class="comment">#master2create -e /master &quot;m2:2223&quot;   # /master已经存在，创建失败Node already exists: /master#监听/master节点stat -w /master#当master2收到/master节点删除通知后可以再次发起创建节点操作create -e /master &quot;m2:2223&quot;</span></span> </span><br></pre></td></tr></table></figure>
 
 <p>master-slave选举也可以用这种方式</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-9.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-9.png" class="">
+
 <p>master监控worker状态的设计思路</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">master服务create /workers<span class="comment">#让master服务监控/workers下的子节点ls -w /workers#worker1create -e /workers/w1 &quot;w1:2224&quot; #创建子节点，master服务会收到子节点变化通知#master服务ls -w /workers#worker2create -e /workers/w2 &quot;w2:2224&quot;  #创建子节点，master服务会收到子节点变化通知#master服务ls -w /workers#worker2quit  #worker2退出，master服务会收到子节点变化通知</span></span></span><br></pre></td></tr></table></figure>
 
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-10.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-10.png" class="">
+
 <p><strong>示例：条件更新</strong></p>
 <p>设想用znode &#x2F;c实现一个counter，使用set命令来实现自增1操作。条件更新场景∶</p>
 <ol>
@@ -443,16 +456,22 @@ document.addEventListener('pjax:send', () => {
 <li>客户端1不知道&#x2F;c已经被客户端⒉更新过了，还用过时的版本1是去更新&#x2F;c，更新失败。如果客户端1使用的是无条件更新，&#x2F;c就会更新为2，没有实现自增1。</li>
 </ol>
 <p>使用条件更新可以避免出现客户端基于过期的数据进行数据更新的操作。</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-11.png" alt="图片"></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-12.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-11.png" class="">
+
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-12.png" class="">
+
+
+
 <p><strong>3.3 节点特性总结</strong></p>
 <p><strong>1. 同一级节点 key 名称是唯一的</strong></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-13.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-13.png" class="">
+
 <p>已存在&#x2F;lock节点，再次创建会提示已经存在</p>
 <p><strong>2.创建节点时，必须要带上全路径</strong></p>
 <p><strong>3.session 关闭，临时节点清除</strong></p>
 <p><strong>4.自动创建顺序节点</strong></p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-14.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-14.png" class="">
+
 <p><strong>5.watch 机制，监听节点变化</strong></p>
 <p>事件监听机制类似于观察者模式，watch 流程是客户端向服务端某个节点路径上注册一个 watcher，同时客户端也会存储特定的 watcher，当节点数据或子节点发生变化时，服务端通知客户端，客户端进行回调处理。特别注意：监听事件被单次触发后，事件就失效了。</p>
 <p><strong>6.delete 命令只能一层一层删除。</strong>提示：新版本可以通过 deleteall 命令递归删除。</p>
@@ -483,7 +502,8 @@ document.addEventListener('pjax:send', () => {
 <p><strong>统一命名服务</strong></p>
 <p>在分布式环境下，经常需要对应用&#x2F;服务进行统一命名，便于识别。</p>
 <p>例如：IP不容易记住，而域名容易记住。</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-15.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-15.png" class="">
+
 <p>利用 ZooKeeper 顺序节点的特性，制作分布式的序列号生成器，或者叫 id 生成器。（分布式环境下使用作为数据库 id，另外一种是 UUID（缺点：没有规律）），ZooKeeper 可以生成有顺序的容易理解的同时支持分布式环境的编号。</p>
 <p>- </p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/</span><br><span class="line">└── /order    </span><br><span class="line">├── /order-date1-000000000000001    </span><br><span class="line">├── /order-date2-000000000000002    </span><br><span class="line">├── /order-date3-000000000000003    </span><br><span class="line">├── /order-date4-000000000000004    </span><br><span class="line">└── /order-date5-000000000000005</span><br></pre></td></tr></table></figure>
@@ -503,7 +523,8 @@ document.addEventListener('pjax:send', () => {
 <li>推: 服务端会推给注册了监控节点的客户端 Watcher 事件通知</li>
 <li>拉: 客户端获得通知后，然后主动到服务端拉取最新的数据</li>
 </ol>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-16.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-16.png" class="">
+
 <p><strong>统一集群管理</strong></p>
 <p>分布式环境中，实时掌握每个节点的状态是必要的，可根据节点实时状态做出一些调整。</p>
 <p>ZooKeeper可以实现实时监控节点状态变化：</p>
@@ -511,10 +532,12 @@ document.addEventListener('pjax:send', () => {
 <li>可将节点信息写入ZooKeeper上的一个ZNode。</li>
 <li>监听这个ZNode可获取它的实时状态变化。</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-17.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-17.png" class="">
+
 <p><strong>负载均衡</strong></p>
 <p>在Zookeeper中记录每台服务器的访问数，让访问数最少的服务器去处理最新的客户端请求</p>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-18.png" alt="图片"></p>
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-18.png" class="">
+
 <p><strong>Master-Worker架构</strong></p>
 <p>master-worker是一个广泛使用的分布式架构。 master-work架构中有一个master负责监控worker的状态，并为</p>
 <p>worker分配任务。</p>
@@ -523,8 +546,7 @@ document.addEventListener('pjax:send', () => {
 <li>系统中除了处于active状态的master还有一个backup master，如果active master失败了，backup master可以很快的进入active状态。</li>
 <li>master实时监控worker的状态，能够及时收到worker成员变化的通知。master在收到worker成员变化的时候，通常重新进行任务的重新分配。</li>
 </ul>
-<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-12/640-1742218714073-19.png" alt="图片"></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/06/zhishi-12/">http://xeons.cn/2023/09/06/zhishi-12/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
+ <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/06/zhishi-12/640-1742218714073-19.png" class=""></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://xeons.cn">Calico</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://xeons.cn/2023/09/06/zhishi-12/">http://xeons.cn/2023/09/06/zhishi-12/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xeons.cn" target="_blank">Calico's Space</a>！</span></div></div><script>function setClipboardText(event){
     let clipboardData = event.clipboardData || window.clipboardData;
     if (!clipboardData) { return; }
     event.preventDefault();

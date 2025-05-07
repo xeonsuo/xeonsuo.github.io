@@ -62,7 +62,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2025-05-07 22:15:41'
+  postUpdate: '2025-05-07 23:06:16'
 }</script><script>(win=>{
       win.saveToLocal = {
         set: (key, value, ttl) => {
@@ -186,7 +186,8 @@ document.addEventListener('pjax:send', () => {
 <p>路灯坏了，路人会立刻通知（TCP层检测连接断开）。</p>
 </li>
 </ul>
-<h3 id="三、零心跳架构设计详解"><a href="#三、零心跳架构设计详解" class="headerlink" title="三、零心跳架构设计详解"></a><strong>三、零心跳架构设计详解</strong></h3><h4 id="1-架构图："><a href="#1-架构图：" class="headerlink" title="1. 架构图："></a><strong>1. 架构图：</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-3/640.png" alt="图片"></p>
+<h3 id="三、零心跳架构设计详解"><a href="#三、零心跳架构设计详解" class="headerlink" title="三、零心跳架构设计详解"></a><strong>三、零心跳架构设计详解</strong></h3><h4 id="1-架构图："><a href="#1-架构图：" class="headerlink" title="1. 架构图："></a><strong>1. 架构图：</strong></h4> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-3/640.png" class="">
+
 <h4 id=""><a href="#" class="headerlink" title="** **"></a>** **</h4><h4 id="2-关键技术实现"><a href="#2-关键技术实现" class="headerlink" title="2. 关键技术实现"></a><strong>2. 关键技术实现</strong></h4><h5 id="①-事件驱动：用“智能助手”主动上报状态"><a href="#①-事件驱动：用“智能助手”主动上报状态" class="headerlink" title="① 事件驱动：用“智能助手”主动上报状态"></a><strong>① 事件驱动：用“智能助手”主动上报状态</strong></h5><ul>
 <li><p><strong>角色：Sidecar代理（如Envoy）</strong></p>
 </li>
@@ -239,7 +240,8 @@ document.addEventListener('pjax:send', () => {
 
 
 
-<h4 id="3-实战案例：电商系统改造对比"><a href="#3-实战案例：电商系统改造对比" class="headerlink" title="3. 实战案例：电商系统改造对比"></a><strong>3. 实战案例：电商系统改造对比</strong></h4><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/./zhishi-3/640-1741874948617-18.png" alt="图片"></p>
+<h4 id="3-实战案例：电商系统改造对比"><a href="#3-实战案例：电商系统改造对比" class="headerlink" title="3. 实战案例：电商系统改造对比"></a><strong>3. 实战案例：电商系统改造对比</strong></h4> <img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/2023/09/04/zhishi-3/640-1741874948617-18.png" class="">
+
 <h3 id="四、风险与应对"><a href="#四、风险与应对" class="headerlink" title="四、风险与应对"></a><strong>四、风险与应对</strong></h3><h4 id="①-网络抖动误判风险"><a href="#①-网络抖动误判风险" class="headerlink" title="① 网络抖动误判风险"></a><strong>① 网络抖动误判风险</strong></h4><ul>
 <li><p>问题</p>
 <p>短暂网络波动导致TCP误判连接断开。</p>
